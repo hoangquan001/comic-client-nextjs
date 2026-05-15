@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /tai-khoan/
+Disallow: /auth/login
+Disallow: /auth/forgot-password
+Disallow: /auth/register
+Disallow: /lich-su
+Disallow: /theo-doi
+
+Sitemap: https://metruyenmoi.org/sitemap.xml

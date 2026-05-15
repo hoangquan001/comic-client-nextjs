@@ -1,26 +1,471 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-light-text: #e5e7eb;
+  --color-dark-text: #000;
+  --color-light-bg: #fff;
+  --color-dark-bg: #191A1C;
+  --color-primary-50: #FFC49B;
+  --color-primary-100: #F86E4C;
+  --color-primary-200: #D04C2E;
+  --color-primary-300: #A92811;
+  --color-primary-400: #820000;
+  --color-primary-500: #5F0000;
+  --color-secondary-100: #050505;
+  --breakpoint-xs: 480px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 940px;
+  --breakpoint-xl: 1100px;
+  --breakpoint-2xl: 1200px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root,
+html,
+body {
+  font-family: "Roboto", sans-serif;
+  scroll-behavior: smooth !important;
+  overflow-x: hidden;
+}
+
+.wrapper-container {
+  @apply bg-white dark:bg-dark-bg dark:text-light-text;
+}
+
+main {
+  @apply min-h-[80vh] flex flex-col bg-white dark:bg-dark-bg;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-neutral-200 dark:bg-neutral-600 rounded-lg cursor-pointer;
+}
+
+.scrollbar-style-1::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.block-title {
+  @apply text-xl uppercase font-extrabold leading-3 flex min-h-full px-2 text-center items-center justify-center text-gray-700 dark:text-light-text mt-0.5;
+}
+
+.card-v1-container {
+  @apply border border-neutral-200 dark:border-neutral-700 shadow-none sm:shadow-md relative h-full flex flex-col rounded-t-lg rounded-b-md overflow-hidden;
+}
+
+.comic-title {
+  @apply font-semibold line-clamp-2 text-sm;
+}
+
+/* ===== CHAPTER READER ===== */
+.chapter-container {
+  @apply relative bg-[#333] dark:bg-dark-bg flex flex-col overflow-y-auto overflow-x-hidden;
+}
+
+.header-container {
+  @apply text-white mx-auto md:container w-full mb-3;
+}
+
+.breadcrumb-wrapper {
+  @apply z-10 my-2 mx-auto flex;
+}
+
+.main-container {
+  @apply min-h-screen mx-auto md:container w-full;
+}
+
+.chapter-header-container {
+  @apply relative mx-auto flex flex-col items-center font-bold text-base w-full z-10;
+}
+
+.chapter-header-card {
+  @apply bg-white dark:bg-neutral-800 border text-black dark:text-light-text p-4 lg:p-6 w-full rounded-t-xl dark:border-neutral-700 z-20;
+}
+
+.chapter-info-section {
+  @apply text-center space-y-4;
+}
+
+.comic-title-section {
+  @apply space-y-2;
+}
+
+.chapter-reader-title {
+  @apply text-center;
+}
+
+.comic-title-link {
+  @apply text-xl lg:text-2xl font-bold text-gray-700 dark:text-primary-100 hover:text-primary-200 hover:underline transition-colors duration-200 cursor-pointer;
+}
+
+.chapter-details {
+  @apply space-y-3;
+}
+
+.chapter-title {
+  @apply text-base lg:text-lg font-semibold text-gray-900 dark:text-light-text;
+}
+
+.chapter-date {
+  @apply text-xs font-medium text-gray-500 dark:text-gray-300;
+}
+
+.server-selection-section {
+  @apply mt-4;
+}
+
+.server-list {
+  @apply flex flex-wrap items-center justify-center gap-3;
+}
+
+.server-button {
+  @apply flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-neutral-700 hover:bg-gray-200 dark:hover:bg-neutral-600 text-gray-600 dark:text-gray-300 rounded-lg border border-gray-200 dark:border-neutral-600 text-sm font-medium;
+
+  &.server-button-active {
+    @apply text-sky-500 border-sky-500;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.server-icon {
+  @apply w-5 h-5;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.server-text {
+  @apply font-medium;
+}
+
+.server-expand-button {
+  @apply flex items-center justify-center p-2 bg-gray-100 dark:bg-neutral-700 hover:bg-gray-200 dark:hover:bg-neutral-600 text-gray-600 dark:text-gray-300 rounded-lg border border-gray-200 dark:border-neutral-600;
+}
+
+.expand-icon {
+  @apply w-5 h-5 transition-transform duration-200;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+
+  &.expand-icon-rotated {
+    @apply rotate-180;
+  }
+}
+
+.report-error-button {
+  @apply flex items-center gap-2 px-3 py-1.5 bg-yellow-50 dark:bg-yellow-900/20 hover:bg-yellow-100 dark:hover:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 rounded-lg border border-yellow-200 dark:border-yellow-800 hover:border-yellow-300 dark:hover:border-yellow-700;
+}
+
+.report-icon {
+  @apply w-5 h-5;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.report-text {
+  @apply text-xs font-bold;
+}
+
+.control-bar {
+  @apply flex border justify-center max-w-full items-center z-10 rounded-b-lg py-1.5 px-2 gap-2 md:gap-3;
+  @apply bg-white dark:bg-neutral-800 dark:border-neutral-700;
+  @apply transition-[top] duration-500 ease-in-out z-[999];
+
+  &.sticky-top {
+    @apply fixed top-0 border;
+  }
+
+  &.sticky-invisible {
+    @apply fixed -top-12;
+  }
+
+  &.sticky-top,
+  &.sticky-invisible {
+    @apply left-0 right-0 rounded-none;
+  }
+}
+
+.control-group {
+  @apply z-10 flex items-center gap-2;
+}
+
+.control-button {
+  @apply flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary-100 hover:bg-gray-100 dark:hover:bg-neutral-700 rounded-lg border border-gray-200 dark:border-neutral-600 hover:border-primary-100/50;
+
+  &.control-button-home {
+    @apply text-primary-100 border-primary-100/30 bg-primary-100/5;
+  }
+
+  &.settings-button {
+    @apply bg-gray-50 dark:bg-neutral-700;
+  }
+}
+
+.control-icon {
+  @apply w-4 h-4;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chapter-navigation-group {
+  @apply flex items-center gap-1 px-4;
+}
+
+.nav-button {
+  @apply flex items-center gap-2 px-2 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-white bg-gray-200 dark:bg-neutral-600 hover:bg-primary-100 rounded-lg border-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed;
+
+  &.nav-button-active {
+    @apply text-white bg-primary-100;
+  }
+}
+
+.nav-icon {
+  @apply w-5 h-5;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chapter-selector-wrapper {
+  @apply mx-1;
+}
+
+.zoom-group {
+  @apply relative;
+}
+
+.zoom-panel {
+  @apply absolute bg-white dark:bg-neutral-800 rounded-lg shadow-lg border border-gray-200 dark:border-neutral-700 top-12 p-4 space-y-3 items-center -translate-x-full min-w-40 z-[9999];
+}
+
+.zoom-info {
+  @apply flex items-center gap-4 w-full;
+}
+
+.zoom-percentage {
+  @apply text-primary-100 text-sm font-semibold min-w-12;
+}
+
+.zoom-controls {
+  @apply flex gap-2;
+}
+
+.zoom-control-btn {
+  @apply flex items-center justify-center w-8 h-8 text-gray-600 dark:text-gray-300 hover:text-primary-100 hover:bg-gray-100 dark:hover:bg-neutral-700 rounded-md transition-all duration-200;
+}
+
+.zoom-control-icon {
+  @apply w-4 h-4;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.zoom-reset-btn {
+  @apply flex items-center gap-2 px-3 py-1.5 bg-primary-100 hover:bg-primary-200 text-white text-sm font-medium rounded-lg border-none cursor-pointer;
+}
+
+.zoom-reset-icon {
+  @apply w-4 h-4;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.reading-container {
+  @apply sm:px-[5%] md:px-[15%] relative z-0 mt-2;
+}
+
+.reading-content {
+  @apply relative min-h-screen;
+}
+
+.loading-container {
+  @apply flex flex-col items-center justify-center mt-10 space-y-8 p-8;
+}
+
+.loading-content {
+  @apply flex flex-col items-center space-y-4;
+}
+
+.loading-spinner {
+  @apply relative;
+}
+
+.loading-icon {
+  @apply w-16 h-16 text-primary-100;
+}
+
+.loading-circle-bg {
+  @apply opacity-25;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+}
+
+.loading-circle-progress {
+  @apply opacity-75;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  animation: loading-progress 2s ease-in-out infinite;
+  stroke-dasharray: 31.416;
+  stroke-dashoffset: 31.416;
+}
+
+@keyframes loading-progress {
+  0% { stroke-dashoffset: 31.416; }
+  50% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -31.416; }
+}
+
+.loading-title {
+  @apply text-xl font-bold text-gray-900 dark:text-light-text;
+}
+
+.loading-subtitle {
+  @apply text-sm text-gray-600 dark:text-gray-400;
+}
+
+.page-chapter {
+  @apply block relative object-contain mx-auto;
+}
+
+.chapter-page-image {
+  @apply object-cover w-full h-full;
+
+  &.chapter-page-horizontal {
+    @apply min-w-80 h-full;
+  }
+
+  &.night-mode {
+    filter: brightness(0.9) sepia(0.4);
+  }
+}
+
+.end-chapter-navigation {
+  @apply flex justify-center w-full mt-8 mb-6;
+}
+
+.end-chapter-content {
+  @apply flex items-center justify-between w-full max-w-4xl gap-6 p-6 bg-white dark:bg-neutral-800 rounded-xl border border-gray-200 dark:border-neutral-700 shadow-sm;
+}
+
+.end-nav-button {
+  @apply flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-white bg-gray-100 dark:bg-neutral-700 hover:bg-primary-100 rounded-lg transition-all duration-200 border border-gray-200 dark:border-neutral-600 cursor-pointer;
+}
+
+.end-nav-icon {
+  @apply w-5 h-5;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.end-nav-text {
+  @apply font-medium;
+}
+
+.end-chapter-info {
+  @apply text-center space-y-2 flex-1 hidden sm:block;
+}
+
+.end-chapter-title {
+  @apply text-lg font-bold text-gray-900 dark:text-light-text;
+}
+
+.end-chapter-subtitle {
+  @apply text-sm text-gray-600 dark:text-gray-400;
+}
+
+.scroll-to-top-btn {
+  @apply fixed bottom-6 right-6 z-40 flex items-center gap-2 px-4 py-3 bg-primary-100 hover:bg-primary-200 text-white rounded-full shadow-lg transition-all duration-300 opacity-0 translate-y-4 pointer-events-none;
+
+  &.scroll-to-top-visible {
+    @apply opacity-100 translate-y-0 pointer-events-auto;
+  }
+}
+
+.scroll-to-top-icon {
+  @apply w-5 h-5;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (max-width: 768px) {
+  .chapter-navigation-group {
+    @apply px-1 gap-0;
+  }
+
+  .nav-button {
+    @apply px-1 py-1.5 text-xs;
+  }
+
+  .end-nav-button {
+    @apply w-full justify-center;
+  }
+
+  .scroll-to-top-btn {
+    @apply bottom-4 right-4 px-3 py-2;
+  }
+}
+
+@media (max-width: 640px) {
+  .chapter-header-card {
+    @apply p-3 rounded-t-lg;
+  }
+
+  .comic-title-link {
+    @apply text-lg;
+  }
+
+  .chapter-title {
+    @apply text-sm;
+  }
+
+  .server-list {
+    @apply gap-2;
+  }
+
+  .server-button {
+    @apply px-3 py-1.5 text-xs;
+  }
+
+  .end-nav-text,
+  .scroll-to-top-text {
+    @apply hidden;
+  }
 }

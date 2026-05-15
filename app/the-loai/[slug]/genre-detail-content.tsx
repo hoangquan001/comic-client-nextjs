@@ -1,0 +1,176 @@
+'use client';
+
+import { useSearchParams, useRouter, useParams } from 'next/navigation';
+import { useComics } from '@/lib/hooks/use-comic-queries';
+import { GridComic } from '@/components/common/grid-comic/grid-comic';
+import { Pagination } from '@/components/common/pagination/pagination';
+import { Spinner } from '@/components/common/spinner/spinner';
+import { GENRES } from '@/lib/constants/genres';
+import { SortType, ComicStatus } from '@/types';
+import Link from 'next/link';
+
+const SORT_OPTIONS = [
+  { value: SortType.LastUpdate, label: 'Mới cập nhật' },
+  { value: SortType.TopAll, label: 'Top All' },
+  { value: SortType.TopMonth, label: 'Top Tháng' },
+  { value: SortType.TopWeek, label: 'Top Tuần' },
+  { value: SortType.TopDay, label: 'Top Ngày' },
+  { value: SortType.TopFollow, label: 'Theo dõi' },
+  { value: SortType.TopComment, label: 'Bình luận' },
+  { value: SortType.NewComic, label: 'Truyện mới' },
+];
+
+const STATUS_OPTIONS = [
+  { value: ComicStatus.ALL, label: 'Tất cả' },
+  { value: ComicStatus.ONGOING, label: 'Đang ra' },
+  { value: ComicStatus.COMPLETED, label: 'Hoàn thành' },
+];
+
+export default function GenreDetailContent() {
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const slug = params.slug as string;
+  const currentGenre = GENRES.find((g) => g.slug === slug);
+
+  const page = Number(searchParams.get('page')) || 1;
+  const sort = Number(searchParams.get('sort')) >= 0 ? Number(searchParams.get('sort')) : SortType.LastUpdate;
+  const status = Number(searchParams.get('status')) >= 0 ? Number(searchParams.get('status')) : ComicStatus.ALL;
+
+  const { data, isLoading } = useComics({
+    page: String(page),
+    step: '35',
+    genre: currentGenre ? String(currentGenre.id) : undefined,
+    sort: String(sort),
+    status: String(status),
+  });
+
+  const comics = data?.comics ?? [];
+  const totalpage = data?.totalpage ?? 1;
+
+  const updateQuery = (updates: Record<string, string | number>) => {
+    const sp = new URLSearchParams(searchParams.toString());
+    for (const [key, value] of Object.entries(updates)) {
+      if (value === undefined || value === -1) {
+        sp.delete(key);
+      } else {
+        sp.set(key, String(value));
+      }
+    }
+    router.push(`/the-loai/${slug}?${sp.toString()}#listComic`);
+  };
+
+  if (!currentGenre) {
+    return (
+      <div className="container mx-auto px-3 py-8 text-center">
+        <h1 className="text-2xl font-bold mb-4">Thể loại không tồn tại</h1>
+        <Link href="/the-loai" className="text-blue-600 hover:underline">Quay lại danh sách thể loại</Link>
+      </div>
+    );
+  }
+
+  const description = currentGenre.description || `Khám phá kho tàng truyện tranh thể loại ${currentGenre.title} với những câu chuyện hấp dẫn, đa dạng và phong phú.`;
+
+  return (
+    <div className="container mx-auto px-3 py-4">
+      {/* Breadcrumb */}
+      <nav className="flex items-center gap-2 text-sm mb-5 text-neutral-500">
+        <Link href="/" className="hover:text-primary-100">Trang chủ</Link>
+        <span>/</span>
+        <Link href="/the-loai" className="hover:text-primary-100">Thể loại</Link>
+        <span>/</span>
+        <span className="text-neutral-800 dark:text-neutral-200 font-medium">{currentGenre.title}</span>
+      </nav>
+
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
+        {/* Comics Section */}
+        <div className="xl:col-span-9">
+          {/* Genre Header */}
+          <div className="mb-4">
+            <h1 className="text-2xl font-bold inline-flex items-center gap-2">
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                <path d="M5 10H7C9 10 10 9 10 7V5C10 3 9 2 7 2H5C3 2 2 3 2 5V7C2 9 3 10 5 10Z" />
+                <path d="M17 10H19C21 10 22 9 22 7V5C22 3 21 2 19 2H17C15 2 14 3 14 5V7C14 9 15 10 17 10Z" />
+                <path d="M17 22H19C21 22 22 21 22 19V17C22 15 21 14 19 14H17C15 14 14 15 14 17V19C14 21 15 22 17 22Z" />
+                <path d="M5 22H7C9 22 10 21 10 19V17C10 15 9 14 7 14H5C3 14 2 15 2 17V19C2 21 3 22 5 22Z" />
+              </svg>
+              Thể loại {currentGenre.title}
+              <span className="text-lg font-normal opacity-70">({totalpage * 35} truyện)</span>
+            </h1>
+            <p className="text-sm opacity-70 mt-1">{description}</p>
+          </div>
+
+          {/* Filters */}
+          <div className="flex flex-wrap items-center gap-4 mb-4">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium">Sắp xếp:</label>
+              <select
+                value={sort}
+                onChange={(e) => updateQuery({ sort: e.target.value, page: 1 })}
+                className="px-3 py-1.5 rounded-lg bg-white/70 dark:bg-zinc-900/60 border border-zinc-200/60 dark:border-zinc-800 text-sm outline-none"
+              >
+                {SORT_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium">Trạng thái:</label>
+              <select
+                value={status}
+                onChange={(e) => updateQuery({ status: e.target.value, page: 1 })}
+                className="px-3 py-1.5 rounded-lg bg-white/70 dark:bg-zinc-900/60 border border-zinc-200/60 dark:border-zinc-800 text-sm outline-none"
+              >
+                {STATUS_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Comics Grid */}
+          {isLoading ? (
+            <Spinner />
+          ) : (
+            <GridComic listComics={comics} title="" />
+          )}
+
+          <Pagination
+            currentPage={page}
+            totalpage={totalpage}
+            rootLink={`/the-loai/${slug}`}
+          />
+        </div>
+
+        {/* Genre Sidebar */}
+        <div className="xl:col-span-3">
+          <div className="rounded-2xl p-4 bg-white/80 dark:bg-zinc-900/60 border border-zinc-200/60 dark:border-zinc-800">
+            <h2 className="text-lg uppercase font-bold mb-3 flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+              Danh sách thể loại
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-2 gap-2">
+              {GENRES.map((genre) => (
+                <Link
+                  key={genre.id}
+                  href={`/the-loai/${genre.slug}`}
+                  title={genre.title}
+                  className={`px-3 py-2 rounded-md text-sm font-medium no-underline transition-colors ${
+                    genre.slug === slug
+                      ? 'bg-primary-100 text-white'
+                      : 'bg-neutral-100 dark:bg-neutral-700 text-gray-700 dark:text-gray-200 hover:text-white hover:bg-primary-100'
+                  }`}
+                >
+                  {genre.title}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
