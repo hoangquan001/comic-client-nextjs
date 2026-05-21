@@ -1,15 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useTheme } from 'next-themes';
 import { UserMenu } from './user-menu';
+import { SearchBox } from '@/components/common/search-result/search-result';
+import NotifyBell from '@/components/common/notify/notify-bell';
+import GenreCategories from '@/components/common/genre-categories/genre-categories';
+import { ThemeToggle } from '../common/them-toggle';
 
 const NAV_LINKS = [
   { href: '/truyen-hot', label: 'Hot', icon: 'M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z' },
+  { href: '/theo-doi', label: 'Theo dõi', icon: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z' },
   { href: '/xep-hang', label: 'Xếp hạng', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
   { href: '/tim-truyen', label: 'Tìm kiếm nâng cao', icon: 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' },
-  { href: '/theo-doi', label: 'Theo dõi', icon: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z' },
   { href: '/lich-su', label: 'Lịch sử', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
   { href: '/tro-ly-ai', label: 'Trợ lý AI', icon: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z' },
 ];
@@ -17,49 +22,45 @@ const NAV_LINKS = [
 export function Header() {
   const [showSidebar, setShowSidebar] = useState(false);
   const [showGenre, setShowGenre] = useState(false);
-  const { theme, setTheme } = useTheme();
+  const genreTimeoutRef = useRef<NodeJS.Timeout>(undefined);
 
-  const isDark = theme === 'dark';
+  const handleGenreEnter = () => {
+    if (genreTimeoutRef.current) clearTimeout(genreTimeoutRef.current);
+    setShowGenre(true);
+  };
 
-  const toggleTheme = () => {
-    setTheme(isDark ? 'light' : 'dark');
+  const handleGenreLeave = () => {
+    genreTimeoutRef.current = setTimeout(() => setShowGenre(false), 200);
+  };
+
+  const openFeedback = () => {
+    setShowSidebar(false);
+    window.dispatchEvent(new CustomEvent('open-feedback'));
+  };
+
+  const openSettings = () => {
+    setShowSidebar(false);
+    window.dispatchEvent(new CustomEvent('open-settings'));
   };
 
   return (
-    <header>
-      {/* Top header bar */}
-      <div className="px-3 py-1.5 border-b border-primary-100 h-[73px]">
+    <>
+      <header className="px-3 py-1.5 border-b border-primary-100 h-[73px]">
+        {/* Top header bar */}
+
         <div className="max-w-7xl mx-auto flex justify-between items-center h-full md:px-4">
-          <Link href="/" className="flex-shrink-0 text-primary-100 hover:scale-105 transition-transform duration-200">
-            <img className="w-[127.5px] h-[60px] object-contain" loading="eager" src="/logo.png" alt="logo" />
+          <Link href="/" className="shrink-0 text-primary-100 no-underline hover:scale-105 transition-transform duration-200">
+            <Image className="w-[127.5px] h-[60px] object-contain" loading="eager" src="/logo.png" alt="logo" width={128} height={60} />
           </Link>
 
           <div className="flex gap-2 items-center">
-            {/* Theme toggle */}
-            <div className="relative w-12 h-7 rounded-full bg-neutral-200 dark:bg-neutral-700">
-              <input
-                aria-label="Toggle theme"
-                id="theme-toggle"
-                onChange={toggleTheme}
-                type="checkbox"
-                checked={isDark}
-                className="absolute inset-0 opacity-0 cursor-pointer z-10"
-              />
-              <span className={`absolute top-1/2 left-1 w-5 h-5 bg-white rounded-full -translate-y-1/2 transition-transform duration-200 flex items-center justify-center ${isDark ? 'translate-x-5' : ''}`}>
-                <svg className={`w-4 h-4 text-primary-100 ${isDark ? 'hidden' : 'block'}`} viewBox="0 0 16 16" fill="currentColor">
-                  <path d="M8 12.667A4.667 4.667 0 1 0 8 3.333a4.667 4.667 0 0 0 0 9.334z" />
-                  <path d="M8 15.307a.667.667 0 0 1-.667-.667v-.053a.667.667 0 1 1 1.334 0 .667.667 0 0 1-.667.72zm4.76-1.88a.667.667 0 0 1-.473-.194l-.087-.087a.667.667 0 1 1 .94-.94l.087.087a.667.667 0 0 1-.467 1.134zm-9.52 0a.667.667 0 0 1-.473-1.134l.087-.087a.667.667 0 1 1 .94.94l-.087.087a.667.667 0 0 1-.467.194zM14.667 8.667h-.054a.667.667 0 1 1 0-1.334.667.667 0 0 1 0 1.334zm-13.28 0h-.054a.667.667 0 1 1 0-1.334.667.667 0 0 1 0 1.334zm11.286-4.674a.667.667 0 0 1-.473-.193.667.667 0 0 1 0-.94l.087-.087a.667.667 0 1 1 .94.94l-.087.087a.667.667 0 0 1-.467.193zm-9.346 0a.667.667 0 0 1-.473-.193l-.087-.087a.667.667 0 1 1 .94-.94l.087.087a.667.667 0 0 1-.467 1.133zM8 2.027a.667.667 0 0 1-.667-.667V1.333a.667.667 0 1 1 1.334 0 .667.667 0 0 1-.667.694z" />
-                </svg>
-                <svg className={`w-4 h-4 text-primary-100 ${isDark ? 'block' : 'hidden'}`} viewBox="0 0 16 16" fill="currentColor">
-                  <path d="M14.353 10.62c-.107-.18-.407-.46-1.153-.327-.414.073-.834.107-1.254.087-1.553-.067-2.96-.78-3.94-1.88-.866-.967-1.4-2.227-1.406-3.587 0-.76.146-1.493.446-2.187.294-.673.087-1.027-.06-1.173-.153-.154-.513-.367-1.22-.067C3.04 2.627 1.353 5.36 1.553 8.287c.2 2.76 2.133 6.113 4.693 7 .614.213 1.26.34 1.927.367.067.006.174.013.28.013 2.234 0 4.327-1.053 5.647-2.847.447-.62.327-1.013.213-1.193z" />
-                </svg>
-              </span>
-            </div>
-
+            <SearchBox />
+            <ThemeToggle />
+            <NotifyBell />
             <UserMenu />
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Main navigation bar */}
       <nav className="relative bg-primary-100 dark:bg-neutral-800 text-white text-sm py-0.5">
@@ -98,6 +99,20 @@ export function Header() {
               </svg>
             </Link>
           </li>
+          {/* Genre dropdown */}
+          <li className="relative h-full" onMouseEnter={handleGenreEnter} onMouseLeave={handleGenreLeave}>
+            <div className="flex items-center gap-2 h-full px-3 text-white no-underline rounded-t-lg cursor-pointer font-semibold hover:bg-white hover:text-black">
+              <svg className="size-[18px] shrink-0" viewBox="0 0 24 24" stroke="currentColor" fill="none">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+              </svg>
+              Thể loại
+            </div>
+            {showGenre && (
+              <div className="absolute top-full left-0 z-40 text-black dark:text-light-text" onMouseEnter={handleGenreEnter} onMouseLeave={handleGenreLeave}>
+                <GenreCategories />
+              </div>
+            )}
+          </li>
           {NAV_LINKS.map((link) => (
             <li key={link.href} className="h-full">
               <Link href={link.href} className="flex items-center gap-2 h-full px-3 text-white no-underline rounded-t-lg cursor-pointer font-semibold hover:bg-white hover:text-black">
@@ -108,18 +123,15 @@ export function Header() {
               </Link>
             </li>
           ))}
-          <li className="relative h-full" onMouseEnter={() => setShowGenre(true)} onMouseLeave={() => setShowGenre(false)}>
-            <div className="flex items-center gap-2 h-full px-3 text-white no-underline rounded-t-lg cursor-pointer font-semibold hover:bg-white hover:text-black">
+
+          {/* Feedback */}
+          <li className="h-full">
+            <button onClick={openFeedback} className="flex items-center gap-2 h-full px-3 text-white no-underline rounded-t-lg cursor-pointer font-semibold hover:bg-white hover:text-black bg-transparent border-none">
               <svg className="size-[18px] shrink-0" viewBox="0 0 24 24" stroke="currentColor" fill="none">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
               </svg>
-              Thể loại
-            </div>
-            {showGenre && (
-              <div className="hidden lg:block absolute top-full left-0 z-40 text-black dark:text-light-text">
-                <GenreDropdown />
-              </div>
-            )}
+              Góp ý
+            </button>
           </li>
         </ul>
 
@@ -135,38 +147,43 @@ export function Header() {
               </Link>
             </li>
           ))}
+          {/* Mobile genre dropdown */}
+          <li className="relative border-b border-neutral-100 dark:border-neutral-700" onMouseEnter={() => setShowGenre(true)} onMouseLeave={() => setShowGenre(false)}>
+            <div className="flex items-center gap-3 p-3 text-inherit no-underline w-full h-10 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-700">
+              <svg className="w-6 h-6 shrink-0" viewBox="0 0 24 24" stroke="currentColor" fill="none">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+              </svg>
+              Thể loại
+            </div>
+            {true && (
+              <div className="absolute top-full left-0 right-0 z-40" onMouseEnter={() => setShowGenre(true)} onMouseLeave={() => setShowGenre(false)}>
+                <div className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 p-4 max-h-[60vh] overflow-y-auto">
+                  <GenreCategories />
+                </div>
+              </div>
+            )}
+          </li>
+          {/* Mobile feedback & settings */}
+          <li className="border-b border-neutral-100 dark:border-neutral-700">
+            <button onClick={openFeedback} className="flex items-center gap-3 p-3 text-inherit no-underline w-full h-10 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-700 bg-transparent border-none text-inherit">
+              <svg className="w-6 h-6 shrink-0" viewBox="0 0 24 24" stroke="currentColor" fill="none">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+              Góp ý
+            </button>
+          </li>
+          <li className="border-b border-neutral-100 dark:border-neutral-700">
+            <button onClick={openSettings} className="flex items-center gap-3 p-3 text-inherit no-underline w-full h-10 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-700 bg-transparent border-none text-inherit">
+              <svg className="w-6 h-6 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Cài đặt
+            </button>
+          </li>
         </ul>
       </nav>
-    </header>
-  );
-}
+    </>
 
-function GenreDropdown() {
-  // Simplified genre dropdown - will be enhanced later
-  const genres = [
-    { title: 'Manga', slug: 'manga' },
-    { title: 'Manhua', slug: 'manhua' },
-    { title: 'Manhwa', slug: 'manhwa' },
-    { title: 'Action', slug: 'action' },
-    { title: 'Romance', slug: 'romance' },
-    { title: 'Fantasy', slug: 'fantasy' },
-    { title: 'Comedy', slug: 'comedy' },
-    { title: 'Drama', slug: 'drama' },
-  ];
-
-  return (
-    <div className="bg-white dark:bg-neutral-800 rounded-b-lg shadow-xl border border-neutral-200 dark:border-neutral-700 p-4 max-h-[60vh] overflow-y-auto w-[300px]">
-      <div className="grid grid-cols-2 gap-2">
-        {genres.map((g) => (
-          <Link
-            key={g.slug}
-            href={`/the-loai/${g.slug}`}
-            className="text-sm px-2 py-1 rounded hover:bg-neutral-100 dark:hover:bg-neutral-700"
-          >
-            {g.title}
-          </Link>
-        ))}
-      </div>
-    </div>
   );
 }

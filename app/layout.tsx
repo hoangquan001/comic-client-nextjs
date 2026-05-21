@@ -1,13 +1,18 @@
 import type { Metadata } from 'next';
-import { Roboto } from 'next/font/google';
+import { Roboto, Geist } from 'next/font/google';
 import './globals.css';
 import { AppProviders } from '@/components/providers/app-providers';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { ChatBubble } from '@/components/layout/chat-bubble';
-import { LoadingBar } from '@/components/layout/loading-bar';
-import { ToastContainer } from '@/components/layout/toast-container';
+import { PopupManager } from '@/components/layout/popup-manager';
 import { config } from '@/lib/config';
+import { cn } from "@/lib/utils";
+import { Toaster } from '@/components/ui/sonner';
+import { Suspense } from 'react';
+import NextTopLoader from 'nextjs-toploader';
+
+const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
 const roboto = Roboto({
   variable: '--font-roboto',
@@ -18,6 +23,11 @@ const roboto = Roboto({
 export const metadata: Metadata = {
   title: `${config.APP_NAME} - Đọc Truyện Tranh Online`,
   description: `Đọc truyện tranh online miễn phí tại ${config.APP_NAME}. Kho truyện manga, manhwa, manhua khổng lồ, cập nhật liên tục.`,
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/apple-icon.png",
+  },
 };
 
 export default function RootLayout({
@@ -26,16 +36,29 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi" className={`${roboto.variable} h-full antialiased`} suppressHydrationWarning>
-      <body className="min-h-full flex flex-col font-[family-name:var(--font-roboto)]">
+    <html lang="vi" className={cn("h-full", "antialiased", roboto.variable, "font-sans", geist.variable)} suppressHydrationWarning>
+      <body>
+
         <AppProviders>
-          <div className="wrapper-container min-h-screen flex flex-col">
+          <NextTopLoader
+            zIndex={1000}
+            easing="ease-in-out"
+            speed={400}
+            height={4}
+            showSpinner={false}
+            color="#F86E4C"
+          />
+          <div className="wrapper-container flex flex-col">
             <Header />
             <main className="flex-1">{children}</main>
             <Footer />
-            <ChatBubble />
-            <LoadingBar />
-            <ToastContainer />
+
+            <Suspense>
+              <Toaster />
+              <ChatBubble />
+              <PopupManager />
+            </Suspense>
+
           </div>
         </AppProviders>
       </body>

@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
 import { useHistoryStore } from '@/lib/stores/use-history-store';
 import { useComicsByIds } from '@/lib/hooks/use-comic-queries';
 import { Pagination } from '@/components/common/pagination/pagination';
@@ -10,16 +9,19 @@ import { Spinner } from '@/components/common/spinner/spinner';
 import { Empty } from '@/components/common/empty/empty';
 import type { Comic } from '@/types';
 import Link from 'next/link';
+import Image from 'next/image';
 import { getComicDetailUrl, getChapterDetailUrl } from '@/lib/utils/url';
 import { dateAgo } from '@/lib/utils/date';
 import { formatNumber } from '@/lib/utils/number';
+import { GridComic } from '@/components/common';
 
 const COMICS_PER_PAGE = 14;
 
-export default function HistoryContent() {
-  const searchParams = useSearchParams();
-  const page = Number(searchParams.get('page')) || 1;
+interface HistoryContentProps {
+  page: number;
+}
 
+export default function HistoryContent({ page }: HistoryContentProps) {
   const { listHistory, initialize, removeHistory } = useHistoryStore();
   const [confirmComic, setConfirmComic] = useState<Comic | null>(null);
 
@@ -40,7 +42,7 @@ export default function HistoryContent() {
   };
 
   return (
-    <div className="container mx-auto px-3 py-4">
+    <div className="container mx-auto py-4">
       <Breadcrumb items={[
         { label: 'Trang chủ', href: '/' },
         { label: 'Lịch sử', href: '/lich-su' },
@@ -50,16 +52,7 @@ export default function HistoryContent() {
           <Spinner />
         ) : comics && comics.length > 0 ? (
           <>
-            <div className="grid gap-3 grid-cols-2 @lg:grid-cols-3 @2xl:grid-cols-4 @4xl:grid-cols-5 @5xl:grid-cols-6 @6xl:grid-cols-7 mx-2">
-              {comics.map((comic) => (
-                <div key={comic.id} className="relative group">
-                  <button onClick={() => handleRemove(comic)} className="absolute top-1.5 right-1.5 z-10 bg-red-500 hover:bg-red-600 rounded-md text-white p-1 opacity-0 group-hover:opacity-100 transition-opacity" title="Xóa khỏi lịch sử">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                  </button>
-                  <HistoryComicCard comic={comic} />
-                </div>
-              ))}
-            </div>
+            <GridComic title="Lịch sử" listComics={comics} />
             <Pagination currentPage={page} totalpage={totalpage} rootLink="/lich-su" />
           </>
         ) : (
@@ -91,7 +84,7 @@ function HistoryComicCard({ comic }: { comic: Comic }) {
         <span className="text-yellow-400">★</span>{comic.rating}
       </span>
       <Link href={getComicDetailUrl(comic)} title={comic.title} className="block relative overflow-hidden">
-        <img src={comic.coverImage || '/empty.png'} alt={comic.title} className="comic-card-image w-full aspect-[3/4] object-cover" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).src = '/empty.png'; }} />
+        <Image src={comic.coverImage || '/empty.png'} alt={comic.title} className="comic-card-image w-full aspect-[3/4] object-cover" loading="lazy" width={300} height={400} onError={(e) => { (e.target as HTMLImageElement).src = '/empty.png'; }} />
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-2 text-white">
           <h3 className="text-white line-clamp-2 text-sm font-semibold">{comic.title}</h3>

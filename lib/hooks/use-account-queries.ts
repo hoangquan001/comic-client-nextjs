@@ -11,7 +11,7 @@ import type {
 } from '@/types';
 
 function unwrap<T>(res: IServiceResponse<T>): T {
-  if (res.status !== 200 || !res.data) {
+  if ((res.status !== 200 && res.status !== 1) || !res.data) {
     throw new Error(res.message || 'API error');
   }
   return res.data;
@@ -84,12 +84,12 @@ export function useVoteInfo(comicId: number | null) {
 export function useLogin() {
   const saveUser = useAuthStore((s) => s.saveUser);
   return useMutation({
-    mutationFn: (data: { email: string; password: string }) =>
-      clientFetch('/auth/login', {
+    mutationFn: (data: { email: string; password: string; turnstileToken: string }) =>
+      clientFetch<IServiceResponse<IUser>>('/auth/dang-nhap', {
         method: 'POST',
-        body: JSON.stringify(data),
+        data,
       }),
-    onSuccess: (res: any) => {
+    onSuccess: (res) => {
       if (res.data) saveUser(res.data);
     },
   });
@@ -98,12 +98,12 @@ export function useLogin() {
 export function useLoginWithSocial() {
   const saveUser = useAuthStore((s) => s.saveUser);
   return useMutation({
-    mutationFn: (user: any) =>
-      clientFetch('/auth/social-login', {
+    mutationFn: (user: Partial<IUser>) =>
+      clientFetch<IServiceResponse<IUser>>('/auth/social-login', {
         method: 'POST',
-        body: JSON.stringify(user),
+        data: user,
       }),
-    onSuccess: (res: any) => {
+    onSuccess: (res) => {
       if (res.data) saveUser(res.data);
     },
   });
@@ -111,10 +111,10 @@ export function useLoginWithSocial() {
 
 export function useRegister() {
   return useMutation({
-    mutationFn: (data: { name: string; email: string; password: string }) =>
-      clientFetch('/auth/register', {
+    mutationFn: (data: { name: string; email: string; password: string; turnstileToken: string }) =>
+      clientFetch<IServiceResponse<unknown>>('/auth/register', {
         method: 'POST',
-        body: JSON.stringify(data),
+        data,
       }),
   });
 }
@@ -149,12 +149,12 @@ export function useAddComment() {
     }) =>
       clientFetch('/user/comment', {
         method: 'POST',
-        body: JSON.stringify({
+        data: {
           chapterId,
           content,
           replyfromUser: replyfromUser || undefined,
           replyfromCmt: replyfromCmt || undefined,
-        }),
+        },
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['comments'] });
@@ -166,12 +166,12 @@ export function useUpdateAvatar() {
   const saveUser = useAuthStore((s) => s.saveUser);
   return useMutation({
     mutationFn: (avatar: FormData) =>
-      clientFetch('/user/update/avatar', {
+      clientFetch<IServiceResponse<IUser>>('/user/update/avatar', {
         method: 'POST',
-        body: avatar,
+        data: avatar,
         headers: {},
       }),
-    onSuccess: (res: any) => {
+    onSuccess: (res) => {
       if (res.data) saveUser(res.data);
     },
   });
@@ -181,11 +181,11 @@ export function useUpdateInfo() {
   const saveUser = useAuthStore((s) => s.saveUser);
   return useMutation({
     mutationFn: (user: Partial<IUser>) =>
-      clientFetch('/user/update', {
+      clientFetch<IServiceResponse<IUser>>('/user/update', {
         method: 'POST',
-        body: JSON.stringify(user),
+        data: user,
       }),
-    onSuccess: (res: any) => {
+    onSuccess: (res) => {
       if (res.data) saveUser(res.data);
     },
   });
@@ -196,7 +196,7 @@ export function useUpdatePassword() {
     mutationFn: (newPassword: string) =>
       clientFetch('/user/update/password', {
         method: 'POST',
-        body: JSON.stringify({ newPassword }),
+        data: { newPassword },
       }),
   });
 }
@@ -205,8 +205,8 @@ export function useUpdateTypeLevel() {
   const saveUser = useAuthStore((s) => s.saveUser);
   return useMutation({
     mutationFn: (typeLevel: number) =>
-      clientFetch(`/user/update/typelevel/${typeLevel}`, { method: 'POST' }),
-    onSuccess: (res: any) => {
+      clientFetch<IServiceResponse<IUser>>(`/user/update/typelevel/${typeLevel}`, { method: 'POST' }),
+    onSuccess: (res) => {
       if (res.data) saveUser(res.data);
     },
   });
@@ -216,10 +216,10 @@ export function useUpdateMaxim() {
   const saveUser = useAuthStore((s) => s.saveUser);
   return useMutation({
     mutationFn: (maxim: string | null) =>
-      clientFetch(`/user/update/maxim?maxim=${encodeURIComponent(maxim || '')}`, {
+      clientFetch<IServiceResponse<IUser>>(`/user/update/maxim?maxim=${encodeURIComponent(maxim || '')}`, {
         method: 'POST',
       }),
-    onSuccess: (res: any) => {
+    onSuccess: (res) => {
       if (res.data) saveUser(res.data);
     },
   });
@@ -231,7 +231,7 @@ export function useVoteComic() {
     mutationFn: (data: { comicId: number; votePoint: number }) =>
       clientFetch<IServiceResponse<VoteInfo>>('/user/vote/update', {
         method: 'POST',
-        body: JSON.stringify(data),
+        data,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vote'] });
@@ -261,7 +261,7 @@ export function useUpdateNotify() {
     mutationFn: (data: { ID: number | null; IsRead: boolean | null }) =>
       clientFetch('/user/notify/update', {
         method: 'POST',
-        body: JSON.stringify(data),
+        data,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });

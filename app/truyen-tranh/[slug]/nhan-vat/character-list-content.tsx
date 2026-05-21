@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useCharactersByComicId } from '@/lib/hooks/use-comic-queries';
 import { Spinner } from '@/components/common/spinner/spinner';
 
@@ -30,10 +31,12 @@ export default function CharacterListContent({
               <div className="c-top-character-item c-character-item-content">
                 <div className="c-character-image-container">
                   <div className="c-character-image-link">
-                    <img
+                    <Image
                       className="c-character-image"
                       alt={character.name}
                       src={character.image || '/empty.png'}
+                      width={120}
+                      height={160}
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = '/empty.png';
                       }}

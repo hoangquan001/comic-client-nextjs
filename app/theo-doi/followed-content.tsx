@@ -1,6 +1,5 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
 import { useFollowedComics, useFollow } from '@/lib/hooks/use-account-queries';
 import { useAuthStore } from '@/lib/stores/use-auth-store';
 import { GridComic } from '@/components/common/grid-comic/grid-comic';
@@ -9,15 +8,18 @@ import { Breadcrumb } from '@/components/common/breadcrumb/breadcrumb';
 import { Spinner } from '@/components/common/spinner/spinner';
 import { Empty } from '@/components/common/empty/empty';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
 import type { Comic } from '@/types';
 import { getComicDetailUrl, getChapterDetailUrl } from '@/lib/utils/url';
 import { dateAgo } from '@/lib/utils/date';
 import { formatNumber } from '@/lib/utils/number';
 
-export default function FollowedContent() {
-  const searchParams = useSearchParams();
-  const page = Number(searchParams.get('page')) || 1;
+interface FollowedContentProps {
+  page: number;
+}
+
+export default function FollowedContent({ page }: FollowedContentProps) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   const { data, isLoading } = useFollowedComics(page);
@@ -39,7 +41,7 @@ export default function FollowedContent() {
   };
 
   return (
-    <div className="container mx-auto px-3 py-4">
+    <div className="container mx-auto py-4">
       <Breadcrumb items={[
         { label: 'Trang chủ', href: '/' },
         { label: 'Theo dõi', href: '/theo-doi' },
@@ -54,7 +56,7 @@ export default function FollowedContent() {
           <Empty message="" />
           <p className="mt-4 text-center">
             Vui lòng{' '}
-            <Link href="/auth/login" className="text-primary-100 font-bold">đăng nhập</Link>{' '}
+            <Link href="/auth/dang-nhap" className="text-primary-100 font-bold">đăng nhập</Link>{' '}
             để xem danh sách truyện đã theo dõi
           </p>
         </div>
@@ -147,11 +149,13 @@ function ComicCardWithAction({ comic, onUnfollow }: { comic: Comic; onUnfollow: 
       </span>
 
       <Link href={getComicDetailUrl(comic)} title={comic.title} className="block relative overflow-hidden">
-        <img
+        <Image
           src={comic.coverImage || '/empty.png'}
           alt={comic.title}
           className="comic-card-image w-full aspect-[3/4] object-cover"
           loading="lazy"
+          width={300}
+          height={400}
           onError={(e) => { (e.target as HTMLImageElement).src = '/empty.png'; }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />

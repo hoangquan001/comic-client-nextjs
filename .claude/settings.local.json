@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -E \"\\\\.\\(ts\\)$\")",
+      "Bash(npx next *)",
+      "Bash(grep -E \"\\\\.\\(ts|html\\)$\")",
+      "Bash(python3 -c ' *)",
+      "Bash(npm install *)",
+      "Bash(npm run *)"
+    ]
+  }
+}

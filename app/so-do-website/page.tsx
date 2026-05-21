@@ -66,7 +66,7 @@ export default function HtmlSitemapPage() {
                 { href: '/lich-su', label: 'Lịch sử' },
                 { href: '/theo-doi', label: 'Theo dõi' },
                 { href: '/tai-khoan', label: 'Tài khoản' },
-                { href: '/auth/login', label: 'Đăng nhập' },
+                { href: '/auth/dang-nhap', label: 'Đăng nhập' },
                 { href: '/auth/register', label: 'Đăng ký' },
               ].map((link) => (
                 <li key={link.href}>

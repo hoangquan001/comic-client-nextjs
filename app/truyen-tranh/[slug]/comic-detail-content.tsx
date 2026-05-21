@@ -1,22 +1,27 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useChapters, useSimilarComic } from '@/lib/hooks/use-comic-queries';
 import { useFollow, useUpdateViewAndExp } from '@/lib/hooks/use-account-queries';
 import { useAuthStore } from '@/lib/stores/use-auth-store';
 import { useHistoryStore } from '@/lib/stores/use-history-store';
-import { useToastStore } from '@/lib/stores/use-toast-store';
 import { Breadcrumb } from '@/components/common/breadcrumb/breadcrumb';
 import { GridComic } from '@/components/common/grid-comic/grid-comic';
 import { TopList } from '@/components/common/top-list/top-list';
-import { Spinner } from '@/components/common/spinner/spinner';
-import { Empty } from '@/components/common/empty/empty';
+import { CommentSection } from '@/components/common';
+import TopUsers from '@/components/common/top-users/top-users';
+import StarRating from '@/components/common/star-rating/star-rating';
+import LoopScroll from '@/components/common/loop-scroll/loop-scroll';
+import type { LoopScrollHandle } from '@/components/common/loop-scroll/loop-scroll';
 import { getComicDetailUrl, getChapterDetailUrl, getCharacterListUrl } from '@/lib/utils/url';
 import { fillDescription } from '@/lib/utils/description';
 import { formatNumber } from '@/lib/utils/number';
+import { generateComicKeywords, generateChapterKeywords } from '@/lib/seo/keywords';
 import type { Comic, Chapter } from '@/types';
+import { toast } from 'sonner';
 
 const FOLLOW_COOLDOWN = 3000;
 
@@ -28,10 +33,11 @@ export default function ComicDetailContent({ comic: initialComic }: { comic: Com
   const [isOpen, setIsOpen] = useState(false);
   const [followRequestTime, setFollowRequestTime] = useState(0);
   const [viewTracked, setViewTracked] = useState(false);
+  const [showRating, setShowRating] = useState(false);
+  const [ratingInitial, setRatingInitial] = useState(0);
 
   const { isAuthenticated } = useAuthStore();
   const { saveHistory } = useHistoryStore();
-  const toast = useToastStore();
 
   const { data: chapters } = useChapters(comic.id);
   const { data: similarComics } = useSimilarComic(comic.id);
@@ -74,15 +80,33 @@ export default function ComicDetailContent({ comic: initialComic }: { comic: Com
 
   const stars = [0, 1, 2, 3, 4].map((i) => getStarWidth(i + 1));
 
+  const keywords = useMemo(() => {
+    const kws = generateComicKeywords(comic);
+    if (lastChapter) kws.push(...generateChapterKeywords(comic, lastChapter));
+    return [...new Set(kws)].map((kw) => ({
+      title: kw,
+      href: `/tim-truyen?query=${encodeURIComponent(kw)}`,
+    }));
+  }, [comic, lastChapter]);
+
   function getStarWidth(index: number): number {
     if (index <= comic.rating) return 100;
     if (index - comic.rating < 1) return (1 - (index - comic.rating)) * 100;
     return 0;
   }
 
+  function rateStar(starIndex: number) {
+    if (!isAuthenticated) {
+      window.location.href = '/auth/dang-nhap';
+      return;
+    }
+    setRatingInitial(starIndex);
+    setShowRating(true);
+  }
+
   function handleFollow(isFollow: boolean) {
     if (!isAuthenticated) {
-      window.location.href = '/auth/login';
+      window.location.href = '/auth/dang-nhap';
       return;
     }
     const now = Date.now();
@@ -110,6 +134,12 @@ export default function ComicDetailContent({ comic: initialComic }: { comic: Com
     return comic.genres?.some((g) => g.id === 2 || g.id === 13) || false;
   }
 
+  function getHistoryChapter() {
+    if (!latestHistoryChapter?.title) return '';
+    const match = latestHistoryChapter.title.match(/[\.\d]+/iu);
+    return match ? match[0] : latestHistoryChapter.slug;
+  }
+
   const canShowReadFromBeginning = !historyComic && allChapters.length > 0;
   const canShowContinueReading = !!historyComic && !!latestHistoryChapter;
 
@@ -119,7 +149,7 @@ export default function ComicDetailContent({ comic: initialComic }: { comic: Com
   return (
     <div className="dark:text-light-text">
       <div className="comic-content">
-        <div className="container mx-auto px-3">
+        <div className="md:container mx-auto w-full z-10 mt-3 mb-5">
           <Breadcrumb
             items={[
               { label: 'Trang chủ', href: '/' },
@@ -143,12 +173,14 @@ export default function ComicDetailContent({ comic: initialComic }: { comic: Com
             <div className="comic-image-section">
               <div className="comic-image-container">
                 <div className="comic-bg-img">
-                  <img
+                  <Image
                     className="comic-cover-image"
-                    src={comic.coverImage || '/empty.png'}
+                    src={comic.coverImage || '/option2.png'}
                     alt={comic.title}
+                    width={216}
+                    height={300}
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/empty.png';
+                      (e.target as HTMLImageElement).src = '/option2.png';
                     }}
                   />
                 </div>
@@ -184,7 +216,7 @@ export default function ComicDetailContent({ comic: initialComic }: { comic: Com
               <div className="star-rating-container-1">
                 <span className="mr-2">Đánh giá: </span>
                 {stars.map((width, i) => (
-                  <div key={i} className="star-rating-item">
+                  <div key={i} className="star-rating-item" onClick={() => rateStar(i + 1)}>
                     <svg className="comic-star-icon star-empty" xmlns="http://www.w3.org/2000/svg" height="14" width="15.75" viewBox="0 0 576 512">
                       <path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z" />
                     </svg>
@@ -222,7 +254,7 @@ export default function ComicDetailContent({ comic: initialComic }: { comic: Com
                       <span className="info-label-text info-number">{formatNumber(comic.viewCount)}</span>
                     </div>
                   </li>
-                  <li>
+                  <li className="info-item">
                     <span className="info-label">Đánh giá:</span>
                     <div className="info-value">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="info-icon">
@@ -231,7 +263,7 @@ export default function ComicDetailContent({ comic: initialComic }: { comic: Com
                       <span className="info-label-text info-number">{comic.rating}</span>
                     </div>
                   </li>
-                  <li>
+                  <li className="info-item">
                     <span className="info-label">Tình trạng:</span>
                     <div className="flex space-x-2 items-center font-semibold">
                       {comic.status === 0 ? (
@@ -250,30 +282,30 @@ export default function ComicDetailContent({ comic: initialComic }: { comic: Com
                               <path fill="#2debb2" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z" />
                             </svg>
                           </span>
-                          <div className="status-text text-sm">Đã hoàn thành</div>
+                          <div className="status-text">Đã hoàn thành</div>
                         </>
                       )}
                     </div>
                   </li>
                 </ul>
 
-                <div className="mx-auto w-full mt-0">
-                  <span className="text-base shrink-0 mr-2">Thể loại:</span>
-                  <span className="list-genre">
-                    {comic.genres?.map((genre) => (
-                      <Link
-                        key={genre.id}
-                        className="genre-item"
-                        title={genre.title}
-                        href={`/the-loai/${genre.slug}`}
-                      >
-                        {genre.title}
-                      </Link>
-                    ))}
-                  </span>
-                </div>
-              </div>
 
+              </div>
+              <div className="mx-auto w-full mt-0">
+                <span className="text-base shrink-0 mr-2">Thể loại:</span>
+                <span className="list-genre">
+                  {comic.genres?.map((genre) => (
+                    <Link
+                      key={genre.id}
+                      className="genre-item"
+                      title={genre.title}
+                      href={`/the-loai/${genre.slug}`}
+                    >
+                      {genre.title}
+                    </Link>
+                  ))}
+                </span>
+              </div>
               <time className="comic-update">
                 Cập nhật lúc: {comic.updateAt ? new Date(comic.updateAt).toLocaleDateString('vi-VN') : ''}
               </time>
@@ -285,7 +317,7 @@ export default function ComicDetailContent({ comic: initialComic }: { comic: Com
                   </svg>
                   Giới thiệu truyện {comic.title}:
                 </h3>
-                <div
+                <p
                   className={`comic-description ${isOpen ? 'description-expanded' : 'description-collapsed'}`}
                   dangerouslySetInnerHTML={{
                     __html: fillDescription(comic.description, comic),
@@ -315,11 +347,11 @@ export default function ComicDetailContent({ comic: initialComic }: { comic: Com
                     <svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 448 512" className="w-4 h-4">
                       <path fill="#ffffff" d="M96 0C43 0 0 43 0 96V416c0 53 43 96 96 96H384h32c17.7 0 32-14.3 32-32s-14.3-32-32-32V384c17.7 0 32-14.3 32-32V32c0-17.7-14.3-32-32-32H384 96zm0 384H352v64H96c-17.7 0-32-14.3-32-32s14.3-32 32-32zm32-240c0-8.8 7.2-16 16-16H336c8.8 0 16 7.2 16 16s-7.2 16-16 16H144c-8.8 0-16-7.2-16-16zm16 48H336c8.8 0 16 7.2 16 16s-7.2 16-16 16H144c-8.8 0-16-7.2-16-16s7.2-16 16-16z" />
                     </svg>
-                    <p className="font-semibold text-sm">Đọc tiếp chương {latestHistoryChapter.slug}</p>
+                    <p className="font-semibold text-sm">Đọc tiếp chương {getHistoryChapter()}</p>
                   </Link>
                 ) : null}
                 <Link
-                  className="flex justify-center items-center gap-2 border border-gray-300 px-4 rounded-md hover:bg-gray-100 dark:hover:bg-neutral-700 transition"
+                  className="btn-list-characters"
                   href={toggleUrl}
                 >
                   <svg fill="#000000" height="16" width="16" version="1.1" viewBox="0 0 512 512" xmlSpace="preserve">
@@ -342,7 +374,7 @@ export default function ComicDetailContent({ comic: initialComic }: { comic: Com
                   <path d="M183.464,279.393c-5.922,0-10.725,4.8-10.725,10.722s4.803,10.729,10.725,10.729c5.921,0,10.725-4.809,10.725-10.729 C194.189,284.193,189.386,279.393,183.464,279.393z" />
                 </svg>
                 <span className="font-bold">Cảnh báo độ tuổi:</span>
-                Truyện tranh <b className="text-neutral-700">{comic.title}</b> có thể có nội dung và hình ảnh không phù hợp với lứa tuổi của bạn. Nếu bạn dưới 16 tuổi, vui lòng chọn một truyện khác để giải trí.
+                Truyện tranh <b className="text-neutral-700">{comic.title}</b> có thể có nội dung và hình ảnh không phù hợp với lứa tuổi của bạn. Nếu bạn dưới 16 tuổi, vui lòng chọn một truyện khác để giải trí. Chúng tôi sẽ không chịu trách nhiệm liên quan nếu bạn bỏ qua cảnh báo này.
               </p>
             </div>
           )}
@@ -350,7 +382,7 @@ export default function ComicDetailContent({ comic: initialComic }: { comic: Com
       </div>
 
       <div className="grid grid-cols-4 gap-2 md:container mx-auto w-full">
-        <div className="col-span-4 2xl:col-span-3 mt-2 mx-2">
+        <div className="col-span-4 2xl:col-span-3 mt-2 mx-2 dark:text-light-text">
           {allChapters.length > 0 && (
             <ChapterList comic={comic} chapters={allChapters} />
           )}
@@ -360,130 +392,186 @@ export default function ComicDetailContent({ comic: initialComic }: { comic: Com
               <GridComic
                 title="Truyện Liên Quan"
                 listComics={similarComics}
+                gridClass="grid grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-4"
               />
+            </div>
+          )}
+
+          <div className="keywords" itemProp="keywords">
+            <h3 className="inline-block no-underline text-lg font-bold">Từ khóa:</h3>
+            {keywords.map((kw, i) => (
+              <a key={i} title={kw.title} className="keyword" href={kw.href}>{kw.title}</a>
+            ))}
+          </div>
+
+          {comic.chapters && comic.chapters.length > 0 && (
+            <div className="comments">
+              <CommentSection comic={comic} chapterID={comic.chapters[0].id} />
             </div>
           )}
         </div>
         <div className="flex flex-col col-span-4 2xl:col-span-1 gap-4 mx-2 2xl:mt-4">
           <TopList />
+          <TopUsers />
         </div>
       </div>
+
+      <StarRating
+        isVisible={showRating}
+        onClose={() => setShowRating(false)}
+        comicId={comic.id}
+        initialRating={ratingInitial}
+      />
     </div>
   );
 }
 
+function calcGridSize(): number {
+  if (typeof window === 'undefined') return 4;
+  if (window.innerWidth < 640) return 2;
+  if (window.innerWidth < 1100) return 3;
+  return 4;
+}
+
 function ChapterList({ comic, chapters: initialChapters }: { comic: Comic; chapters: Chapter[] }) {
+
   const [asc, setAsc] = useState(false);
   const [search, setSearch] = useState('');
+  const [gridSize, setGridSize] = useState(calcGridSize);
+  const [curOptionValue, setCurOptionValue] = useState(0);
+  const loopRef = useRef<LoopScrollHandle>(null);
+
   const history = useHistoryStore((s) => s.listHistory);
   const historyComic = history.find((c) => c.id === comic.id);
-  const readChapters = new Set(historyComic?.chapters?.map((ch) => ch.id) ?? []);
+  const readChapters = useMemo(() => new Set(historyComic?.chapters?.map((ch) => ch.id) ?? []), [historyComic]);
 
-  const sorted = [...initialChapters].sort((a, b) =>
-    asc ? a.slug - b.slug : b.slug - a.slug
+  useEffect(() => {
+    const handleResize = () => setGridSize(calcGridSize());
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const sorted = useMemo(() =>
+    [...initialChapters].sort((a, b) => asc ? a.slug - b.slug : b.slug - a.slug),
+    [initialChapters, asc]
   );
-  const filtered = search
-    ? sorted.filter((ch) => ch.title?.toLowerCase().includes(search.toLowerCase()))
-    : sorted;
+
+  const filtered = useMemo(() => {
+    if (!search) return sorted;
+    return sorted.filter((ch) => ch.title?.toLowerCase().includes(search.toLowerCase()));
+  }, [sorted, search]);
 
   const distance = comic.numChapter > 1000 ? 100 : comic.numChapter > 200 ? 50 : 30;
-  const options = Array.from(
-    { length: Math.floor((comic.numChapter - 1) / distance + 1) },
-    (_, i) => ({
+  const options = useMemo(() => {
+    const _length = Math.floor((comic.numChapter - 1) / distance + 1);
+    return Array.from({ length: _length }, (_, i) => ({
       label: `${i * distance} - ${(i + 1) * distance}`,
-      value: i,
-    })
-  );
-  const [selectedRange, setSelectedRange] = useState(0);
-  const rangeStart = selectedRange * distance;
-  const rangeEnd = (selectedRange + 1) * distance;
-  const displayedChapters = filtered.filter(
-    (ch) => ch.slug >= rangeStart && ch.slug < rangeEnd
-  );
-  const finalChapters = displayedChapters.length > 0 ? displayedChapters : filtered;
+      value: asc ? i : _length - i - 1,
+    }));
+  }, [comic.numChapter, distance, asc]);
+
+  function onScrollChange(idx: number) {
+    const optionValue = Math.round(idx * gridSize / distance);
+    setCurOptionValue((prev) => {
+      const newVal = Math.min(optionValue, options.length - 1);
+      return newVal !== prev ? newVal : prev;
+    });
+  }
+
+  function onSelectRange(e: React.ChangeEvent<HTMLSelectElement>) {
+    const idx = Number(e.target.value);
+    loopRef.current?.goToItem(idx * distance);
+  }
+
+  function renderChapter(ch: Chapter) {
+    const isRead = readChapters.has(ch.id);
+    return (
+      <Link href={getChapterDetailUrl(comic, ch)} title={ch.title}>
+        <div className={`chapter-item ${isRead ? 'chapter-item-read' : ''}`}>
+          <div className="chapter-item-content">
+            <p className={`chapter-item-title ${isRead ? 'chapter-item-title-read' : ''}`}>
+              Chapter {ch.slug}
+            </p>
+          </div>
+          <div className="chapter-item-date">
+            <div className="chapter-item-date-text">{dateAgoSimple(ch.updateAt)}</div>
+          </div>
+        </div>
+      </Link>
+    );
+  }
 
   return (
-    <div className="chapter-panel max-h-96 flex flex-col">
-      <span className="chapter-title">
-        <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" fill="currentColor" viewBox="0 0 512 512">
-          <path d="M64 144a48 48 0 1 0 0-96 48 48 0 1 0 0 96zM192 64c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zM64 464a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm48-208a48 48 0 1 0 -96 0 48 48 0 1 0 96 0z" />
-        </svg>
-        <p className="chapter-title-text">Danh sách chương</p>
-      </span>
-
-      <div className="chapter-controls">
-        <div className="chapter-search-container">
-          <div className="chapter-search-icon">
-            <svg className="chapter-search-svg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-              <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-            </svg>
-          </div>
-          <input
-            type="search"
-            maxLength={255}
-            className="chapter-search-input"
-            placeholder="Tìm chương..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-
-        <div className="flex items-center">
-          <label className="p-0.5 rounded border border-gray-400 hover:bg-gray-100 dark:hover:bg-neutral-700 bg-white dark:bg-neutral-800 cursor-pointer">
+    <div className="max-h-96 flex flex-col">
+      <div className="chapter-panel">
+        <span className="chapter-title">
+          <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" fill="currentColor" viewBox="0 0 512 512">
+            <path d="M64 144a48 48 0 1 0 0-96 48 48 0 1 0 0 96zM192 64c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zM64 464a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm48-208a48 48 0 1 0 -96 0 48 48 0 1 0 96 0z" />
+          </svg>
+          <p className="chapter-title-text">Danh sách chương</p>
+        </span>
+        <div className="chapter-controls">
+          <div className="chapter-search-container">
+            <div className="chapter-search-icon">
+              <svg className="chapter-search-svg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+              </svg>
+            </div>
             <input
-              className="hidden peer"
-              type="checkbox"
-              checked={asc}
-              onChange={(e) => setAsc(e.target.checked)}
+              type="search"
+              maxLength={255}
+              className="chapter-search-input"
+              placeholder="Tìm chương..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
             />
-            <svg className="size-4 peer-checked:hidden" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4 17H16M4 12H13M4 7H10M18 13V5M18 5L21 8M18 5L15 8" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            <svg className="size-4 hidden peer-checked:block" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4 17H10M4 12H13M18 11V19M18 19L21 16M18 19L15 16M4 7H16" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </label>
-
-          {options.length > 1 && (
-            <select
-              className="chapter-selection ml-1 text-sm border rounded px-2 py-1 bg-white dark:bg-neutral-800"
-              value={selectedRange}
-              onChange={(e) => setSelectedRange(Number(e.target.value))}
-            >
-              {options.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          )}
+          </div>
+          <div className="flex items-center">
+            <label className="p-0.5 rounded border border-gray-400 hover:bg-gray-100 dark:hover:bg-neutral-700 bg-white dark:bg-neutral-800 cursor-pointer">
+              <input
+                className="hidden peer"
+                type="checkbox"
+                checked={asc}
+                onChange={(e) => setAsc(e.target.checked)}
+              />
+              <svg className="size-4 peer-checked:hidden" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 17H16M4 12H13M4 7H10M18 13V5M18 5L21 8M18 5L15 8" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <svg className="size-4 hidden peer-checked:block" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 17H10M4 12H13M18 11V19M18 19L21 16M18 19L15 16M4 7H16" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </label>
+            {options.length > 1 && (
+              <select
+                className="chapter-selection"
+                value={curOptionValue}
+                onChange={onSelectRange}
+              >
+                {options.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            )}
+          </div>
         </div>
       </div>
 
-      {finalChapters.length === 0 ? (
+      {filtered.length === 0 && (
         <div className="chapter-not-found">Không tìm thấy chương ...</div>
-      ) : (
-        <div className="chapter-list-container overflow-y-auto scrollbar-style-1 min-h-32">
-          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 w-full">
-            {finalChapters.map((ch) => (
-              <Link key={ch.id} href={getChapterDetailUrl(comic, ch)} title={ch.title}>
-                <div className="chapter-item">
-                  <div className="chapter-item-content">
-                    <p className={`chapter-item-title ${readChapters.has(ch.id) ? 'chapter-item-title-read' : ''}`}>
-                      Chapter {ch.slug}
-                    </p>
-                  </div>
-                  <div className="chapter-item-date">
-                    <div className="chapter-item-date-text">
-                      {dateAgoSimple(ch.updateAt)}
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
       )}
+
+      <div className="chapter-list-container overflow-hidden min-h-32">
+        <LoopScroll
+          loopRef={loopRef}
+          allItems={filtered}
+          gridSize={gridSize}
+          preloadItemCount={40}
+          itemHeight={56}
+          renderItem={renderChapter}
+          onChange={onScrollChange}
+          trackById={(ch: Chapter) => ch.id}
+        />
+      </div>
     </div>
   );
 }

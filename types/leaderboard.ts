@@ -1,5 +1,7 @@
 export interface IUserLite {
   id: number;
+  firstName?: string;
+  lastName?: string;
   username?: string;
   avatar?: string;
   experience?: number;

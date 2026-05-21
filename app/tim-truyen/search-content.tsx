@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useAdvanceSearch } from '@/lib/hooks/use-comic-queries';
 import { GridComic } from '@/components/common/grid-comic/grid-comic';
 import { Pagination } from '@/components/common/pagination/pagination';
@@ -10,7 +10,8 @@ import { TopList } from '@/components/common/top-list/top-list';
 import { Spinner } from '@/components/common/spinner/spinner';
 import { Empty } from '@/components/common/empty/empty';
 import { GENRES } from '@/lib/constants/genres';
-import { SortType, ComicStatus } from '@/types';
+import { SortType } from '@/types';
+import type { ComicList } from '@/types';
 
 const SORT_OPTIONS = [
   { value: SortType.LastUpdate, label: 'Mới cập nhật' },
@@ -29,26 +30,36 @@ const STATUS_OPTIONS = [
   { value: 1, label: 'Hoàn thành' },
 ];
 
-export default function SearchContent() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
+interface SearchContentProps {
+  page: number;
+  sort: number;
+  status: number;
+  genres: string;
+  nogenres: string;
+  year: number;
+  keyword: string;
+  initialData?: ComicList | null;
+}
 
-  const page = Number(searchParams.get('page')) || 1;
-  const sort = Number(searchParams.get('sort')) >= 0 ? Number(searchParams.get('sort')) : SortType.LastUpdate;
-  const status = Number(searchParams.get('status')) >= 0 ? Number(searchParams.get('status')) : -1;
-  const genresParam = searchParams.get('genres') || '';
-  const nogenresParam = searchParams.get('nogenres') || '';
-  const yearParam = Number(searchParams.get('year')) || -1;
-  const keywordParam = searchParams.get('keyword') || '';
+export default function SearchContent({
+  page: initialPage,
+  sort: initialSort,
+  status: initialStatus,
+  genres: genresParam,
+  nogenres: nogenresParam,
+  year: yearParam,
+  keyword: keywordParam,
+  initialData,
+}: SearchContentProps) {
+  const router = useRouter();
 
   const [showFilters, setShowFilters] = useState(false);
   const [keyword, setKeyword] = useState(keywordParam);
-  const [selectedSort, setSelectedSort] = useState(sort);
-  const [selectedStatus, setSelectedStatus] = useState(status);
+  const [selectedSort, setSelectedSort] = useState(initialSort);
+  const [selectedStatus, setSelectedStatus] = useState(initialStatus);
   const [selectedYear, setSelectedYear] = useState(yearParam > 0 ? yearParam : new Date().getFullYear());
   const [genreState, setGenreState] = useState<Record<number, number>>({});
 
-  // Init genre state from URL
   useEffect(() => {
     const state: Record<number, number> = {};
     genresParam.split(',').filter(Boolean).forEach((id) => { state[Number(id)] = 1; });
@@ -57,19 +68,20 @@ export default function SearchContent() {
   }, []);
 
   const { data, isLoading } = useAdvanceSearch({
-    page,
+    page: initialPage,
     step: 30,
-    sort: selectedSort,
-    status: selectedStatus,
+    sort: initialSort,
+    status: initialStatus,
     genres: genresParam || undefined,
     nogenres: nogenresParam || undefined,
     year: yearParam > 0 ? yearParam : undefined,
     keyword: keywordParam || undefined,
   });
 
-  const comics = data?.comics ?? [];
-  const totalpage = data?.totalpage ?? 1;
+  const comics = initialData?.comics ?? data?.comics ?? [];
+  const totalpage = initialData?.totalpage ?? data?.totalpage ?? 1;
   const totalResult = totalpage > 0 ? ((totalpage - 1) * 30 + comics.length) : 0;
+  const loading = !initialData && isLoading;
 
   const performSearch = useCallback(() => {
     const genres: string[] = [];
@@ -101,7 +113,7 @@ export default function SearchContent() {
   const activeGenreKeys = Object.entries(genreState).filter(([, v]) => v > 0);
 
   return (
-    <div className="container mx-auto px-3 py-4">
+    <div className="container mx-auto py-4">
       <Breadcrumb items={[
         { label: 'Trang chủ', href: '/' },
         { label: 'Tìm truyện', href: '/tim-truyen' },
@@ -262,12 +274,12 @@ export default function SearchContent() {
         {/* Results */}
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-4">
           <div id="listComic" className="xl:col-span-3">
-            {isLoading ? (
+            {loading ? (
               <Spinner />
             ) : comics.length > 0 ? (
               <>
                 <GridComic listComics={comics} title={`(${totalResult}) kết quả`} />
-                <Pagination currentPage={page} totalpage={totalpage} rootLink="/tim-truyen" />
+                <Pagination currentPage={initialPage} totalpage={totalpage} rootLink="/tim-truyen" />
               </>
             ) : (
               <div className="flex justify-center py-20">

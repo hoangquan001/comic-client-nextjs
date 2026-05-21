@@ -1,24 +1,27 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
 import { useHotComics } from '@/lib/hooks/use-comic-queries';
 import { GridComic } from '@/components/common/grid-comic/grid-comic';
 import { Pagination } from '@/components/common/pagination/pagination';
 import { Breadcrumb } from '@/components/common/breadcrumb/breadcrumb';
 import { TopList } from '@/components/common/top-list/top-list';
 import { Spinner } from '@/components/common/spinner/spinner';
+import type { ComicList } from '@/types';
 
-export default function HotComicsContent() {
-  const searchParams = useSearchParams();
-  const page = Number(searchParams.get('page')) || 1;
+interface HotComicsContentProps {
+  page: number;
+  initialData?: ComicList | null;
+}
 
+export default function HotComicsContent({ page, initialData }: HotComicsContentProps) {
   const { data, isLoading } = useHotComics(page);
 
-  const comics = data?.comics ?? [];
-  const totalpage = data?.totalpage ?? 1;
+  const comics = initialData?.comics ?? data?.comics ?? [];
+  const totalpage = initialData?.totalpage ?? data?.totalpage ?? 1;
+  const loading = !initialData && isLoading;
 
   return (
-    <div className="container mx-auto px-3 py-4">
+    <div className="container mx-auto py-4">
       <Breadcrumb items={[
         { label: 'Trang chủ', href: '/' },
         { label: 'Truyện tranh hot', href: '/truyen-hot' },
@@ -26,7 +29,7 @@ export default function HotComicsContent() {
 
       <div className="mt-4 grid grid-cols-1 xl:grid-cols-4 gap-4">
         <div id="listComic" className="xl:col-span-3">
-          {isLoading ? (
+          {loading ? (
             <Spinner />
           ) : (
             <GridComic

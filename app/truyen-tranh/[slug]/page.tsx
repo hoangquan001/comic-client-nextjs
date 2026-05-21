@@ -1,10 +1,8 @@
-import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { serverFetch } from '@/lib/api/server-fetch';
+import { publicFetch } from '@/lib/api/server-fetch';
 import { generateComicMetadata } from '@/lib/seo/metadata';
 import { generateComicSchema, generateBreadcrumbSchema } from '@/lib/seo/json-ld';
-import { Spinner } from '@/components/common/spinner/spinner';
 import type { Comic, IServiceResponse } from '@/types';
 import ComicDetailContent from './comic-detail-content';
 
@@ -15,8 +13,8 @@ interface ComicDetailPageProps {
 export async function generateMetadata({ params }: ComicDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
   try {
-    const res = await serverFetch<IServiceResponse<Comic>>(`/comic/${slug}`);
-    if (res.status !== 200 || !res.data) return { title: 'Không tìm thấy truyện' };
+    const res = await publicFetch<IServiceResponse<Comic>>(`/comic/${slug}?chaptercount=1`);
+    if ((res.status !== 200 && res.status !== 1) || !res.data) return { title: 'Không tìm thấy truyện' };
     return generateComicMetadata(res.data);
   } catch {
     return { title: 'Không tìm thấy truyện' };
@@ -25,11 +23,10 @@ export async function generateMetadata({ params }: ComicDetailPageProps): Promis
 
 export default async function ComicDetailPage({ params }: ComicDetailPageProps) {
   const { slug } = await params;
-
   let comic: Comic;
   try {
-    const res = await serverFetch<IServiceResponse<Comic>>(`/comic/${slug}?chaptercount=1`);
-    if (res.status !== 200 || !res.data) notFound();
+    const res = await publicFetch<IServiceResponse<Comic>>(`/comic/${slug}?chaptercount=1`);
+    if ((res.status !== 200 && res.status !== 1) || !res.data) notFound();
     comic = res.data;
   } catch {
     notFound();
@@ -48,13 +45,11 @@ export default async function ComicDetailPage({ params }: ComicDetailPageProps) 
 
   return (
     <>
-      <script
+      {/* <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify([comicSchema, breadcrumbSchema]) }}
-      />
-      <Suspense fallback={<div className="flex justify-center py-20"><Spinner /></div>}>
-        <ComicDetailContent comic={comic} />
-      </Suspense>
+      /> */}
+      <ComicDetailContent comic={comic} />
     </>
   );
 }

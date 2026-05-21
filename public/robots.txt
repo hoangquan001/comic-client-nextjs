@@ -1,7 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /tai-khoan/
-Disallow: /auth/login
+Disallow: /auth/dang-nhap
 Disallow: /auth/forgot-password
 Disallow: /auth/register
 Disallow: /lich-su

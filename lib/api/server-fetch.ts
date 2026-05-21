@@ -1,45 +1,51 @@
 import { cookies, headers as nextHeaders } from 'next/headers';
 import { config } from '@/lib/config';
 
+export async function publicFetch<T>(path: string): Promise<T> {
+  const baseUrl = config.BASE_API_URL + '/api';
+  const url = path.startsWith('http') ? path : `${baseUrl}${path}`;
+
+  const res = await fetch(url, {
+    headers: { 'Content-Type': 'application/json' },
+    next: { revalidate: 3600 },
+  });
+
+  if (!res.ok) throw new Error(`API error: ${res.status} ${res.statusText}`);
+  return res.json();
+}
+
 export async function serverFetch<T>(
   path: string,
-  options: RequestInit = {}
+  options: { method?: string; data?: any; headers?: Record<string, string> } = {}
 ): Promise<T> {
   const cookieStore = await cookies();
   const headersList = await nextHeaders();
 
-  const authToken = cookieStore.get('auth')?.value;
-  const realHost = headersList.get('host');
-
   const reqHeaders: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...(options.headers as Record<string, string>),
+    ...(options.headers || {}),
   };
 
+  const authToken = cookieStore.get('auth')?.value;
   if (authToken) {
     try {
       const user = JSON.parse(authToken);
-      if (user?.token) {
-        reqHeaders['Authorization'] = `Bearer ${user.token}`;
-      }
+      if (user?.token) reqHeaders['Authorization'] = `Bearer ${user.token}`;
     } catch {}
   }
 
-  if (realHost) {
-    reqHeaders['X-Real-Host'] = realHost;
-  }
+  const realHost = headersList.get('host');
+  if (realHost) reqHeaders['X-Real-Host'] = realHost;
 
   const baseUrl = config.BASE_API_URL + '/api';
   const url = path.startsWith('http') ? path : `${baseUrl}${path}`;
 
   const res = await fetch(url, {
-    ...options,
+    method: options.method || 'GET',
     headers: reqHeaders,
+    body: options.data ? JSON.stringify(options.data) : undefined,
   });
 
-  if (!res.ok) {
-    throw new Error(`API error: ${res.status} ${res.statusText}`);
-  }
-
+  if (!res.ok) throw new Error(`API error: ${res.status} ${res.statusText}`);
   return res.json();
 }

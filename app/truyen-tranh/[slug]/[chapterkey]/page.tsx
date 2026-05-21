@@ -1,10 +1,8 @@
-import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { serverFetch } from '@/lib/api/server-fetch';
+import { publicFetch } from '@/lib/api/server-fetch';
 import { generateChapterMetadata } from '@/lib/seo/metadata';
 import { generateChapterSchema, generateBreadcrumbSchema } from '@/lib/seo/json-ld';
-import { Spinner } from '@/components/common/spinner/spinner';
 import type { Comic, ChapterPage, IServiceResponse } from '@/types';
 import ChapterReaderContent from './chapter-reader-content';
 
@@ -15,14 +13,11 @@ interface ChapterPageProps {
 export async function generateMetadata({ params }: ChapterPageProps): Promise<Metadata> {
   const { slug, chapterkey } = await params;
   try {
-    const res = await serverFetch<IServiceResponse<ChapterPage>>(
+    const res = await publicFetch<IServiceResponse<ChapterPage>>(
       `/comic/${slug}/chapter/${chapterkey}`
     );
-    if (res.status !== 200 || !res.data) return { title: 'Không tìm thấy chương' };
-    const chapterData = res.data;
-    const comic = chapterData.comic;
-    const chapter = chapterData;
-    return generateChapterMetadata(comic, chapter);
+    if ((res.status !== 200 && res.status !== 1) || !res.data) return { title: 'Không tìm thấy chương' };
+    return generateChapterMetadata(res.data.comic, res.data);
   } catch {
     return { title: 'Không tìm thấy chương' };
   }
@@ -30,13 +25,12 @@ export async function generateMetadata({ params }: ChapterPageProps): Promise<Me
 
 export default async function ChapterReaderPage({ params }: ChapterPageProps) {
   const { slug, chapterkey } = await params;
-
   let chapterData: ChapterPage;
   try {
-    const res = await serverFetch<IServiceResponse<ChapterPage>>(
+    const res = await publicFetch<IServiceResponse<ChapterPage>>(
       `/comic/${slug}/chapter/${chapterkey}`
     );
-    if (res.status !== 200 || !res.data) notFound();
+    if ((res.status !== 200 && res.status !== 1) || !res.data) notFound();
     chapterData = res.data;
   } catch {
     notFound();
@@ -57,13 +51,11 @@ export default async function ChapterReaderPage({ params }: ChapterPageProps) {
 
   return (
     <>
-      <script
+      {/* <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify([chapterSchema, breadcrumbSchema]) }}
-      />
-      <Suspense fallback={<div className="flex justify-center py-20"><Spinner /></div>}>
-        <ChapterReaderContent chapterData={chapterData} />
-      </Suspense>
+      /> */}
+      <ChapterReaderContent chapterData={chapterData} />
     </>
   );
 }

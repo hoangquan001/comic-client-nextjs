@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useChapters, useChapterServer } from '@/lib/hooks/use-comic-queries';
 import { useUpdateViewAndExp } from '@/lib/hooks/use-account-queries';
@@ -551,12 +552,14 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
             {!isImageLoading &&
               listImgs.map((img, i) => (
                 <div key={i} className="page-chapter">
-                  <img
+                  <Image
                     loading={i <= preloadPages ? 'eager' : 'lazy'}
                     fetchPriority={i <= 1 ? 'high' : 'auto'}
                     className={`chapter-page-image ${!isVertical ? 'chapter-page-horizontal' : ''} ${isNightMode ? 'night-mode' : ''}`}
                     alt={`${comic.title} Chương ${chapterData.slug} Ảnh ${i + 1}`}
                     src={img}
+                    width={1200}
+                    height={1800}
                     onError={handleImageError}
                   />
                 </div>

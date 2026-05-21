@@ -1,12 +1,13 @@
 'use client';
 
-import { useSearchParams, useRouter, useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useComics } from '@/lib/hooks/use-comic-queries';
 import { GridComic } from '@/components/common/grid-comic/grid-comic';
 import { Pagination } from '@/components/common/pagination/pagination';
 import { Spinner } from '@/components/common/spinner/spinner';
 import { GENRES } from '@/lib/constants/genres';
 import { SortType, ComicStatus } from '@/types';
+import type { ComicList } from '@/types';
 import Link from 'next/link';
 
 const SORT_OPTIONS = [
@@ -26,61 +27,52 @@ const STATUS_OPTIONS = [
   { value: ComicStatus.COMPLETED, label: 'Hoàn thành' },
 ];
 
-export default function GenreDetailContent() {
-  const params = useParams();
-  const searchParams = useSearchParams();
+interface GenreDetailContentProps {
+  slug: string;
+  genre: { id: number; title: string; slug?: string; description?: string | null };
+  page: number;
+  sort: number;
+  status: number;
+  initialData?: ComicList | null;
+}
+
+export default function GenreDetailContent({ slug, genre, page, sort, status, initialData }: GenreDetailContentProps) {
   const router = useRouter();
-
-  const slug = params.slug as string;
-  const currentGenre = GENRES.find((g) => g.slug === slug);
-
-  const page = Number(searchParams.get('page')) || 1;
-  const sort = Number(searchParams.get('sort')) >= 0 ? Number(searchParams.get('sort')) : SortType.LastUpdate;
-  const status = Number(searchParams.get('status')) >= 0 ? Number(searchParams.get('status')) : ComicStatus.ALL;
 
   const { data, isLoading } = useComics({
     page: String(page),
     step: '35',
-    genre: currentGenre ? String(currentGenre.id) : undefined,
+    genre: String(genre.id),
     sort: String(sort),
     status: String(status),
   });
 
-  const comics = data?.comics ?? [];
-  const totalpage = data?.totalpage ?? 1;
+  const comics = initialData?.comics ?? data?.comics ?? [];
+  const totalpage = initialData?.totalpage ?? data?.totalpage ?? 1;
+  const loading = !initialData && isLoading;
 
   const updateQuery = (updates: Record<string, string | number>) => {
-    const sp = new URLSearchParams(searchParams.toString());
-    for (const [key, value] of Object.entries(updates)) {
-      if (value === undefined || value === -1) {
-        sp.delete(key);
-      } else {
-        sp.set(key, String(value));
-      }
+    const current: Record<string, string | number> = { sort, page };
+    if (status >= 0) current.status = status;
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries({ ...current, ...updates })) {
+      if (value === undefined || value === -1) continue;
+      params.set(key, String(value));
     }
-    router.push(`/the-loai/${slug}?${sp.toString()}#listComic`);
+    router.push(`/the-loai/${slug}?${params.toString()}#listComic`);
   };
 
-  if (!currentGenre) {
-    return (
-      <div className="container mx-auto px-3 py-8 text-center">
-        <h1 className="text-2xl font-bold mb-4">Thể loại không tồn tại</h1>
-        <Link href="/the-loai" className="text-blue-600 hover:underline">Quay lại danh sách thể loại</Link>
-      </div>
-    );
-  }
-
-  const description = currentGenre.description || `Khám phá kho tàng truyện tranh thể loại ${currentGenre.title} với những câu chuyện hấp dẫn, đa dạng và phong phú.`;
+  const description = genre.description || `Khám phá kho tàng truyện tranh thể loại ${genre.title} với những câu chuyện hấp dẫn, đa dạng và phong phú.`;
 
   return (
-    <div className="container mx-auto px-3 py-4">
+    <div className="container mx-auto py-4">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-sm mb-5 text-neutral-500">
         <Link href="/" className="hover:text-primary-100">Trang chủ</Link>
         <span>/</span>
         <Link href="/the-loai" className="hover:text-primary-100">Thể loại</Link>
         <span>/</span>
-        <span className="text-neutral-800 dark:text-neutral-200 font-medium">{currentGenre.title}</span>
+        <span className="text-neutral-800 dark:text-neutral-200 font-medium">{genre.title}</span>
       </nav>
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
@@ -95,7 +87,7 @@ export default function GenreDetailContent() {
                 <path d="M17 22H19C21 22 22 21 22 19V17C22 15 21 14 19 14H17C15 14 14 15 14 17V19C14 21 15 22 17 22Z" />
                 <path d="M5 22H7C9 22 10 21 10 19V17C10 15 9 14 7 14H5C3 14 2 15 2 17V19C2 21 3 22 5 22Z" />
               </svg>
-              Thể loại {currentGenre.title}
+              Thể loại {genre.title}
               <span className="text-lg font-normal opacity-70">({totalpage * 35} truyện)</span>
             </h1>
             <p className="text-sm opacity-70 mt-1">{description}</p>
@@ -130,7 +122,7 @@ export default function GenreDetailContent() {
           </div>
 
           {/* Comics Grid */}
-          {isLoading ? (
+          {loading ? (
             <Spinner />
           ) : (
             <GridComic listComics={comics} title="" />
@@ -153,18 +145,18 @@ export default function GenreDetailContent() {
               Danh sách thể loại
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-2 gap-2">
-              {GENRES.map((genre) => (
+              {GENRES.map((g) => (
                 <Link
-                  key={genre.id}
-                  href={`/the-loai/${genre.slug}`}
-                  title={genre.title}
+                  key={g.id}
+                  href={`/the-loai/${g.slug}`}
+                  title={g.title}
                   className={`px-3 py-2 rounded-md text-sm font-medium no-underline transition-colors ${
-                    genre.slug === slug
+                    g.slug === slug
                       ? 'bg-primary-100 text-white'
                       : 'bg-neutral-100 dark:bg-neutral-700 text-gray-700 dark:text-gray-200 hover:text-white hover:bg-primary-100'
                   }`}
                 >
-                  {genre.title}
+                  {g.title}
                 </Link>
               ))}
             </div>

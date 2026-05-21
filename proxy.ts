@@ -11,7 +11,7 @@ export function proxy(request: NextRequest) {
 
   if (PROTECTED_ROUTES.some((route) => pathname.startsWith(route))) {
     if (!authCookie) {
-      const loginUrl = new URL('/auth/login', request.url);
+      const loginUrl = new URL('/auth/dang-nhap', request.url);
       loginUrl.searchParams.set('redirect', pathname);
       return NextResponse.redirect(loginUrl);
     }

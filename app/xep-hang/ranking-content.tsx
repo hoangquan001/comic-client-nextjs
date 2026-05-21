@@ -1,12 +1,13 @@
 'use client';
 
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useComics } from '@/lib/hooks/use-comic-queries';
 import { GridComic } from '@/components/common/grid-comic/grid-comic';
 import { Pagination } from '@/components/common/pagination/pagination';
 import { Breadcrumb } from '@/components/common/breadcrumb/breadcrumb';
 import { Spinner } from '@/components/common/spinner/spinner';
 import { SortType, ComicStatus } from '@/types';
+import type { ComicList } from '@/types';
 
 const SORT_OPTIONS = [
   { value: SortType.TopAll, label: 'Top All' },
@@ -26,13 +27,15 @@ const STATUS_OPTIONS = [
   { value: ComicStatus.COMPLETED, label: 'Hoàn thành' },
 ];
 
-export default function RankingContent() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
+interface RankingContentProps {
+  page: number;
+  sort: number;
+  status: number;
+  initialData?: ComicList | null;
+}
 
-  const page = Number(searchParams.get('page')) || 1;
-  const sort = Number(searchParams.get('sort')) || SortType.TopAll;
-  const status = Number(searchParams.get('status')) >= 0 ? Number(searchParams.get('status')) : ComicStatus.ALL;
+export default function RankingContent({ page, sort, status, initialData }: RankingContentProps) {
+  const router = useRouter();
 
   const { data, isLoading } = useComics({
     page: String(page),
@@ -42,23 +45,23 @@ export default function RankingContent() {
     status: String(status),
   });
 
-  const comics = data?.comics ?? [];
-  const totalpage = data?.totalpage ?? 1;
+  const comics = initialData?.comics ?? data?.comics ?? [];
+  const totalpage = initialData?.totalpage ?? data?.totalpage ?? 1;
+  const loading = !initialData && isLoading;
 
   const updateQuery = (updates: Record<string, string | number>) => {
-    const params = new URLSearchParams(searchParams.toString());
-    for (const [key, value] of Object.entries(updates)) {
-      if (value === undefined || value === '' || value === -1) {
-        params.delete(key);
-      } else {
-        params.set(key, String(value));
-      }
+    const current: Record<string, string | number> = { sort, page };
+    if (status >= 0) current.status = status;
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries({ ...current, ...updates })) {
+      if (value === undefined || value === '' || value === -1) continue;
+      params.set(key, String(value));
     }
     router.push(`/xep-hang?${params.toString()}#listComic`);
   };
 
   return (
-    <div className="container mx-auto px-3 py-4">
+    <div className="container mx-auto py-4">
       <Breadcrumb items={[
         { label: 'Trang chủ', href: '/' },
         { label: 'Xếp hạng', href: '/xep-hang' },
@@ -107,7 +110,7 @@ export default function RankingContent() {
         </div>
 
         {/* Comics */}
-        {isLoading ? (
+        {loading ? (
           <Spinner />
         ) : (
           <GridComic listComics={comics} title="" />

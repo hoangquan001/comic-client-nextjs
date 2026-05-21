@@ -16,7 +16,8 @@ import type {
 } from '@/types';
 
 function unwrap<T>(res: IServiceResponse<T>): T {
-  if (res.status !== 200 || !res.data) {
+  console.log(res);
+  if ((res.status !== 200 && res.status !== 1) || !res.data) {
     throw new Error(res.message || 'API error');
   }
   return res.data;
@@ -38,7 +39,7 @@ export function useComics(params: {
   genre?: string;
   sort?: string;
   status?: string;
-}) {
+}, initialData?: ComicList | null) {
   const searchParams = new URLSearchParams();
   if (params.page) searchParams.set('page', params.page);
   if (params.step) searchParams.set('step', params.step);
@@ -52,15 +53,19 @@ export function useComics(params: {
       clientFetch<IServiceResponse<ComicList>>(
         `/comics?${searchParams.toString()}`
       ).then(unwrap),
+    initialData,
   });
 }
 
-export function useRecommendComics() {
+export function useRecommendComics(initialData?: Comic[] | null) {
   return useQuery({
     queryKey: ['recommendComics'],
     queryFn: () =>
       clientFetch<IServiceResponse<Comic[]>>(`/comic/recommend`).then(unwrap),
-  });
+    initialData
+  }
+
+  );
 }
 
 export function useComicById(
