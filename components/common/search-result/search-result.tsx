@@ -14,14 +14,14 @@ const DEBOUNCE_MS = 500;
 
 export function SearchBox() {
   const [isSearching, setIsSearching] = useState(false);
+  const [isWaiting, setIsWaiting] = useState(false);
   const [keyword, setKeyword] = useState('');
   const [debouncedKeyword, setDebouncedKeyword] = useState('');
 
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { data: listSearch = [], isLoading } =
-    useSearchComic(debouncedKeyword);
+  const { data: listSearch = [], isLoading } = useSearchComic(debouncedKeyword);
 
   useClickOutside(containerRef, () => {
     setIsSearching(false);
@@ -46,6 +46,7 @@ export function SearchBox() {
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setKeyword(e.target.value);
+
     },
     []
   );
@@ -103,7 +104,7 @@ export function SearchBox() {
             value={keyword}
             onChange={handleInputChange}
             onFocus={handleFocus}
-            placeholder="Tim kiem..."
+            placeholder="Tìm kiếm..."
             className="w-2/4 rounded-lg pl-4 pr-8 py-2 outline-none border-[1px] dark:border-neutral-500 dark:bg-neutral-700 bg-neutral-200 focus:bg-white dark:focus:bg-neutral-600 text-black absolute right-0 h-8 dark:text-light-text transition-[width] focus:!w-full focus:border-primary-100 focus:border-2"
           />
 
@@ -154,7 +155,7 @@ export function SearchBox() {
                   {keyword !== '' && (
                     <div className="flex items-center my-4 dark:text-light-text">
                       <div className="font-bold text-xl flex-grow">
-                        Ket qua
+                        Kết quả
                       </div>
                       <svg
                         className="h-6 w-6 cursor-pointer"
@@ -175,7 +176,7 @@ export function SearchBox() {
                   {!keyword && (
                     <div className="flex items-center">
                       <div className="text-md flex-grow mt-3 text-neutral-400">
-                        Nhap tu khoa tim kiem...
+                        Nhập từ khoá tìm kiếm
                       </div>
                     </div>
                   )}

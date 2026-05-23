@@ -5,6 +5,7 @@ import { useComics } from '@/lib/hooks/use-comic-queries';
 import { GridComic } from '@/components/common/grid-comic/grid-comic';
 import { Pagination } from '@/components/common/pagination/pagination';
 import { Spinner } from '@/components/common/spinner/spinner';
+import Selection from '@/components/common/selection/selection';
 import { GENRES } from '@/lib/constants/genres';
 import { SortType, ComicStatus } from '@/types';
 import type { ComicList } from '@/types';
@@ -97,27 +98,21 @@ export default function GenreDetailContent({ slug, genre, page, sort, status, in
           <div className="flex flex-wrap items-center gap-4 mb-4">
             <div className="flex items-center gap-2">
               <label className="text-sm font-medium">Sắp xếp:</label>
-              <select
+              <Selection
                 value={sort}
-                onChange={(e) => updateQuery({ sort: e.target.value, page: 1 })}
+                options={SORT_OPTIONS}
+                onChange={(nextValue) => updateQuery({ sort: Number(nextValue), page: 1 })}
                 className="px-3 py-1.5 rounded-lg bg-white/70 dark:bg-zinc-900/60 border border-zinc-200/60 dark:border-zinc-800 text-sm outline-none"
-              >
-                {SORT_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
+              />
             </div>
             <div className="flex items-center gap-2">
               <label className="text-sm font-medium">Trạng thái:</label>
-              <select
+              <Selection
                 value={status}
-                onChange={(e) => updateQuery({ status: e.target.value, page: 1 })}
+                options={STATUS_OPTIONS}
+                onChange={(nextValue) => updateQuery({ status: Number(nextValue), page: 1 })}
                 className="px-3 py-1.5 rounded-lg bg-white/70 dark:bg-zinc-900/60 border border-zinc-200/60 dark:border-zinc-800 text-sm outline-none"
-              >
-                {STATUS_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
+              />
             </div>
           </div>
 

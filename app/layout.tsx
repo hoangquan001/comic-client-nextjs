@@ -2,8 +2,7 @@ import type { Metadata } from 'next';
 import { Roboto, Geist } from 'next/font/google';
 import './globals.css';
 import { AppProviders } from '@/components/providers/app-providers';
-import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
+import { Header ,Footer, Nav} from '@/components/layout';
 import { ChatBubble } from '@/components/layout/chat-bubble';
 import { PopupManager } from '@/components/layout/popup-manager';
 import { config } from '@/lib/config';
@@ -50,9 +49,9 @@ export default function RootLayout({
           />
           <div className="wrapper-container flex flex-col">
             <Header />
+            <Nav />
             <main className="flex-1">{children}</main>
             <Footer />
-
             <Suspense>
               <Toaster />
               <ChatBubble />

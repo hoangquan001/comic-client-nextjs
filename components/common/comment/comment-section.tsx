@@ -10,27 +10,13 @@ import EmojiPicker from '@/components/common/emoji/emoji-picker';
 import { getChapterDetailUrl2 } from '@/lib/utils/url';
 import type { Comic, Comment } from '@/types';
 import { toast } from 'sonner';
+import { dateAgo } from '@/lib/utils/date';
 
 interface CommentSectionProps {
   comic: Comic;
   chapterID: number;
 }
 
-function dateAgo(dateStr?: string | Date): string {
-  if (!dateStr) return '';
-  const date = new Date(dateStr);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffSec = Math.floor(diffMs / 1000);
-  const diffMin = Math.floor(diffSec / 60);
-  const diffHour = Math.floor(diffMin / 60);
-  const diffDay = Math.floor(diffHour / 24);
-  if (diffDay > 30) return date.toLocaleDateString('vi-VN');
-  if (diffDay > 0) return `${diffDay} ngày trước`;
-  if (diffHour > 0) return `${diffHour} giờ trước`;
-  if (diffMin > 0) return `${diffMin} phút trước`;
-  return 'Vừa xong';
-}
 
 function renderEmojiContent(content: string) {
   const nodes: ReactNode[] = [];

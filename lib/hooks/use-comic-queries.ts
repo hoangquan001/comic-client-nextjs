@@ -16,7 +16,6 @@ import type {
 } from '@/types';
 
 function unwrap<T>(res: IServiceResponse<T>): T {
-  console.log(res);
   if ((res.status !== 200 && res.status !== 1) || !res.data) {
     throw new Error(res.message || 'API error');
   }

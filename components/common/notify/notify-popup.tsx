@@ -6,22 +6,12 @@ import Image from 'next/image';
 import { useUserNotify, useUpdateNotify, useDeleteNotify } from '@/lib/hooks/use-account-queries';
 import { Empty } from '@/components/common/empty/empty';
 import type { INotification } from '@/types';
+import { dateAgo } from '@/lib/utils/date';
 
 interface NotifyPopupProps {
   onClose: () => void;
 }
 
-function dateAgo(dateStr?: string | Date): string {
-  if (!dateStr) return '';
-  const date = new Date(dateStr);
-  const now = new Date();
-  const diffMin = Math.floor((now.getTime() - date.getTime()) / 60000);
-  if (diffMin < 1) return 'Mới cập nhật';
-  if (diffMin <= 60) return `${diffMin} phút trước`;
-  if (diffMin <= 1440) return `${Math.floor(diffMin / 60)} giờ trước`;
-  if (diffMin <= 10080) return `${Math.floor(diffMin / 1440)} ngày trước`;
-  return `${Math.floor(diffMin / 10080)} tuần trước`;
-}
 
 export default function NotifyPopup({ onClose }: NotifyPopupProps) {
   const [optionNotify, setOptionNotify] = useState(0);

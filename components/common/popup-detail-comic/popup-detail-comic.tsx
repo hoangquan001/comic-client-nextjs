@@ -25,7 +25,7 @@ const slideInUpStyle = `
 export function PopupDetailComic({ comic, visible }: PopupDetailComicProps) {
   if (!visible || !comic) return null;
 
-  const descriptionHtml = fillDescription(comic.description ?? null, comic);
+  const descriptionHtml = fillDescription(comic.description, comic);
 
   return (
     <>

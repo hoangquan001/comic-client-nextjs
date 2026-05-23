@@ -4,14 +4,13 @@ import { useState, useRef } from 'react';
 import { useClickOutside } from '@/lib/hooks/use-click-outside';
 import { useAuthStore } from '@/lib/stores/use-auth-store';
 import { useUserNotify } from '@/lib/hooks/use-account-queries';
-import NotifyPopup from './notify-popup';
-
+import dynamic from 'next/dynamic';
+const NotifyPopup = dynamic(() => import('./notify-popup'), { ssr: false });
 export default function NotifyBell() {
-  const { isAuthenticated } = useAuthStore();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [isVisible, setIsVisible] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  const { data: notifyData } = useUserNotify();
+  const { data: notifyData } = useUserNotify(isAuthenticated);
   const notifications = notifyData ?? [];
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 

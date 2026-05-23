@@ -1,6 +1,4 @@
-
-import Link from 'next/link';
-import { GridComic, Pagination, TopList, AnnouncementBanner, RecentRead, TopUsers, SimpleCarousel } from '@/components/common';
+import { GridComic, Pagination, TopList, AnnouncementBanner, RecentRead, TopUsers, SimpleCarousel, RecentCommentsPanel } from '@/components/common';
 import type { ComicList, Comic } from '@/types';
 import { Suspense } from 'react';
 
@@ -47,6 +45,7 @@ export default function HomeContent({ page, initialComics, initialCarousel }: Ho
         <div className="flex flex-col gap-4">
           <Suspense>
             <TopList />
+            {/* <RecentCommentsPanel /> */}
             <TopUsers />
           </Suspense>
         </div>

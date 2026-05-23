@@ -45,10 +45,6 @@ export default async function ComicDetailPage({ params }: ComicDetailPageProps) 
 
   return (
     <>
-      {/* <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify([comicSchema, breadcrumbSchema]) }}
-      /> */}
       <ComicDetailContent comic={comic} />
     </>
   );

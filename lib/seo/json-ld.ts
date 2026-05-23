@@ -1,5 +1,6 @@
 import type { Comic, Chapter, Genre } from '@/types';
 import { config } from '@/lib/config';
+import { fillDescription } from '../utils/description';
 
 export function generateBreadcrumbSchema(
   items: { name: string; url: string }[]
@@ -35,7 +36,7 @@ export function generateComicSchema(comic: Comic) {
     '@context': 'https://schema.org',
     '@type': 'Book',
     name: comic.title,
-    description: comic.description || undefined,
+    description: fillDescription(comic.description, comic),
     image: comic.coverImage || undefined,
     author: comic.author ? { '@type': 'Person', name: comic.author } : undefined,
     url: `${config.BASE_URL}/truyen-tranh/${comic.url}`,

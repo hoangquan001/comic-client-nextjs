@@ -65,22 +65,20 @@ export function ComicCard({ comic }: ComicCardProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
         <div className="w-full bg-gradient-to-t from-black to-black/20 absolute bottom-0 flex text-white text-xs p-1 w-full flex-col">
           {/* <h3 className="font-semibold line-clamp-2 text-sm text-white">{comic.title}</h3> */}
-          {hasChapters && (
-            <div className="flex justify-between w-full">
-              <div className="flex gap-1 items-center text-neutral-200 fill-slate-200">
-                <Image src="/icons/view.svg" alt="views" className="w-3 h-3" width={12} height={12} />
-                <span className="font-normal text-[0.7rem] text-center uppercase">{formatNumber(comic.viewCount)}</span>
-              </div>
-              <div className="flex gap-1 items-center text-neutral-200 fill-slate-200">
-                <span className="text-yellow-400 mr-1">★</span>
-                <span className="font-normal text-[0.7rem] text-center uppercase">{formatNumber(comic.rating)}</span>
-              </div>
-              {/* <div className="flex rounded-sm bg-primary-100/50 items-center text-neutral-200 fill-slate-200">
+          <div className="flex justify-between w-full">
+            <div className="flex gap-1 items-center text-neutral-200 fill-slate-200">
+              <Image src="/icons/view.svg" alt="views" className="w-3 h-3" width={12} height={12} />
+              <span className="font-normal text-[0.7rem] text-center uppercase">{formatNumber(comic.viewCount)}</span>
+            </div>
+            <div className="flex gap-1 items-center text-neutral-200 fill-slate-200">
+              <span className="text-yellow-400 mr-1">★</span>
+              <span className="font-normal text-[0.7rem] text-center uppercase">{formatNumber(comic.rating)}</span>
+            </div>
+            {/* <div className="flex rounded-sm bg-primary-100/50 items-center text-neutral-200 fill-slate-200">
                 <span className="text-[0.6rem] p-[0.5px]  shadow-md px-2 uppercase text-white">{comic.genres?.[0]?.title}</span>
               </div> */}
 
-            </div>
-          )}
+          </div>
         </div>
       </Link>
 

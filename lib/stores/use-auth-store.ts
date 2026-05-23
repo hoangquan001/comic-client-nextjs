@@ -27,10 +27,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isAuthenticated: false,
 
   setUser: (user) => {
+    console.log(user);
     set({ user, isAuthenticated: !!user });
   },
 
+
   saveUser: (user) => {
+        console.log(user);
+
     Cookies.set('auth', JSON.stringify(user), { expires: 365, path: '/' });
     set({ user, isAuthenticated: true });
   },
@@ -41,6 +45,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   getToken: () => {
+        console.log(get().user);
+
     return get().user?.token;
   },
 }));

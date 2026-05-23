@@ -66,7 +66,7 @@ export default function FollowedContent({ page }: FollowedContentProps) {
         </div>
       ) : (
         <div id="comics" className="mt-4">
-          <div className="flex items-center justify-between mb-3">
+          {/* <div className="flex items-center justify-between mb-3">
             <h2 className="block-title flex items-center gap-2">
               <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" />
@@ -84,16 +84,9 @@ export default function FollowedContent({ page }: FollowedContentProps) {
               </svg>
               <span className="hidden lg:block">Đồng bộ</span>
             </Link>
-          </div>
+          </div> */}
 
-          <div className="grid gap-3 grid-cols-2 @lg:grid-cols-3 @2xl:grid-cols-4 @4xl:grid-cols-5 @5xl:grid-cols-6 @6xl:grid-cols-7 mx-2">
-            {comics.map((comic) => (
-              <div key={comic.id} className="relative group">
-                {/* ComicCard will be rendered inline for action overlay */}
-                <ComicCardWithAction comic={comic} onUnfollow={handleUnfollow} />
-              </div>
-            ))}
-          </div>
+          <GridComic title="Theo dõi" listComics={comics} ></GridComic>
 
           <Pagination
             currentPage={page}

@@ -9,7 +9,9 @@ import { useUpdateViewAndExp } from '@/lib/hooks/use-account-queries';
 import { useHistoryStore } from '@/lib/stores/use-history-store';
 import { useSettingsStore } from '@/lib/stores/use-settings-store';
 import { Breadcrumb } from '@/components/common/breadcrumb/breadcrumb';
+import Selection from '@/components/common/selection/selection';
 import { getComicDetailUrl, getChapterDetailUrl } from '@/lib/utils/url';
+import { SettingCategory } from '@/types';
 import type { ChapterPage, ChapterServer, Chapter, Comic } from '@/types';
 
 const BANNER_IMG = '/banner/banner-manga-4.webp';
@@ -94,6 +96,14 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
     },
     []
   );
+
+  const openReadingSettings = useCallback(() => {
+    window.dispatchEvent(
+      new CustomEvent('open-settings', {
+        detail: { category: SettingCategory.READING },
+      }),
+    );
+  }, []);
 
   const chapterServerQuery = useChapterServer(
     isErrorPages ? chapterServers[(selectedServerIdx + 1) % chapterServers.length]?.id : null
@@ -426,20 +436,18 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
                 </button>
 
                 <div className="chapter-selector-wrapper">
-                  <select
+                  <Selection
                     className="text-sm border rounded px-2 py-1 bg-white dark:bg-neutral-800 dark:text-gray-300 dark:border-neutral-600"
                     value={chapterData.id}
-                    onChange={(e) => {
-                      const ch = allChapters.find((c: Chapter) => c.id === Number(e.target.value));
+                    options={allChapters.map((ch: Chapter) => ({
+                      label: `Chapter ${ch.slug}`,
+                      value: ch.id,
+                    }))}
+                    onChange={(nextValue) => {
+                      const ch = allChapters.find((c: Chapter) => c.id === Number(nextValue));
                       if (ch) router.push(getChapterDetailUrl(comic, ch));
                     }}
-                  >
-                    {allChapters.map((ch: Chapter) => (
-                      <option key={ch.id} value={ch.id}>
-                        Chapter {ch.slug}
-                      </option>
-                    ))}
-                  </select>
+                  />
                 </div>
 
                 <button
@@ -507,7 +515,7 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
 
               {/* Settings */}
               <div className="control-group">
-                <button title="Cài đặt" className="control-button settings-button">
+                <button type="button" title="Cài đặt" className="control-button settings-button" onClick={openReadingSettings}>
                   <svg className="control-icon" width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" />
                     <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />

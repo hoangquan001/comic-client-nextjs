@@ -4,6 +4,7 @@ import { useState, useMemo, useRef, useCallback } from 'react';
 import { useClickOutside } from '@/lib/hooks/use-click-outside';
 import LoopScroll from '@/components/common/loop-scroll/loop-scroll';
 import type { Chapter } from '@/types';
+import { dateAgo } from '@/lib/utils/date';
 
 interface ChapterSelectorProps {
   chapters: Chapter[];
@@ -13,21 +14,6 @@ interface ChapterSelectorProps {
   onOpen?: () => void;
 }
 
-function dateAgo(dateStr?: string): string {
-  if (!dateStr) return '';
-  const date = new Date(dateStr);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffSec = Math.floor(diffMs / 1000);
-  const diffMin = Math.floor(diffSec / 60);
-  const diffHour = Math.floor(diffMin / 60);
-  const diffDay = Math.floor(diffHour / 24);
-  if (diffDay > 30) return date.toLocaleDateString('vi-VN');
-  if (diffDay > 0) return `${diffDay} ngày trước`;
-  if (diffHour > 0) return `${diffHour} giờ trước`;
-  if (diffMin > 0) return `${diffMin} phút trước`;
-  return 'Vừa xong';
-}
 
 export default function ChapterSelector({
   chapters,

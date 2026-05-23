@@ -1,11 +1,12 @@
 'use client';
 
-import { ThemeProvider as NextThemesProvider } from 'next-themes';
+import { SettingChangeEvent } from '@/types';
+import { ThemeProvider as NextThemesProvider, useTheme } from 'next-themes';
+import { useCallback, useEffect } from 'react';
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
+
   return (
-    <NextThemesProvider attribute="class" defaultTheme="light" enableSystem>
       {children}
-    </NextThemesProvider>
   );
 }

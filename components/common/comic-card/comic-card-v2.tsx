@@ -6,6 +6,7 @@ import type { Comic } from '@/types';
 import { getComicDetailUrl } from '@/lib/utils/url';
 import { dateAgo } from '@/lib/utils/date';
 import { formatNumber } from '@/lib/utils/number';
+import { fillDescription } from '@/lib/utils/description';
 
 interface ComicCardV2Props {
   comic?: Comic;
@@ -118,12 +119,9 @@ export function ComicCardV2({ comic }: ComicCardV2Props) {
           </div>
         </div>
 
-        {/* Description */}
-        {comic.description && (
           <div className="mt-1 text-neutral-800 dark:text-neutral-300 text-xs">
-            <p className="line-clamp-3 text-sm leading-relaxed">{comic.description}</p>
+            <p className="line-clamp-3 text-sm leading-relaxed">{fillDescription(comic.description, comic, false)}</p>
           </div>
-        )}
       </div>
     </div>
   );

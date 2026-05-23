@@ -2,41 +2,44 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useHistoryStore } from '@/lib/stores/use-history-store';
-import { Empty } from '@/components/common/empty/empty';
-import { getComicDetailUrl } from '@/lib/utils/url';
+import { ComicCard } from '@/components/common/comic-card';
+import { AccountIcon, GlassCard, PageHeader } from '../_components/account-ui';
 
-export default function LichSuPage() {
-  const { listHistory, initialize, removeHistory, clearHistory } = useHistoryStore();
+export default function LichSuContent() {
+  const { listHistory, initialize } = useHistoryStore();
 
-  useEffect(() => { initialize(); }, [initialize]);
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
 
   return (
-    <div className="bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-neutral-900 dark:text-light-text">Lịch sử đọc</h2>
-        {listHistory.length > 0 && (
-          <button onClick={clearHistory} className="text-sm text-red-500 hover:text-red-600 font-medium bg-transparent border-none cursor-pointer">Xóa tất cả</button>
-        )}
-      </div>
+    <div className="space-y-6">
+      <PageHeader icon="clock" title="Lịch sử đọc" iconClassName="text-red-500" />
 
-      {listHistory.length === 0 ? (
-        <div className="py-16 text-center"><Empty /><p className="text-sm text-neutral-500 mt-4">Bạn chưa đọc truyện nào</p></div>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+      {listHistory.length > 0 ? (
+        <div className="mx-3 grid grid-cols-2 gap-[12px] xs:grid-cols-3 sm:grid-cols-4 lg:mx-0 lg:grid-cols-6">
           {listHistory.map((comic) => (
-            <div key={comic.id} className="group relative">
-              <Link href={getComicDetailUrl(comic)} className="block">
-                <div className="aspect-[3/4] rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-700">
-                  <Image src={comic.coverImage || '/empty.png'} alt={comic.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" loading="lazy" width={300} height={400} />
-                </div>
-                <h3 className="mt-2 text-sm font-medium text-neutral-900 dark:text-light-text line-clamp-2">{comic.title}</h3>
-              </Link>
-              <button onClick={() => removeHistory(comic.id)} className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center border-none cursor-pointer text-xs">x</button>
-            </div>
+            <ComicCard key={comic.id} comic={comic} />
           ))}
         </div>
+      ) : (
+        <GlassCard className="p-12">
+          <div className="text-center">
+            <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+              <svg className="mb-4 h-16 w-16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7m16 0v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-5m16 0h-2.586a1 1 0 0 0-.707.293l-2.414 2.414a1 1 0 0 1-.707.293h-3.172a1 1 0 0 1-.707-.293l-2.414-2.414A1 1 0 0 0 6.586 13H4" />
+              </svg>
+              <p className="text-sm">Chưa có lịch sử đọc</p>
+            </div>
+            <div className="mt-6 text-center">
+              <Link href="/" className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-sky-600 px-6 py-3 font-medium text-white transition-colors duration-200 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500/50">
+                <AccountIcon name="search" className="h-5 w-5" />
+                Khám phá truyện
+              </Link>
+            </div>
+          </div>
+        </GlassCard>
       )}
     </div>
   );

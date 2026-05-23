@@ -1,18 +1,35 @@
 'use client';
 
-import Link from 'next/link';
 import Image from 'next/image';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/lib/stores/use-auth-store';
+import { AccountIcon, type IconName } from './_components/account-ui';
 
-const NAV_ITEMS = [
-  { href: '/tai-khoan/ho-so', label: 'Hồ sơ', icon: 'user' },
-  { href: '/tai-khoan/yeu-thich', label: 'Yêu thích', icon: 'heart' },
-  { href: '/tai-khoan/lich-su', label: 'Lịch sử', icon: 'clock' },
-  { href: '/tai-khoan/nhiem-vu', label: 'Nhiệm vụ', icon: 'quest' },
-  { href: '/tai-khoan/thanh-tich', label: 'Thành tích', icon: 'trophy' },
-  { href: '/tai-khoan/tui-do', label: 'Túi đồ', icon: 'bag' },
+interface NavItem {
+  href: string;
+  label: string;
+  icon: IconName;
+  description: string;
+  badge?: number;
+}
+
+const NAV_ITEMS: NavItem[] = [
+  { href: '/tai-khoan/ho-so', label: 'Thông tin cá nhân', icon: 'user', description: 'Quản lý thông tin tài khoản' },
+  { href: '/tai-khoan/nhiem-vu', label: 'Nhiệm vụ', icon: 'target', description: 'Nhiệm vụ hằng ngày và tuần', badge: 3 },
+  { href: '/tai-khoan/yeu-thich', label: 'Truyện yêu thích', icon: 'heart', description: 'Danh sách truyện đã lưu' },
+  { href: '/tai-khoan/lich-su', label: 'Lịch sử đọc', icon: 'clock', description: 'Truyện đã đọc gần đây' },
+  { href: '/tai-khoan/thong-ke', label: 'Thống kê', icon: 'chart', description: 'Thống kê hoạt động đọc truyện' },
+  { href: '/tai-khoan/thanh-tich', label: 'Thành tích', icon: 'trophy', description: 'Huy hiệu và thành tựu' },
+  { href: '/tai-khoan/tui-do', label: 'Kho đồ', icon: 'package', description: 'Quản lý vật phẩm' },
 ];
+
+function formatJoinDate(date?: string) {
+  if (!date) return '';
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) return '';
+  return parsed.toLocaleDateString('vi-VN', { month: '2-digit', year: 'numeric' });
+}
 
 export default function TaiKhoanLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -20,46 +37,80 @@ export default function TaiKhoanLayout({ children }: { children: React.ReactNode
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-white dark:bg-dark-bg">
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Vui lòng đăng nhập</h2>
-          <Link href="/auth/dang-nhap" className="text-primary-100 hover:text-primary-200 font-semibold">Đăng nhập ngay</Link>
+          <h2 className="mb-4 text-2xl font-bold">Vui lòng đăng nhập</h2>
+          <Link href="/auth/dang-nhap" className="font-semibold text-primary-100 hover:text-primary-200">
+            Đăng nhập ngay
+          </Link>
         </div>
       </div>
     );
   }
 
+  const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.username || 'User';
+
   return (
-    <main className="max-w-7xl mx-auto px-4 py-6">
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Sidebar */}
-        <aside className="lg:w-64 shrink-0">
-          <div className="bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 overflow-hidden">
-            {/* User card */}
-            <div className="p-6 bg-gradient-to-br from-primary-100 to-primary-200 text-white text-center">
-              <Image src={user?.avatar || '/default_avatar.jpg'} alt="" className="w-20 h-20 rounded-full mx-auto mb-3 border-3 border-white/30 object-cover" width={80} height={80} />
-              <h3 className="font-bold text-lg">{user?.firstName || user?.username || 'User'}</h3>
-              <p className="text-sm opacity-80">{user?.email || ''}</p>
+    <div className="min-h-screen w-full bg-white dark:bg-dark-bg md:container md:mx-auto">
+      <div className="flex min-h-screen flex-col md:flex-row">
+        <aside className="w-full shrink-0 border-b border-neutral-200 bg-white dark:border-neutral-900 dark:bg-neutral-900 md:w-80 md:border-b-0 md:border-r md:bg-neutral-100 md:dark:bg-neutral-800 lg:w-80">
+          <div className="flex h-full flex-col p-3 xs:p-4 md:p-4">
+            <div className="mb-4 flex items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-900 dark:bg-neutral-800 xs:gap-3 xs:p-4 md:mb-4 md:justify-start md:rounded-lg md:bg-white md:p-3 md:dark:bg-neutral-700">
+              <div className="relative">
+                <Image
+                  src={user?.avatar || '/default_avatar.jpg'}
+                  alt={fullName}
+                  width={56}
+                  height={56}
+                  className="h-10 w-10 rounded-full border-2 border-neutral-200 object-cover dark:border-neutral-600 xs:h-12 xs:w-12 md:h-14 md:w-14"
+                />
+                <div className="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full border-2 border-white bg-lime-500 dark:border-neutral-700" />
+              </div>
+              <div className="min-w-0 flex-1 md:flex-none">
+                <h3 className="truncate text-xs font-bold text-neutral-900 dark:text-light-text xs:text-sm md:text-base">{fullName}</h3>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400">{formatJoinDate(user?.createAt) ? `Tham gia ${formatJoinDate(user?.createAt)}` : 'Tham gia --/----'}</p>
+              </div>
             </div>
-            {/* Nav */}
-            <nav className="p-2">
-              {NAV_ITEMS.map((item) => (
-                <Link key={item.href} href={item.href} className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${pathname === item.href ? 'bg-primary-100/10 text-primary-100' : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700'}`}>
-                  {item.icon === 'user' && <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="7" r="4" /><path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" /></svg>}
-                  {item.icon === 'heart' && <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>}
-                  {item.icon === 'clock' && <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>}
-                  {item.icon === 'quest' && <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>}
-                  {item.icon === 'trophy' && <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9H4.5a2.5 2.5 0 010-5H6M18 9h1.5a2.5 2.5 0 000-5H18M4 22h16M10 14.66V17c0 .55.47.98.97 1.21C12.04 18.75 14 20 14 20s1.96-1.25 3.03-1.79c.5-.23.97-.66.97-1.21v-2.34M18 2H6v7a6 6 0 0012 0V2z" /></svg>}
-                  {item.icon === 'bag' && <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>}
-                  {item.label}
-                </Link>
-              ))}
+
+            <nav className="flex-none md:flex-1">
+              <h4 className="mb-3 hidden text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 md:block">Tài khoản</h4>
+              <ul className="grid grid-cols-3 gap-1 xs:grid-cols-4 xs:gap-2 md:block md:space-y-1">
+                {NAV_ITEMS.map((item) => {
+                  const active = pathname === item.href;
+
+                  return (
+                    <li key={item.href} className="relative">
+                      <Link
+                        href={item.href}
+                        title={item.description}
+                        className={`relative flex min-h-[65px] flex-col items-center justify-center rounded-lg bg-neutral-50 p-1.5 transition-all duration-200 hover:-translate-y-px hover:bg-neutral-100 hover:shadow-md dark:bg-neutral-800 dark:hover:bg-neutral-700 xs:min-h-[75px] xs:p-2 md:block md:min-h-0 md:bg-transparent md:p-3 md:hover:translate-y-0 md:hover:bg-white md:hover:shadow-none md:dark:bg-transparent md:dark:hover:bg-neutral-700 ${active ? 'bg-primary-100 text-white shadow-lg shadow-primary-100/25 hover:bg-primary-100 dark:bg-primary-100 md:shadow-none' : 'text-neutral-900 dark:text-light-text'}`}
+                      >
+                        <div className="flex flex-col items-center gap-1 md:flex-row md:gap-3">
+                          <div className={`flex h-7 w-7 items-center justify-center rounded-lg transition-colors duration-200 xs:h-8 xs:w-8 md:h-9 md:w-9 ${active ? 'bg-white/20' : 'bg-transparent md:bg-neutral-200 md:dark:bg-neutral-600'}`}>
+                            <AccountIcon name={item.icon} className={`h-4 w-4 xs:h-5 xs:w-5 md:h-4 md:w-4 ${active ? 'text-white' : 'text-neutral-600 dark:text-neutral-300'}`} />
+                          </div>
+                          <span className={`block max-w-full truncate text-center text-xs font-medium leading-tight md:hidden ${active ? 'text-white' : 'text-neutral-600 dark:text-neutral-400'}`}>{item.label}</span>
+                          <div className="hidden min-w-0 flex-1 md:block">
+                            <span className={`block text-sm font-medium ${active ? 'text-white' : 'text-neutral-900 dark:text-light-text'}`}>{item.label}</span>
+                            <span className={`block truncate text-xs ${active ? 'text-white/80' : 'text-neutral-500 dark:text-neutral-400'}`}>{item.description}</span>
+                          </div>
+                          {!!item.badge && (
+                            <div className={`absolute -right-1 -top-1 flex h-3 min-w-3 items-center justify-center rounded-full bg-red-500 px-1 py-0 text-xs font-bold text-white xs:h-4 xs:min-w-4 xs:px-1.5 md:static md:h-auto md:min-w-[18px] md:bg-primary-100 md:px-2 md:py-1 ${active ? 'md:bg-white/20' : ''}`}>
+                              {item.badge > 99 ? '99+' : item.badge}
+                            </div>
+                          )}
+                        </div>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
             </nav>
           </div>
         </aside>
-        {/* Content */}
-        <div className="flex-1 min-w-0">{children}</div>
+
+        <div className="flex-1 overflow-auto bg-white p-3 dark:bg-dark-bg md:p-4">{children}</div>
       </div>
-    </main>
+    </div>
   );
 }

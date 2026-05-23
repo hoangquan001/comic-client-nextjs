@@ -17,7 +17,8 @@ function loadHistory(): Comic[] {
   if (typeof window === 'undefined') return [];
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
+    const parsed = stored ? JSON.parse(stored) : [];
+    return Array.isArray(parsed) ? parsed.slice(0, MAX_HISTORY) : [];
   } catch {
     return [];
   }
@@ -38,20 +39,27 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
   },
 
   saveHistory: (comic) => {
-    const list = get().listHistory.filter((c) => c.id !== comic.id);
-    list.unshift(comic);
-    saveHistory(list);
-    set({ listHistory: list.slice(0, MAX_HISTORY) });
+    set((state) => {
+      const current = state.initialized ? state.listHistory : loadHistory();
+      const list = current.filter((c) => c.id !== comic.id);
+      list.unshift(comic);
+      const nextHistory = list.slice(0, MAX_HISTORY);
+      saveHistory(nextHistory);
+      return { listHistory: nextHistory, initialized: true };
+    });
   },
 
   removeHistory: (comicId) => {
-    const list = get().listHistory.filter((c) => c.id !== comicId);
-    saveHistory(list);
-    set({ listHistory: list });
+    set((state) => {
+      const current = state.initialized ? state.listHistory : loadHistory();
+      const list = current.filter((c) => c.id !== comicId);
+      saveHistory(list);
+      return { listHistory: list, initialized: true };
+    });
   },
 
   clearHistory: () => {
     saveHistory([]);
-    set({ listHistory: [] });
+    set({ listHistory: [], initialized: true });
   },
 }));

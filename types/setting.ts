@@ -47,10 +47,13 @@ export interface EnhancedSettingOption {
   preview?: boolean;
 }
 
+export type SettingValue = EnhancedSettingOption['defaultValue'];
+export type SettingsRecord = Record<string, SettingValue>;
+
 export interface SettingChangeEvent {
   key: string;
-  oldValue: string | number | boolean | undefined;
-  newValue: string | number | boolean | undefined;
+  oldValue: SettingValue | undefined;
+  newValue: SettingValue | undefined;
 }
 
 export interface SettingGroup {

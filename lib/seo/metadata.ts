@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import type { Comic, Chapter, Genre } from '@/types';
 import { config } from '@/lib/config';
 import { getDefaultKeywords, generateLongTailKeywords, generateComicKeywords } from './keywords';
+import { fillSeoDescription } from '../utils/description';
 
 function robots(noindex?: boolean, nofollow?: boolean): string {
   const parts: string[] = [];
@@ -35,9 +36,7 @@ export function generateComicMetadata(comic: Comic): Metadata {
   const keywords = generateComicKeywords(comic).join(', ');
   return {
     title: `${comic.title} - Đọc Truyện ${comic.title} Online Miễn Phí | ${config.APP_NAME}`,
-    description: comic.description
-      ? `${comic.description.slice(0, 160)}...`
-      : `Đọc truyện ${comic.title} online miễn phí. Cập nhật nhanh nhất tại ${config.APP_NAME}.`,
+    description: fillSeoDescription(comic.description, comic),
     keywords,
     openGraph: {
       title: `${comic.title} - ${config.APP_NAME}`,

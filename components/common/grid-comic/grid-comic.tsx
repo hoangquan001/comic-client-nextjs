@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import Cookies from 'js-cookie';
 import type { Comic } from '@/types';
+import { useSettingsStore } from '@/lib/stores/use-settings-store';
 import { ComicCard, ComicCardV2 } from '../comic-card';
 
 interface GridComicProps {
@@ -20,6 +22,7 @@ const CLASS_SMALL =
   'grid gap-3 grid-cols-3 @lg:grid-cols-4 @2xl:grid-cols-5 @4xl:grid-cols-6 @5xl:grid-cols-7 @6xl:grid-cols-8 mx-2';
 const CLASS_MEDIUM =
   'grid gap-3 grid-cols-2 @lg:grid-cols-3 @2xl:grid-cols-4 @4xl:grid-cols-5 @5xl:grid-cols-6 @6xl:grid-cols-7 mx-2';
+const GRID_TYPE_COOKIE = 'grid-type';
 
 export function GridComic({
   title,
@@ -32,25 +35,16 @@ export function GridComic({
   emptyTemplate,
   onComicHover,
 }: GridComicProps) {
-  const [gridType, setGridType] = useState(0);
-  const [cardSize, setCardSize] = useState<'small' | 'medium'>('medium');
+  const [gridType, setGridType] = useState(() => {
+    if (typeof window === 'undefined') return 0;
+    const savedGridType = Cookies.get(GRID_TYPE_COOKIE);
+    const parsedGridType = savedGridType ? parseInt(savedGridType, 10) : 0;
+    return Number.isFinite(parsedGridType) ? parsedGridType : 0;
+  });
   const [hoveredComic, setHoveredComic] = useState<Comic | undefined>(undefined);
   const hoverTimeoutRef = useRef<NodeJS.Timeout>(undefined);
-  const scrollListenerRef = useRef<(() => void) | null>(null);
-
-  // Initialize grid type and card size from localStorage
-  useEffect(() => {
-    const savedGridType = typeof window !== 'undefined' ? localStorage.getItem('gridType') : null;
-    if (savedGridType !== null) {
-      setGridType(parseInt(savedGridType, 10));
-    }
-
-    const savedCardSize =
-      typeof window !== 'undefined' ? localStorage.getItem('cardComicSize') : null;
-    if (savedCardSize) {
-      setCardSize(savedCardSize as 'small' | 'medium');
-    }
-  }, []);
+  const cardSizeSetting = useSettingsStore((state) => state.settings.cardComicSize);
+  const cardSize = cardSizeSetting === 'small' ? 'small' : 'medium';
 
   const defaultGridClass =
     gridClass ||
@@ -63,7 +57,7 @@ export function GridComic({
   const handleChangeGridType = useCallback((type: number) => {
     setGridType(type);
     if (typeof window !== 'undefined') {
-      localStorage.setItem('gridType', type.toString());
+      Cookies.set(GRID_TYPE_COOKIE, type.toString(), { expires: 365, path: '/', sameSite: 'lax' });
     }
   }, []);
 
@@ -109,6 +103,7 @@ export function GridComic({
 
         <div className="flex items-center gap-4">
           {toolTemplate}
+          {actionTemplate}
 
           {/* Grid Type Switch */}
           <div className="relative p-0.5 flex items-center bg-neutral-100 dark:bg-neutral-700 rounded-md  border border-neutral-200 dark:border-neutral-600">

@@ -59,13 +59,14 @@ export function useCommentsByComicId(
   });
 }
 
-export function useUserNotify() {
+export function useUserNotify(enabled = true) {
   return useQuery({
     queryKey: ['notifications'],
     queryFn: () =>
       clientFetch<IServiceResponse<INotification[]>>(`/user/notify`).then(
         unwrap
       ),
+    enabled,
     refetchInterval: 60000,
   });
 }
@@ -193,10 +194,10 @@ export function useUpdateInfo() {
 
 export function useUpdatePassword() {
   return useMutation({
-    mutationFn: (newPassword: string) =>
+    mutationFn: (password: { oldPassword: string; newPassword: string; rePassword: string }) =>
       clientFetch('/user/update/password', {
         method: 'POST',
-        data: { newPassword },
+        data: password,
       }),
   });
 }

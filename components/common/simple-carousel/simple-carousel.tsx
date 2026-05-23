@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useState, useRef, useCallback, useEffect, type ReactNode } from 'react';
 import { getComicDetailUrl } from '@/lib/utils/url';
 import { formatNumber } from '@/lib/utils/number';
+import { fillDescription } from '@/lib/utils/description';
 
 interface SimpleCarouselProps {
     comics : Comic[]
@@ -125,7 +126,7 @@ export function SimpleCarousel({
                 <div className="absolute inset-0 bg-black/50" />
 
                 {/* Content */}
-                <div className="flex-grow flex flex-col gap-2 z-10 pr-4">
+                <div className="grow flex flex-col gap-2 z-10 pr-4">
                   <h3 className="text-xl sm:text-2xl font-bold line-clamp-2 drop-shadow-lg leading-tight">
                     {comic.title}
                   </h3>
@@ -145,7 +146,7 @@ export function SimpleCarousel({
                   )}
 
                   <p className="z-50 text-sm line-clamp-2 mt-6">
-                    {comic.description || ''}
+                    {fillDescription(comic.description, comic, false)}
                   </p>
 
                   {/* Meta Info */}

@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import Link from 'next/link';
+import Selection from '@/components/common/selection/selection';
 
 interface ContactFormData {
   name: string;
@@ -32,6 +33,17 @@ const FAQS = [
   },
 ];
 
+const SUBJECT_OPTIONS = [
+  { value: '', label: 'Chọn chủ đề' },
+  { value: 'technical', label: 'Hỗ trợ kỹ thuật' },
+  { value: 'account', label: 'Vấn đề tài khoản' },
+  { value: 'content', label: 'Báo cáo nội dung' },
+  { value: 'copyright', label: 'Khiếu nại bản quyền' },
+  { value: 'suggestion', label: 'Góp ý, đề xuất' },
+  { value: 'partnership', label: 'Hợp tác kinh doanh' },
+  { value: 'other', label: 'Khác' },
+];
+
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -39,6 +51,7 @@ export default function ContactPage() {
 
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors },
     reset,
@@ -178,21 +191,20 @@ export default function ContactPage() {
             </div>
             <div>
               <label htmlFor="subject" className="block text-sm font-medium mb-1">Chủ đề *</label>
-              <select
-                id="subject"
-                {...register('subject', { required: 'Vui lòng chọn chủ đề' })}
-                className="w-full px-3 py-2 rounded-lg bg-white/70 dark:bg-zinc-800/60 border border-zinc-200/60 dark:border-zinc-700 outline-none focus:ring focus:ring-blue-500/30"
+              <Controller
+                name="subject"
+                control={control}
                 defaultValue=""
-              >
-                <option value="">Chọn chủ đề</option>
-                <option value="technical">Hỗ trợ kỹ thuật</option>
-                <option value="account">Vấn đề tài khoản</option>
-                <option value="content">Báo cáo nội dung</option>
-                <option value="copyright">Khiếu nại bản quyền</option>
-                <option value="suggestion">Góp ý, đề xuất</option>
-                <option value="partnership">Hợp tác kinh doanh</option>
-                <option value="other">Khác</option>
-              </select>
+                rules={{ required: 'Vui lòng chọn chủ đề' }}
+                render={({ field }) => (
+                  <Selection
+                    value={field.value}
+                    onChange={(nextValue) => field.onChange(String(nextValue))}
+                    options={SUBJECT_OPTIONS}
+                    className="w-full px-3 py-2 rounded-lg bg-white/70 dark:bg-zinc-800/60 border border-zinc-200/60 dark:border-zinc-700 outline-none focus:ring focus:ring-blue-500/30"
+                  />
+                )}
+              />
               {errors.subject && <p className="text-red-500 text-xs mt-1">{errors.subject.message}</p>}
             </div>
           </div>

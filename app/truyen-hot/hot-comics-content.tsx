@@ -5,6 +5,7 @@ import { GridComic } from '@/components/common/grid-comic/grid-comic';
 import { Pagination } from '@/components/common/pagination/pagination';
 import { Breadcrumb } from '@/components/common/breadcrumb/breadcrumb';
 import { TopList } from '@/components/common/top-list/top-list';
+import RecentCommentsPanel from '@/components/common/recent-comments/recent-comments-panel';
 import { Spinner } from '@/components/common/spinner/spinner';
 import type { ComicList } from '@/types';
 
@@ -45,6 +46,9 @@ export default function HotComicsContent({ page, initialData }: HotComicsContent
         </div>
         <div className="xl:col-span-1">
           <TopList />
+          <div className="mt-4">
+            <RecentCommentsPanel />
+          </div>
         </div>
       </div>
     </div>

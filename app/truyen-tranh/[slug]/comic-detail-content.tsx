@@ -11,7 +11,8 @@ import { useHistoryStore } from '@/lib/stores/use-history-store';
 import { Breadcrumb } from '@/components/common/breadcrumb/breadcrumb';
 import { GridComic } from '@/components/common/grid-comic/grid-comic';
 import { TopList } from '@/components/common/top-list/top-list';
-import { CommentSection } from '@/components/common';
+import Selection from '@/components/common/selection/selection';
+import { CommentSection, RecentCommentsPanel } from '@/components/common';
 import TopUsers from '@/components/common/top-users/top-users';
 import StarRating from '@/components/common/star-rating/star-rating';
 import LoopScroll from '@/components/common/loop-scroll/loop-scroll';
@@ -22,17 +23,16 @@ import { formatNumber } from '@/lib/utils/number';
 import { generateComicKeywords, generateChapterKeywords } from '@/lib/seo/keywords';
 import type { Comic, Chapter } from '@/types';
 import { toast } from 'sonner';
+import { dateAgo } from '@/lib/utils/date';
 
 const FOLLOW_COOLDOWN = 3000;
 
 export default function ComicDetailContent({ comic: initialComic }: { comic: Comic }) {
   const pathname = usePathname();
-  const isCharacterPage = pathname.includes('/nhan-vat');
 
   const [comic, setComic] = useState(initialComic);
   const [isOpen, setIsOpen] = useState(false);
   const [followRequestTime, setFollowRequestTime] = useState(0);
-  const [viewTracked, setViewTracked] = useState(false);
   const [showRating, setShowRating] = useState(false);
   const [ratingInitial, setRatingInitial] = useState(0);
 
@@ -42,8 +42,6 @@ export default function ComicDetailContent({ comic: initialComic }: { comic: Com
   const { data: chapters } = useChapters(comic.id);
   const { data: similarComics } = useSimilarComic(comic.id);
   const followMutation = useFollow();
-  const updateViewMutation = useUpdateViewAndExp();
-
   useEffect(() => {
     if (chapters && chapters.length > 0) {
       setComic((prev) => ({ ...prev, chapters }));
@@ -58,16 +56,6 @@ export default function ComicDetailContent({ comic: initialComic }: { comic: Com
       });
     }
   }, [comic.id]);
-
-  useEffect(() => {
-    if (!viewTracked) {
-      const timer = setTimeout(() => {
-        updateViewMutation.mutate({ comicId: comic.id, chapterId: 0, exp: 0 });
-        setViewTracked(true);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [viewTracked, comic.id]);
 
   const allChapters = comic.chapters ?? [];
   const lastChapter = allChapters[allChapters.length - 1];
@@ -144,7 +132,6 @@ export default function ComicDetailContent({ comic: initialComic }: { comic: Com
   const canShowContinueReading = !!historyComic && !!latestHistoryChapter;
 
   const firstChapter = allChapters[allChapters.length - 1];
-  const toggleUrl = isCharacterPage ? getComicDetailUrl(comic) : getCharacterListUrl(comic);
 
   return (
     <div className="dark:text-light-text">
@@ -350,17 +337,7 @@ export default function ComicDetailContent({ comic: initialComic }: { comic: Com
                     <p className="font-semibold text-sm">Đọc tiếp chương {getHistoryChapter()}</p>
                   </Link>
                 ) : null}
-                <Link
-                  className="btn-list-characters"
-                  href={toggleUrl}
-                >
-                  <svg fill="#000000" height="16" width="16" version="1.1" viewBox="0 0 512 512" xmlSpace="preserve">
-                    <path d="M493.824,176.768c-18.112-13.099-42.517-8.597-72.512,0.661L390.336,45.013c-2.645-15.851-12.949-29.333-27.563-36.117 c-14.123-6.485-30.997-5.312-45.184,3.264l-24.427,14.741c-22.912,13.867-51.413,13.867-74.325,0L194.411,12.16 c-14.144-8.555-31.061-9.771-45.227-3.243c-14.571,6.763-24.875,20.245-27.243,34.773L90.688,177.429 c-29.995-9.237-54.4-13.717-72.512-0.661C6.101,185.472,0,200,0,219.968c0,48.043,32.896,90.347,85.547,119.253 c0.512,32.875,9.28,63.317,26.411,90.432c30.699,48.597,84.565,77.589,144.043,77.589s113.323-28.992,144.043-77.589 c17.131-27.115,25.899-57.557,26.411-90.432C479.104,310.315,512,268.011,512,219.968C512,200,505.899,185.472,493.824,176.768z M363.968,406.869C341.12,443.008,300.779,464.576,256,464.576c-44.779,0-85.12-21.568-107.968-57.707 c-9.301-14.72-15.189-30.848-18.005-48.043c37.013,12.757,79.851,20.032,125.973,20.032s88.96-7.275,125.973-20.032 C379.157,376,373.269,392.149,363.968,406.869z" />
-                  </svg>
-                  <p className="font-semibold text-sm">
-                    {isCharacterPage ? 'Danh sách chương' : 'Nhân vật'}
-                  </p>
-                </Link>
+
               </div>
             </div>
           </article>
@@ -412,6 +389,7 @@ export default function ComicDetailContent({ comic: initialComic }: { comic: Com
         </div>
         <div className="flex flex-col col-span-4 2xl:col-span-1 gap-4 mx-2 2xl:mt-4">
           <TopList />
+          <RecentCommentsPanel />
           <TopUsers />
         </div>
       </div>
@@ -426,18 +404,19 @@ export default function ComicDetailContent({ comic: initialComic }: { comic: Com
   );
 }
 
+const DEFAULT_CHAPTER_GRID_SIZE = 4;
+
 function calcGridSize(): number {
-  if (typeof window === 'undefined') return 4;
   if (window.innerWidth < 640) return 2;
   if (window.innerWidth < 1100) return 3;
-  return 4;
+  return DEFAULT_CHAPTER_GRID_SIZE;
 }
 
 function ChapterList({ comic, chapters: initialChapters }: { comic: Comic; chapters: Chapter[] }) {
 
   const [asc, setAsc] = useState(false);
   const [search, setSearch] = useState('');
-  const [gridSize, setGridSize] = useState(calcGridSize);
+  const [gridSize, setGridSize] = useState(DEFAULT_CHAPTER_GRID_SIZE);
   const [curOptionValue, setCurOptionValue] = useState(0);
   const loopRef = useRef<LoopScrollHandle>(null);
 
@@ -447,6 +426,7 @@ function ChapterList({ comic, chapters: initialChapters }: { comic: Comic; chapt
 
   useEffect(() => {
     const handleResize = () => setGridSize(calcGridSize());
+    handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -478,8 +458,8 @@ function ChapterList({ comic, chapters: initialChapters }: { comic: Comic; chapt
     });
   }
 
-  function onSelectRange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const idx = Number(e.target.value);
+  function onSelectRange(value: string | number | boolean) {
+    const idx = Number(value);
     loopRef.current?.goToItem(idx * distance);
   }
 
@@ -494,7 +474,7 @@ function ChapterList({ comic, chapters: initialChapters }: { comic: Comic; chapt
             </p>
           </div>
           <div className="chapter-item-date">
-            <div className="chapter-item-date-text">{dateAgoSimple(ch.updateAt)}</div>
+            <div className="chapter-item-date-text">{dateAgo(ch.updateAt)}</div>
           </div>
         </div>
       </Link>
@@ -542,15 +522,12 @@ function ChapterList({ comic, chapters: initialChapters }: { comic: Comic; chapt
               </svg>
             </label>
             {options.length > 1 && (
-              <select
+              <Selection
                 className="chapter-selection"
                 value={curOptionValue}
                 onChange={onSelectRange}
-              >
-                {options.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
+                options={options}
+              />
             )}
           </div>
         </div>
@@ -576,18 +553,3 @@ function ChapterList({ comic, chapters: initialChapters }: { comic: Comic; chapt
   );
 }
 
-function dateAgoSimple(dateStr?: string): string {
-  if (!dateStr) return '';
-  const date = new Date(dateStr);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffSec = Math.floor(diffMs / 1000);
-  const diffMin = Math.floor(diffSec / 60);
-  const diffHour = Math.floor(diffMin / 60);
-  const diffDay = Math.floor(diffHour / 24);
-  if (diffDay > 30) return date.toLocaleDateString('vi-VN');
-  if (diffDay > 0) return `${diffDay} ngày trước`;
-  if (diffHour > 0) return `${diffHour} giờ trước`;
-  if (diffMin > 0) return `${diffMin} phút trước`;
-  return 'Vừa xong';
-}

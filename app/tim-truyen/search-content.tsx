@@ -7,8 +7,10 @@ import { GridComic } from '@/components/common/grid-comic/grid-comic';
 import { Pagination } from '@/components/common/pagination/pagination';
 import { Breadcrumb } from '@/components/common/breadcrumb/breadcrumb';
 import { TopList } from '@/components/common/top-list/top-list';
+import RecentCommentsPanel from '@/components/common/recent-comments/recent-comments-panel';
 import { Spinner } from '@/components/common/spinner/spinner';
 import { Empty } from '@/components/common/empty/empty';
+import Selection from '@/components/common/selection/selection';
 import { GENRES } from '@/lib/constants/genres';
 import { SortType } from '@/types';
 import type { ComicList } from '@/types';
@@ -189,27 +191,21 @@ export default function SearchContent({
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 my-4 p-4 rounded-xl bg-white/80 dark:bg-zinc-900/60 border border-zinc-200/60 dark:border-zinc-800">
             <div className="space-y-1">
               <label className="text-xs text-neutral-500">Sắp xếp theo</label>
-              <select
+              <Selection
                 value={selectedSort}
-                onChange={(e) => setSelectedSort(Number(e.target.value))}
+                options={SORT_OPTIONS}
+                onChange={(nextValue) => setSelectedSort(Number(nextValue))}
                 className="w-full px-2 py-1.5 rounded-md bg-neutral-100 dark:bg-neutral-700 text-sm outline-none"
-              >
-                {SORT_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
+              />
             </div>
             <div className="space-y-1">
               <label className="text-xs text-neutral-500">Trạng thái</label>
-              <select
+              <Selection
                 value={selectedStatus}
-                onChange={(e) => setSelectedStatus(Number(e.target.value))}
+                options={STATUS_OPTIONS}
+                onChange={(nextValue) => setSelectedStatus(Number(nextValue))}
                 className="w-full px-2 py-1.5 rounded-md bg-neutral-100 dark:bg-neutral-700 text-sm outline-none"
-              >
-                {STATUS_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
+              />
             </div>
             <div className="space-y-1">
               <label className="text-xs text-neutral-500">Năm phát hành</label>
@@ -289,6 +285,9 @@ export default function SearchContent({
           </div>
           <div className="xl:col-span-1">
             <TopList />
+            <div className="mt-4">
+              <RecentCommentsPanel />
+            </div>
           </div>
         </div>
       </div>

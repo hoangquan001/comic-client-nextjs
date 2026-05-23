@@ -1,89 +1,78 @@
 import { create } from 'zustand';
 import type { EnhancedSettingOption, SettingChangeEvent } from '@/types';
+import type { SettingsRecord, SettingValue } from '@/types';
 import { ENHANCED_SETTINGS } from '@/lib/constants/settings';
-
-type SettingValue = string | number | boolean;
+import {
+  createDefaultSettings,
+  getSettingDefinition,
+  loadSettingsFromCookie,
+  normalizeSettingValue,
+  saveSettingsToCookie,
+} from '@/lib/settings/settings-cookie-storage';
 
 interface SettingsState {
-  settings: Map<string, SettingValue>;
+  settings: SettingsRecord;
   initialized: boolean;
   initialize: () => void;
   getSettingValue: (id: string) => SettingValue | undefined;
   getSetting: (id: string) => EnhancedSettingOption | undefined;
   setSettingValue: (id: string, value: SettingValue) => void;
-  resetToDefaults: () => void;
+  resetToDefaults: (ids?: string[]) => void;
   getAllSettings: () => EnhancedSettingOption[];
 }
 
-const STORAGE_KEY = 'enhanced-settings';
-
-function loadSettings(): Map<string, SettingValue> {
-  const map = new Map<string, SettingValue>();
-  if (typeof window === 'undefined') return map;
-
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored) as Record<string, SettingValue>;
-      for (const [key, value] of Object.entries(parsed)) {
-        map.set(key, value);
-      }
-    }
-  } catch {}
-
-  for (const setting of ENHANCED_SETTINGS) {
-    if (!map.has(setting.id)) {
-      map.set(setting.id, setting.defaultValue);
-    }
-  }
-
-  return map;
-}
-
-function saveSettings(settings: Map<string, SettingValue>) {
+function dispatchSettingChange(event: SettingChangeEvent) {
   if (typeof window === 'undefined') return;
-  const obj: Record<string, SettingValue> = {};
-  for (const [key, value] of settings) {
-    obj[key] = value;
-  }
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
+  window.dispatchEvent(new CustomEvent<SettingChangeEvent>('setting-change', { detail: event }));
 }
 
 export const useSettingsStore = create<SettingsState>((set, get) => ({
-  settings: new Map(),
+  settings: createDefaultSettings(),
   initialized: false,
 
   initialize: () => {
     if (get().initialized) return;
-    const settings = loadSettings();
+    const settings = loadSettingsFromCookie();
     set({ settings, initialized: true });
   },
 
-  getSettingValue: (id) => get().settings.get(id),
+  getSettingValue: (id) => get().settings[id],
 
-  getSetting: (id) => ENHANCED_SETTINGS.find((s) => s.id === id),
+  getSetting: (id) => getSettingDefinition(id),
 
   setSettingValue: (id, value) => {
-    const settings = new Map(get().settings);
-    settings.set(id, value);
-    saveSettings(settings);
-    set({ settings });
+    const normalizedValue = normalizeSettingValue(id, value);
+    if (normalizedValue === undefined) return;
+
+    const state = get();
+    const currentSettings = state.initialized ? state.settings : loadSettingsFromCookie();
+    const oldValue = currentSettings[id];
+    const settings = { ...currentSettings, [id]: normalizedValue };
+    saveSettingsToCookie(settings);
+    set({ settings, initialized: true });
+    dispatchSettingChange({ key: id, oldValue, newValue: normalizedValue });
   },
 
-  resetToDefaults: () => {
-    const settings = new Map<string, SettingValue>();
-    for (const setting of ENHANCED_SETTINGS) {
-      settings.set(setting.id, setting.defaultValue);
-    }
-    saveSettings(settings);
-    set({ settings });
+  resetToDefaults: (ids) => {
+    const defaults = createDefaultSettings();
+    const currentSettings = get().initialized ? get().settings : loadSettingsFromCookie();
+    const settings = ids?.length
+      ? ids.reduce<SettingsRecord>((acc, id) => {
+          const definition = getSettingDefinition(id);
+          if (definition) acc[id] = definition.defaultValue;
+          return acc;
+        }, { ...currentSettings })
+      : defaults;
+
+    saveSettingsToCookie(settings);
+    set({ settings, initialized: true });
   },
 
   getAllSettings: () => {
     const { settings } = get();
     return ENHANCED_SETTINGS.map((s) => ({
       ...s,
-      value: settings.get(s.id) ?? s.defaultValue,
+      value: settings[s.id] ?? s.defaultValue,
     }));
   },
 }));
