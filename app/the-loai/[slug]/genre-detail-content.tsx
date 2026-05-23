@@ -66,7 +66,7 @@ export default function GenreDetailContent({ slug, genre, page, sort, status, in
   const description = genre.description || `Khám phá kho tàng truyện tranh thể loại ${genre.title} với những câu chuyện hấp dẫn, đa dạng và phong phú.`;
 
   return (
-    <div className="container mx-auto py-4">
+    <div className="lg:container mx-auto py-2">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-sm mb-5 text-neutral-500">
         <Link href="/" className="hover:text-primary-100">Trang chủ</Link>

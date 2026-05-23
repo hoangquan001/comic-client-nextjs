@@ -115,7 +115,7 @@ export default function SearchContent({
   const activeGenreKeys = Object.entries(genreState).filter(([, v]) => v > 0);
 
   return (
-    <div className="container mx-auto py-4">
+    <div className="lg:container mx-auto py-2">
       <Breadcrumb items={[
         { label: 'Trang chủ', href: '/' },
         { label: 'Tìm truyện', href: '/tim-truyen' },

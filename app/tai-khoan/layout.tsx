@@ -51,7 +51,7 @@ export default function TaiKhoanLayout({ children }: { children: React.ReactNode
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.username || 'User';
 
   return (
-    <div className="min-h-screen w-full bg-white dark:bg-dark-bg md:container md:mx-auto">
+    <div className="min-h-screen w-full bg-white dark:bg-dark-bg lg:container md:mx-auto">
       <div className="flex min-h-screen flex-col md:flex-row">
         <aside className="w-full shrink-0 border-b border-neutral-200 bg-white dark:border-neutral-900 dark:bg-neutral-900 md:w-80 md:border-b-0 md:border-r md:bg-neutral-100 md:dark:bg-neutral-800 lg:w-80">
           <div className="flex h-full flex-col p-3 xs:p-4 md:p-4">

@@ -68,7 +68,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="container mx-auto px-3 py-8 max-w-4xl">
+    <div className="lg:container mx-auto px-3 py-8 max-w-4xl">
       {/* Header */}
       <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-blue-600/10 via-emerald-500/10 to-fuchsia-600/10 dark:from-blue-400/10 dark:via-emerald-400/10 dark:to-fuchsia-400/10 border border-zinc-200/60 dark:border-zinc-800 p-8 mb-8">
         <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-3">

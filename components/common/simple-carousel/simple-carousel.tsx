@@ -10,13 +10,13 @@ import { formatNumber } from '@/lib/utils/number';
 import { fillDescription } from '@/lib/utils/description';
 
 interface SimpleCarouselProps {
-    comics : Comic[]
+  comics: Comic[]
 }
 
 export function SimpleCarousel({
-    comics
+  comics
 }: SimpleCarouselProps) {
-    const [emblaRef, emblaApi] = useEmblaCarousel({
+  const [emblaRef, emblaApi] = useEmblaCarousel({
     align: 'start',
     containScroll: 'trimSnaps',
     loop: true,
@@ -78,8 +78,8 @@ export function SimpleCarousel({
     startAutoplay();
   };
   return (
-   <>
-         <div className="hidden sm:flex mt-3 mb-2 flex-row justify-between gap-6 rounded-t">
+    <>
+      <div className="hidden sm:flex mt-3 mb-2 flex-row justify-between gap-6 rounded-t">
         <div className="min-w-32 flex items-center">
           <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="h-6 w-6" viewBox="0 0 32 32">
             <title>Truyện đang thịnh hành</title>
@@ -145,7 +145,7 @@ export function SimpleCarousel({
                     </div>
                   )}
 
-                  <p className="z-50 text-sm line-clamp-2 mt-6">
+                  <p className="z-50 text-sm line-clamp-3 mt-auto">
                     {fillDescription(comic.description, comic, false)}
                   </p>
 

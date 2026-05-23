@@ -15,7 +15,7 @@ const PAGE_SIZE = 10;
 const TEMP_COMIC_URL = 'ta-troi-sinh-da-la-nhan-vat-phan-dien';
 
 async function fetchRecentComments(page: number) {
-  throw new Error('Không thể tải bình luận gần đây');
+
   const response = await fetch(`/api/recent-comments?page=${page}&size=${PAGE_SIZE}`);
   if (!response.ok) throw new Error('Không thể tải bình luận gần đây');
   const payload = (await response.json()) as IServiceResponse<CommentList>;
@@ -155,7 +155,7 @@ export default function RecentCommentsPanel() {
         </div>
       </div>
 
-      <div className="max-h-[560px] overflow-y-auto bg-white p-2 dark:bg-dark-bg">
+      {/* <div className="max-h-[560px] overflow-y-auto bg-white p-2 dark:bg-dark-bg">
         {isLoading && (
           <div className="space-y-3 p-2">
             {Array.from({ length: 4 }).map((_, index) => (
@@ -232,7 +232,7 @@ export default function RecentCommentsPanel() {
             </div>
           </div>
         )}
-      </div>
+      </div> */}
     </section>
   );
 }

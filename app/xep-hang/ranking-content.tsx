@@ -62,7 +62,7 @@ export default function RankingContent({ page, sort, status, initialData }: Rank
   };
 
   return (
-    <div className="container mx-auto py-4">
+    <div className="lg:container mx-auto py-2">
       <Breadcrumb items={[
         { label: 'Trang chủ', href: '/' },
         { label: 'Xếp hạng', href: '/xep-hang' },

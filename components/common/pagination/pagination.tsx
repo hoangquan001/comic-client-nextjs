@@ -55,7 +55,7 @@ export function Pagination({ currentPage, totalpage, rootLink, onChange }: Pagin
   }, [showSearch]);
 
   return (
-    <nav className="bg-white dark:bg-neutral-800 rounded-lg sm:rounded-lg border border-neutral-200 dark:border-neutral-700 overflow-hidden mt-6 mb-2">
+    <nav className="bg-white dark:bg-neutral-800 border-t border-neutral-200 dark:border-neutral-700 overflow-hidden mt-6 mb-2">
       <div className="flex flex-col gap-3 px-3 py-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         {/* Page Info Section */}
         <div className="items-center order-2 sm:order-1 hidden sm:flex">

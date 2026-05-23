@@ -58,7 +58,7 @@ export function UserMenu() {
             <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-lime-500 border-2 border-white dark:border-neutral-800 rounded-full" />
           </div>
         ) : (
-          <div className="relative flex items-center justify-center">
+          <div className="relative size-10 flex items-center justify-center">
             <svg className="size-6 text-neutral-600 dark:text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>

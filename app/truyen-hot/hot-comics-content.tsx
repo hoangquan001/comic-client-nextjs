@@ -22,7 +22,7 @@ export default function HotComicsContent({ page, initialData }: HotComicsContent
   const loading = !initialData && isLoading;
 
   return (
-    <div className="container mx-auto py-4">
+    <div className="lg:container mx-auto py-2">
       <Breadcrumb items={[
         { label: 'Trang chủ', href: '/' },
         { label: 'Truyện tranh hot', href: '/truyen-hot' },

@@ -105,7 +105,7 @@ export function TopList() {
             <div key={comic.id} className={`shrink h-full last:border-b-0 xl:border-b border-neutral-200 dark:border-neutral-700`}>
               <div className="relative flex flex-col xl:flex-row items-center gap-1 p-1 sm:gap-2 sm:p-2 md:gap-3 md:p-1.5 h-full">
                 {/* Rank Badge */}
-                <div className={`absolute -top-2 left-1/2 xl:top-0 xl:left-8 -translate-x-1/2 xl:translate-x-0 z-10 flex items-center justify-center w-5 h-5 rounded-full font-bold text-white text-xs md:text-xs xl:text-sm shadow-md ${getRankClass(i + 1)}`}>
+                <div className={`absolute -top-4 left-1/2 xl:-top-1 xl:left-7 -translate-x-1/2 z-10 flex items-center justify-center w-5 h-5 rounded-full font-bold text-white text-xs md:text-xs xl:text-sm shadow-md ${getRankClass(i + 1)}`}>
                   <span className="font-bold">{i + 1}</span>
                 </div>
 

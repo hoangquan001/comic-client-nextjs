@@ -30,7 +30,7 @@ export default function AuthorComicsContent({ author, encodedAuthor, initialData
         ]} />
       </div>
 
-      <div className="container mx-auto px-4 py-6">
+      <div className="lg:container mx-auto px-4 py-6">
         {/* Header */}
         <div className="bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 p-6 mb-6">
           <div className="flex items-center gap-4">

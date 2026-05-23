@@ -68,7 +68,7 @@
 html,
 body {
   font-family: "Roboto", sans-serif;
-  scroll-behavior: smooth !important;
+  scroll-behavior: auto;
   overflow-x: hidden;
 }
 
@@ -103,7 +103,7 @@ main {
 }
 
 .card-v1-container {
-  @apply border border-neutral-200 dark:border-neutral-700 shadow-none sm:shadow-md relative h-full flex flex-col rounded-t-lg rounded-b-md overflow-hidden;
+  @apply relative h-full flex flex-col overflow-hidden rounded-lg border border-neutral-200/80 bg-white shadow-sm transition dark:border-neutral-700 dark:bg-neutral-800;
 }
 
 .comic-title {
@@ -128,7 +128,7 @@ main {
 }
 
 .comic-detail {
-  @apply lg:flex xl:flex rounded-t-3xl z-[2] mx-auto md:container md:w-3/4 w-full lg:w-full mt-8 lg:mt-5 backdrop-blur-sm bg-gradient-to-t from-white to-white/80 dark:from-dark-bg dark:to-dark-bg/50;
+  @apply lg:flex xl:flex rounded-t-3xl z-[2] mx-auto lg:container md:w-3/4 w-full lg:w-full mt-8 lg:mt-5 backdrop-blur-sm bg-gradient-to-t from-white to-white/80 dark:from-dark-bg dark:to-dark-bg/50;
 }
 
 .comic-image-section {
@@ -265,11 +265,11 @@ main {
 }
 
 .list-genre {
-  @apply text-sm sm:text-base space-x-2 space-y-2 justify-center lg:justify-normal;
+  @apply text-sm sm:text-base gap-2 inline-flex flex-wrap justify-center lg:justify-normal;
 }
 
 .genre-item {
-  @apply text-[0.8rem] inline-block whitespace-nowrap leading-[20px] px-1.5 font-semibold hover:text-white text-neutral-600 dark:text-light-text dark:border-neutral-500 hover:bg-primary-100 rounded-md border-neutral-400 border border-dashed no-underline;
+  @apply text-[0.75rem] inline-block whitespace-nowrap leading-[20px] px-1.5 font-semibold hover:text-white text-neutral-600 dark:text-light-text dark:border-neutral-500 hover:bg-primary-100 rounded-md border-neutral-400 border border-dashed no-underline;
 }
 
 .comic-update {
@@ -399,7 +399,7 @@ main {
 }
 
 .header-container {
-  @apply text-white mx-auto md:container w-full mb-3;
+  @apply text-white mx-auto lg:container w-full mb-3;
 }
 
 .breadcrumb-wrapper {
@@ -407,7 +407,7 @@ main {
 }
 
 .main-container {
-  @apply min-h-screen mx-auto md:container w-full;
+  @apply min-h-screen mx-auto lg:container w-full;
 }
 
 .chapter-header-container {
@@ -803,7 +803,7 @@ main {
 
 @media (min-width: 1100px) {
   .simple-carousel-wrapper {
-    --sc-gap: 10px;
+    --sc-gap: 16px;
     --sc-items: 2;
   }
 }

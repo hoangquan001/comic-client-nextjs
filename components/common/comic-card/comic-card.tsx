@@ -9,16 +9,21 @@ import Image from 'next/image';
 
 interface ComicCardProps {
   comic?: Comic;
+  cardTitleClass ?: string;
 }
 
 export function ComicCard({ comic }: ComicCardProps) {
   if (!comic) {
     return (
-      <div className="card-v1-container">
-        <div className="aspect-4/5 animate-pulse bg-neutral-300 dark:bg-neutral-700 relative w-full flex justify-center items-center">
-          <svg className="w-10 h-10 text-neutral-200 dark:text-neutral-600" aria-hidden="true" fill="currentColor" viewBox="0 0 20 18">
+      <div className="relative h-full flex flex-col overflow-hidden rounded-lg border border-neutral-200/80 bg-white shadow-sm transition dark:border-neutral-700 dark:bg-neutral-800;">
+        <div className="aspect-[4/5] animate-pulse bg-neutral-200 dark:bg-neutral-700 relative w-full flex justify-center items-center">
+          <svg className="w-10 h-10 text-neutral-300 dark:text-neutral-600" aria-hidden="true" fill="currentColor" viewBox="0 0 20 18">
             <path d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z" />
           </svg>
+        </div>
+        <div className="space-y-2 p-2">
+          <div className="h-4 w-11/12 animate-pulse rounded bg-neutral-200 dark:bg-neutral-700" />
+          <div className="h-3 w-2/3 animate-pulse rounded bg-neutral-200 dark:bg-neutral-700" />
         </div>
       </div>
     );
@@ -29,12 +34,11 @@ export function ComicCard({ comic }: ComicCardProps) {
   const firstChapter = comic.chapters?.[0];
 
   return (
-    <div className="relative h-full flex flex-col rounded-t-lg rounded-b-md overflow-hidden group">
+    <div className="relative h-full flex flex-col overflow-hidden rounded-lg border border-neutral-200/80 bg-white shadow-sm transition dark:border-neutral-700 dark:bg-neutral-800; group hover:border-primary-100/40 hover:shadow-md dark:hover:border-neutral-600">
       {/* HOT tag */}
       {comic.type && (
-        <div className="m-1 rounded-md absolute font-bold z-10 text-center top-0 right-0 bg-primary-200/80 flex items-center justify-center text-white">
-          <p className="px-1 py-0 sm:px-1.5 sm:py-0.5 text-[0.7rem]">HOT</p>
-          <p className="animate-ping absolute p-1 text-[0.6rem]">HOT</p>
+        <div className="absolute right-2 top-2 z-10 rounded-md bg-primary-100/90 px-1.5 py-0.5 text-[0.65rem] font-bold uppercase leading-4 text-white shadow-sm ring-1 ring-white/20">
+          HOT
         </div>
       )}
 
@@ -48,12 +52,13 @@ export function ComicCard({ comic }: ComicCardProps) {
       <Link
         href={getComicDetailUrl(comic)}
         title={comic.title}
-        className="block aspect-4/5 relative transition-transform duration-300 hover:-translate-y-2"
+        className="relative block aspect-[4/5] overflow-hidden bg-neutral-100 dark:bg-neutral-900"
       >
         <Image
           src={comic.coverImage || '/option2.png'}
           alt={comic.title}
           loading="lazy"
+          className="object-cover transition duration-300 group-hover:scale-[1.03] group-hover:brightness-95"
           onError={(e) => { (e.target as HTMLImageElement).src = '/option2.png'; }}
           fill
           sizes="
@@ -62,17 +67,17 @@ export function ComicCard({ comic }: ComicCardProps) {
           16vw
         "
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-        <div className="w-full bg-gradient-to-t from-black to-black/20 absolute bottom-0 flex text-white text-xs p-1 w-full flex-col">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/5 to-transparent opacity-90" />
+        <div className="absolute inset-x-0 bottom-0 flex w-full flex-col px-2 pb-2 pt-6 text-xs text-white">
           {/* <h3 className="font-semibold line-clamp-2 text-sm text-white">{comic.title}</h3> */}
-          <div className="flex justify-between w-full">
-            <div className="flex gap-1 items-center text-neutral-200 fill-slate-200">
+          <div className="flex w-full items-center justify-between gap-2">
+            <div className="flex min-w-0 items-center gap-1 text-neutral-200">
               <Image src="/icons/view.svg" alt="views" className="w-3 h-3" width={12} height={12} />
-              <span className="font-normal text-[0.7rem] text-center uppercase">{formatNumber(comic.viewCount)}</span>
+              <span className="truncate text-[0.7rem] font-medium uppercase leading-none">{formatNumber(comic.viewCount)}</span>
             </div>
-            <div className="flex gap-1 items-center text-neutral-200 fill-slate-200">
-              <span className="text-yellow-400 mr-1">★</span>
-              <span className="font-normal text-[0.7rem] text-center uppercase">{formatNumber(comic.rating)}</span>
+            <div className="flex items-center gap-1 text-neutral-200">
+              <span className="text-yellow-400">★</span>
+              <span className="text-[0.7rem] font-medium uppercase leading-none">{formatNumber(comic.rating)}</span>
             </div>
             {/* <div className="flex rounded-sm bg-primary-100/50 items-center text-neutral-200 fill-slate-200">
                 <span className="text-[0.6rem] p-[0.5px]  shadow-md px-2 uppercase text-white">{comic.genres?.[0]?.title}</span>
@@ -82,20 +87,20 @@ export function ComicCard({ comic }: ComicCardProps) {
         </div>
       </Link>
 
-      <div
-        className="gap-2 p-1 text-sm dark:bg-neutral-800 hover:bg-gradient-to-t hover:from-primary-50/40 hover:to-white/80 dark:hover:from-dark-bg dark:hover:to-dark-bg/50"
-      >
-        <p className="font-semibold line-clamp-2">{comic.title}</p>
+      <div className="px-1 pb-0 pt-1 text-sm">
+        <Link href={getComicDetailUrl(comic)} title={comic.title} className="block">
+          <p className="line-clamp-2 font-semibold leading-snug text-neutral-800 transition group-hover:text-primary-100 dark:text-neutral-100">{comic.title}</p>
+        </Link>
       </div>
       {/* Chapter footer */}
       {hasChapters && firstChapter && (
 
         <Link
           href={getChapterDetailUrl(comic, firstChapter)}
-          className="justify-between px-1 flex text-xs h-full dark:bg-neutral-800 hover:bg-gradient-to-t hover:from-primary-50/40 hover:to-white/80 dark:hover:from-dark-bg dark:hover:to-dark-bg/50"
+          className="mt-auto flex items-center justify-between gap-2 border-t border-neutral-100 p-1 text-xs text-neutral-600 transition hover:bg-neutral-50 hover:text-primary-100 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-700/60"
         >
-          <p className="font-semibold text-nowrap">Chapter {firstChapter.slug}</p>
-          <span className="text-end text-[0.7rem] inline text-neutral-700 dark:text-neutral-400 line-clamp-1 text-nowrap">{dateAgo(comic.updateAt)}</span>
+          <p className="min-w-0 truncate font-semibold">Chapter {firstChapter.slug}</p>
+          <span className="shrink-0 text-end text-[0.7rem]">{dateAgo(comic.updateAt)}</span>
         </Link>
       )}
 

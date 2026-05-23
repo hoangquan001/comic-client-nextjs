@@ -136,13 +136,14 @@ export default function ComicDetailContent({ comic: initialComic }: { comic: Com
   return (
     <div className="dark:text-light-text">
       <div className="comic-content">
-        <div className="md:container mx-auto w-full z-10 mt-3 mb-5">
+        <div className="lg:container mx-auto w-full z-10 mt-3 mb-5">
           <Breadcrumb
             items={[
               { label: 'Trang chủ', href: '/' },
               { label: 'Truyện tranh', href: '/tim-truyen' },
               { label: comic.title },
             ]}
+            style = 'transparent'
           />
         </div>
 
@@ -343,7 +344,7 @@ export default function ComicDetailContent({ comic: initialComic }: { comic: Com
           </article>
 
           {isAgeLimit() && (
-            <div className="mx-auto md:container w-full z-10 p-4 bg-white dark:bg-dark-bg">
+            <div className="mx-auto lg:container w-full z-10 p-4 bg-white dark:bg-dark-bg">
               <p className="bg-red-200/50 dark:bg-red-200 border-l-4 border-red-500 rounded-r-lg p-4 text-sm">
                 <svg fill="#000000" version="1.1" className="w-5 h-5 inline-block mr-2" viewBox="0 0 367.011 367.01" xmlSpace="preserve">
                   <path d="M365.221,329.641L190.943,27.788c-1.542-2.674-4.395-4.318-7.479-4.318c-3.084,0-5.938,1.645-7.48,4.318L1.157,330.584 c-1.543,2.674-1.543,5.965,0,8.639c1.542,2.674,4.395,4.318,7.48,4.318h349.65c0.028,0,0.057,0,0.086,0 c4.77,0,8.638-3.863,8.638-8.639C367.011,332.92,366.342,331.1,365.221,329.641z M23.599,326.266L183.464,49.381l159.864,276.885 H23.599z" />
@@ -358,7 +359,7 @@ export default function ComicDetailContent({ comic: initialComic }: { comic: Com
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-2 md:container mx-auto w-full">
+      <div className="grid grid-cols-4 gap-2 lg:container mx-auto w-full">
         <div className="col-span-4 2xl:col-span-3 mt-2 mx-2 dark:text-light-text">
           {allChapters.length > 0 && (
             <ChapterList comic={comic} chapters={allChapters} />
@@ -369,7 +370,7 @@ export default function ComicDetailContent({ comic: initialComic }: { comic: Com
               <GridComic
                 title="Truyện Liên Quan"
                 listComics={similarComics}
-                gridClass="grid grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-4"
+                gridClass="grid grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-2"
               />
             </div>
           )}

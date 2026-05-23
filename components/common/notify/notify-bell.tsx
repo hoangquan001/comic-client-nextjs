@@ -16,7 +16,6 @@ export default function NotifyBell() {
 
   useClickOutside(containerRef, () => setIsVisible(false));
 
-  if (!isAuthenticated) return null;
 
   return (
     <div ref={containerRef} className="flex justify-center items-center relative h-8 w-8 cursor-pointer bg-neutral-100 dark:bg-neutral-800 rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-700">

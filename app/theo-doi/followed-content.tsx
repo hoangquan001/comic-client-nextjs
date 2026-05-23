@@ -41,7 +41,7 @@ export default function FollowedContent({ page }: FollowedContentProps) {
   };
 
   return (
-    <div className="container mx-auto py-4">
+    <div className="lg:container mx-auto py-2">
       <Breadcrumb items={[
         { label: 'Trang chủ', href: '/' },
         { label: 'Theo dõi', href: '/theo-doi' },

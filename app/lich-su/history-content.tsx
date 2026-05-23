@@ -42,7 +42,7 @@ export default function HistoryContent({ page }: HistoryContentProps) {
   };
 
   return (
-    <div className="container mx-auto py-4">
+    <div className="lg:container mx-auto py-2">
       <Breadcrumb items={[
         { label: 'Trang chủ', href: '/' },
         { label: 'Lịch sử', href: '/lich-su' },
