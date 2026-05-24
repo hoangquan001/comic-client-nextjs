@@ -67,7 +67,7 @@ export default function HtmlSitemapPage() {
                 { href: '/theo-doi', label: 'Theo dõi' },
                 { href: '/tai-khoan', label: 'Tài khoản' },
                 { href: '/auth/dang-nhap', label: 'Đăng nhập' },
-                { href: '/auth/register', label: 'Đăng ký' },
+                { href: '/auth/dang-ky', label: 'Đăng ký' },
               ].map((link) => (
                 <li key={link.href}>
                   <Link href={link.href} className="flex items-center text-sm text-zinc-700 dark:text-zinc-300 hover:text-green-600 dark:hover:text-green-400 transition-colors group">

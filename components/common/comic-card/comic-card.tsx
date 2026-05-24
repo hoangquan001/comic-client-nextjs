@@ -1,4 +1,3 @@
-'use client';
 
 import Link from 'next/link';
 import type { Comic } from '@/types';
@@ -9,13 +8,13 @@ import Image from 'next/image';
 
 interface ComicCardProps {
   comic?: Comic;
-  cardTitleClass ?: string;
+  eager?: boolean;
 }
 
-export function ComicCard({ comic }: ComicCardProps) {
+export function ComicCard({ comic, eager = false }: ComicCardProps) {
   if (!comic) {
     return (
-      <div className="relative h-full flex flex-col overflow-hidden rounded-lg border border-neutral-200/80 bg-white shadow-sm transition dark:border-neutral-700 dark:bg-neutral-800;">
+      <div className="relative flex h-full flex-col overflow-hidden rounded-lg border border-neutral-200/80 bg-white shadow-sm transition dark:border-neutral-700 dark:bg-neutral-800">
         <div className="aspect-[4/5] animate-pulse bg-neutral-200 dark:bg-neutral-700 relative w-full flex justify-center items-center">
           <svg className="w-10 h-10 text-neutral-300 dark:text-neutral-600" aria-hidden="true" fill="currentColor" viewBox="0 0 20 18">
             <path d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z" />
@@ -34,7 +33,7 @@ export function ComicCard({ comic }: ComicCardProps) {
   const firstChapter = comic.chapters?.[0];
 
   return (
-    <div className="relative h-full flex flex-col overflow-hidden rounded-lg border border-neutral-200/80 bg-white shadow-sm transition dark:border-neutral-700 dark:bg-neutral-800; group hover:border-primary-100/40 hover:shadow-md dark:hover:border-neutral-600">
+    <div className="group relative flex h-full flex-col overflow-hidden rounded-lg border border-neutral-200/80 bg-white shadow-sm transition hover:border-primary-100/40 hover:shadow-md dark:border-neutral-700 dark:bg-neutral-800 dark:hover:border-neutral-600">
       {/* HOT tag */}
       {comic.type && (
         <div className="absolute right-2 top-2 z-10 rounded-md bg-primary-100/90 px-1.5 py-0.5 text-[0.65rem] font-bold uppercase leading-4 text-white shadow-sm ring-1 ring-white/20">
@@ -57,15 +56,13 @@ export function ComicCard({ comic }: ComicCardProps) {
         <Image
           src={comic.coverImage || '/option2.png'}
           alt={comic.title}
-          loading="lazy"
+          loading={eager ? 'eager' : 'lazy'}
+          fetchPriority={eager ? 'high' : undefined}
+          quality={40}
           className="object-cover transition duration-300 group-hover:scale-[1.03] group-hover:brightness-95"
           onError={(e) => { (e.target as HTMLImageElement).src = '/option2.png'; }}
           fill
-          sizes="
-          (max-width: 640px) 50vw,
-          (max-width: 1024px) 25vw,
-          16vw
-        "
+          sizes="(max-width: 639px) calc((100vw - 28px) / 2), (max-width: 1024px) 25vw, 16vw"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/5 to-transparent opacity-90" />
         <div className="absolute inset-x-0 bottom-0 flex w-full flex-col px-2 pb-2 pt-6 text-xs text-white">
@@ -87,8 +84,8 @@ export function ComicCard({ comic }: ComicCardProps) {
         </div>
       </Link>
 
-      <div className="px-1 pb-0 pt-1 text-sm">
-        <Link href={getComicDetailUrl(comic)} title={comic.title} className="block">
+      <div className="px-2 pt-1 text-sm">
+        <Link href={getComicDetailUrl(comic)} title={comic.title} className="flex min-h-8 items-center py-1">
           <p className="line-clamp-2 font-semibold leading-snug text-neutral-800 transition group-hover:text-primary-100 dark:text-neutral-100">{comic.title}</p>
         </Link>
       </div>
@@ -97,7 +94,7 @@ export function ComicCard({ comic }: ComicCardProps) {
 
         <Link
           href={getChapterDetailUrl(comic, firstChapter)}
-          className="mt-auto flex items-center justify-between gap-2 border-t border-neutral-100 p-1 text-xs text-neutral-600 transition hover:bg-neutral-50 hover:text-primary-100 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-700/60"
+          className="mt-auto flex min-h-8 items-center justify-between gap-2 border-t border-neutral-100 px-2 py-1 text-xs text-neutral-600 transition hover:bg-neutral-50 hover:text-primary-100 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-700/60"
         >
           <p className="min-w-0 truncate font-semibold">Chapter {firstChapter.slug}</p>
           <span className="shrink-0 text-end text-[0.7rem]">{dateAgo(comic.updateAt)}</span>

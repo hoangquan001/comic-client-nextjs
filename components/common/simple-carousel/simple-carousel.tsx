@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { Comic } from '@/types';
 import useEmblaCarousel from 'embla-carousel-react';
 import Link from 'next/link';
-import { useState, useRef, useCallback, useEffect, type ReactNode } from 'react';
+import { useRef, useCallback, useEffect } from 'react';
 import { getComicDetailUrl } from '@/lib/utils/url';
 import { formatNumber } from '@/lib/utils/number';
 import { fillDescription } from '@/lib/utils/description';
@@ -43,13 +43,6 @@ export function SimpleCarousel({
       }
     }, 4000);
   }, [comics.length, emblaApi, stopAutoplay]);
-
-  useEffect(() => {
-    if (autoplayPausedRef.current) return stopAutoplay;
-    startAutoplay();
-
-    return stopAutoplay;
-  }, [startAutoplay, stopAutoplay]);
 
   useEffect(() => {
     if (!emblaApi) return undefined;
@@ -109,21 +102,7 @@ export function SimpleCarousel({
                 draggable={false}
                 className="group relative p-4 w-full h-full xl:rounded-xl text-white dark:text-light-text flex overflow-hidden no-underline"
               >
-                {/* Blurred Background Image */}
-                <Image
-                  src={comic.coverImage || ''}
-                  alt={`Bìa truyện ${comic.title}`}
-                  className=" absolute blur-[6px] inset-0 w-full h-full object-cover"
-                  loading={i < 2 ? 'eager' : 'lazy'}
-                  draggable={false}
-                  fill
-                  sizes="
-                    16vw
-                  "
-                />
-
-                {/* Dark Overlay */}
-                <div className="absolute inset-0 bg-black/50" />
+                <div className="absolute inset-0 bg-neutral-900" />
 
                 {/* Content */}
                 <div className="grow flex flex-col gap-2 z-10 pr-4">
@@ -190,6 +169,8 @@ export function SimpleCarousel({
                     alt={`Thumbnail ${comic.title}`}
                     className=" object-cover rounded-lg border-2 size-full border-white/80 shadow-lg"
                     loading={i < 1 ? 'eager' : 'lazy'}
+                    fetchPriority={i === 0 ? 'high' : undefined}
+                    quality={40}
                     draggable={false}
                     width={128}
                     height={192}

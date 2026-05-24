@@ -29,7 +29,7 @@ export function Footer() {
             </div>
             {/* Social Media */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-neutral-900 dark:text-light-text mb-4">Kết nối với {config.APP_NAME}</h3>
+              <h2 className="text-lg font-semibold text-neutral-900 dark:text-light-text mb-4">Kết nối với {config.APP_NAME}</h2>
               <div className="flex gap-3">
                 <a
                   href="https://www.facebook.com/metruyenmoicom"

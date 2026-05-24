@@ -26,7 +26,7 @@ export default function DMCAPage() {
               <li>Chuẩn bị bằng chứng quyền sở hữu (giấy tờ, liên kết gốc, thông tin liên quan).</li>
               <li>
                 Gửi yêu cầu qua trang{' '}
-                <Link href="/lien-he" className="text-blue-600 hover:underline">Liên hệ</Link>{' '}
+                <Link href="/lien-he" className="font-medium text-blue-800 underline hover:text-blue-900 dark:text-blue-300">Liên hệ</Link>{' '}
                 hoặc email: <span className="font-mono">cskh.metruyenmoi&#64;gmail.com</span>.
               </li>
               <li>Nêu rõ URL nội dung cần gỡ và mô tả phạm vi vi phạm.</li>

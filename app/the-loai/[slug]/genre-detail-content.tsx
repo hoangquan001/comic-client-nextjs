@@ -99,6 +99,7 @@ export default function GenreDetailContent({ slug, genre, page, sort, status, in
             <div className="flex items-center gap-2">
               <label className="text-sm font-medium">Sắp xếp:</label>
               <Selection
+                ariaLabel="Sắp xếp truyện theo thể loại"
                 value={sort}
                 options={SORT_OPTIONS}
                 onChange={(nextValue) => updateQuery({ sort: Number(nextValue), page: 1 })}
@@ -108,6 +109,7 @@ export default function GenreDetailContent({ slug, genre, page, sort, status, in
             <div className="flex items-center gap-2">
               <label className="text-sm font-medium">Trạng thái:</label>
               <Selection
+                ariaLabel="Lọc trạng thái truyện theo thể loại"
                 value={status}
                 options={STATUS_OPTIONS}
                 onChange={(nextValue) => updateQuery({ status: Number(nextValue), page: 1 })}

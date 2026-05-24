@@ -86,7 +86,7 @@ export default function DongBoTruyenPage() {
         {/* Footer info */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
           <div className="bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700 p-4">
-            <h3 className="font-semibold text-neutral-900 dark:text-light-text mb-2">Lưu ý bảo mật</h3>
+            <h2 className="font-semibold text-neutral-900 dark:text-light-text mb-2">Lưu ý bảo mật</h2>
             <ul className="text-sm text-neutral-500 space-y-1">
               <li>Thông tin đăng nhập được mã hóa</li>
               <li>Không lưu trữ thông tin đăng nhập</li>
@@ -94,7 +94,7 @@ export default function DongBoTruyenPage() {
             </ul>
           </div>
           <div className="bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700 p-4">
-            <h3 className="font-semibold text-neutral-900 dark:text-light-text mb-2">Tính năng</h3>
+            <h2 className="font-semibold text-neutral-900 dark:text-light-text mb-2">Tính năng</h2>
             <ul className="text-sm text-neutral-500 space-y-1">
               <li>Đồng bộ giữa 2 website</li>
               <li>Tự động phát hiện xung đột</li>
@@ -102,7 +102,7 @@ export default function DongBoTruyenPage() {
             </ul>
           </div>
           <div className="bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700 p-4">
-            <h3 className="font-semibold text-neutral-900 dark:text-light-text mb-2">Hỗ trợ</h3>
+            <h2 className="font-semibold text-neutral-900 dark:text-light-text mb-2">Hỗ trợ</h2>
             <ul className="text-sm text-neutral-500 space-y-1">
               <li>Hỗ trợ NetTruyen và TruyenQQ</li>
               <li>Đồng bộ chương đã đọc</li>

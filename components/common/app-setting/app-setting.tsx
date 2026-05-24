@@ -145,6 +145,7 @@ export default function AppSetting({
       case InputType.Selection:
         return (
           <Selection
+            ariaLabel={setting.name}
             value={value}
             options={setting.options}
             disabled={disabled}

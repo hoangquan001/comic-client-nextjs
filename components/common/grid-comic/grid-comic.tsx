@@ -175,7 +175,7 @@ export function GridComic({
               onMouseEnter={() => handleComicHover(comic)}
               onMouseLeave={() => handleComicHover(undefined)}
             >
-              <ComicCard comic={comic} />
+              <ComicCard comic={comic} eager={index < 2} />
             </div>
           ))}
         </div>

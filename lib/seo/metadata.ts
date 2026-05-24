@@ -4,13 +4,6 @@ import { config } from '@/lib/config';
 import { getDefaultKeywords, generateLongTailKeywords, generateComicKeywords } from './keywords';
 import { fillSeoDescription } from '../utils/description';
 
-function robots(noindex?: boolean, nofollow?: boolean): string {
-  const parts: string[] = [];
-  parts.push(noindex ? 'noindex' : 'index');
-  parts.push(nofollow ? 'nofollow' : 'follow');
-  return parts.join(', ');
-}
-
 export function generateHomeMetadata(): Metadata {
   return {
     title: `${config.APP_NAME} - Đọc Truyện Tranh Online Miễn Phí, Cập Nhật Nhanh Nhất`,
@@ -97,7 +90,6 @@ export function generateSearchMetadata(query?: string): Metadata {
       : `Tìm kiếm truyện tranh | ${config.APP_NAME}`,
     description: `Tìm kiếm truyện tranh tại ${config.APP_NAME}. Kho truyện khổng lồ với nhiều thể loại.`,
     keywords: query ? generateLongTailKeywords(query, 'search').join(', ') : getDefaultKeywords(),
-    robots: query ? undefined : { index: false },
     openGraph: {
       title: `Tìm kiếm truyện tranh | ${config.APP_NAME}`,
       url: `${config.BASE_URL}/tim-truyen`,

@@ -8,8 +8,8 @@ interface SelectionProps {
   value?: SelectionValue;
   onChange?: (value: SelectionValue) => void;
   placeholder?: string;
+  ariaLabel?: string;
   className?: string;
-  contentClassName?: string;
   itemClassName?: string;
   disabled?: boolean;
 }
@@ -32,8 +32,8 @@ export default function Selection({
   value,
   onChange,
   placeholder = 'Chọn',
+  ariaLabel,
   className,
-  contentClassName,
   itemClassName,
   disabled,
 }: SelectionProps) {
@@ -43,6 +43,7 @@ export default function Selection({
       onChange={(event) => onChange?.(decodeValue(event.target.value, options))}
       className={className}
       disabled={disabled}
+      aria-label={ariaLabel ?? placeholder}
     >
       {options.map((option, i) => (
         <option key={i} value={encodeValue(option.value)} className={itemClassName}>

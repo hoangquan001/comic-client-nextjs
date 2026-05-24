@@ -23,6 +23,7 @@ export default function RegisterPage() {
   const [accept, setAccept] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [shouldLoadTurnstile, setShouldLoadTurnstile] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -80,7 +81,7 @@ export default function RegisterPage() {
         <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">Chỉ cần vài bước đơn giản để bắt đầu đọc truyện</p>
       </div>
 
-      <form className="space-y-6" onSubmit={handleSubmit}>
+      <form className="space-y-6" onFocusCapture={() => setShouldLoadTurnstile(true)} onSubmit={handleSubmit}>
         {/* Name */}
         <div className="space-y-2">
           <label htmlFor="name" className="flex items-center gap-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
@@ -119,7 +120,7 @@ export default function RegisterPage() {
           </label>
           <div className="relative">
             <input id="password" type={showPassword ? 'text' : 'password'} placeholder="Tạo mật khẩu mạnh" className="w-full px-4 py-3 pr-12 border border-neutral-300 dark:border-neutral-600 rounded-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-light-text placeholder-neutral-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-transparent transition-all duration-200 focus:bg-white dark:focus:bg-neutral-700 focus:shadow-lg focus:-translate-y-px" autoComplete="new-password" value={password} onChange={(e) => { setPassword(e.target.value); if (submitted) validate(); }} />
-            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300 transition-colors duration-200 border-none bg-transparent cursor-pointer">
+            <button type="button" aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'} onClick={() => setShowPassword(!showPassword)} className="absolute right-2 top-1/2 flex min-h-11 min-w-11 -translate-y-1/2 cursor-pointer items-center justify-center border-none bg-transparent text-neutral-400 transition-colors duration-200 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300">
               <EyeIcon show={showPassword} />
             </button>
           </div>
@@ -134,7 +135,7 @@ export default function RegisterPage() {
           </label>
           <div className="relative">
             <input id="confirm-password" type={showConfirm ? 'text' : 'password'} placeholder="Nhập lại mật khẩu" className="w-full px-4 py-3 pr-12 border border-neutral-300 dark:border-neutral-600 rounded-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-light-text placeholder-neutral-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-transparent transition-all duration-200 focus:bg-white dark:focus:bg-neutral-700 focus:shadow-lg focus:-translate-y-px" autoComplete="new-password" value={confirmPassword} onChange={(e) => { setConfirmPassword(e.target.value); if (submitted) validate(); }} />
-            <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300 transition-colors duration-200 border-none bg-transparent cursor-pointer">
+            <button type="button" aria-label={showConfirm ? 'Ẩn xác nhận mật khẩu' : 'Hiện xác nhận mật khẩu'} onClick={() => setShowConfirm(!showConfirm)} className="absolute right-2 top-1/2 flex min-h-11 min-w-11 -translate-y-1/2 cursor-pointer items-center justify-center border-none bg-transparent text-neutral-400 transition-colors duration-200 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300">
               <EyeIcon show={showConfirm} />
             </button>
           </div>
@@ -153,7 +154,7 @@ export default function RegisterPage() {
         </div>
 
         <div className="space-y-2">
-          {turnstileSiteKey ? (
+          {turnstileSiteKey && shouldLoadTurnstile ? (
             <Turnstile
               ref={turnstileRef}
               siteKey={turnstileSiteKey}
@@ -171,9 +172,9 @@ export default function RegisterPage() {
                 setErrors((prev) => ({ ...prev, turnstile: 'Không thể xác minh bảo mật, vui lòng thử lại' }));
               }}
             />
-          ) : (
+          ) : !turnstileSiteKey ? (
             <p className="text-red-500 text-xs">Chưa cấu hình Cloudflare Turnstile site key</p>
-          )}
+          ) : <div aria-hidden="true" className="h-[65px]" />}
           {errors.turnstile && <p className="text-red-500 text-xs mt-1">⚠️ {errors.turnstile}</p>}
         </div>
 

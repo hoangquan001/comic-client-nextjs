@@ -1,9 +1,14 @@
 'use client';
 
 import { useAnnouncement } from '@/lib/hooks/use-comic-queries';
+import type { Announcement } from '@/types';
 
-export function AnnouncementBanner() {
-  const { data: announcements } = useAnnouncement();
+interface AnnouncementBannerProps {
+  initialAnnouncements?: Announcement[];
+}
+
+export function AnnouncementBanner({ initialAnnouncements }: AnnouncementBannerProps) {
+  const { data: announcements } = useAnnouncement(initialAnnouncements);
 
   if (!announcements?.length) return null;
 

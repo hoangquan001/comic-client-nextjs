@@ -54,6 +54,7 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
   const [zoomValue, setZoomValue] = useState(100);
   const [zoomPanelOpen, setZoomPanelOpen] = useState(false);
   const [viewTracked, setViewTracked] = useState(false);
+  const [canPreloadPages, setCanPreloadPages] = useState(false);
 
   // Stores
   const { saveHistory } = useHistoryStore();
@@ -69,6 +70,11 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
   const isAutoNextChapter = getSettingValue('autoNextChapter') as boolean ?? false;
   const isVertical = getSettingValue('verticalReading') as boolean ?? true;
   const preloadPages = getSettingValue('preloadPages') as number ?? 3;
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setCanPreloadPages(true), 8000);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   // Chapter navigation helpers
   const currentChapterIndex = useMemo(
@@ -283,9 +289,9 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
 
   const scrollToTop = () => {
     if (isFullscreen && screenRef.current) {
-      screenRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+      screenRef.current.scrollTo({ top: 0, behavior: 'instant' });
     } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: 'instant' });
     }
   };
 
@@ -437,6 +443,7 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
 
                 <div className="chapter-selector-wrapper">
                   <Selection
+                    ariaLabel="Chọn chương để đọc"
                     className="text-sm border rounded px-2 py-1 bg-white dark:bg-neutral-800 dark:text-gray-300 dark:border-neutral-600"
                     value={chapterData.id}
                     options={allChapters.map((ch: Chapter) => ({
@@ -561,13 +568,15 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
               listImgs.map((img, i) => (
                 <div key={i} className="page-chapter">
                   <Image
-                    loading={i <= preloadPages ? 'eager' : 'lazy'}
-                    fetchPriority={i <= 1 ? 'high' : 'auto'}
+                    loading={i <= 1 || (canPreloadPages && i <= preloadPages) ? 'eager' : 'lazy'}
+                    fetchPriority={i === 1 ? 'high' : 'auto'}
                     className={`chapter-page-image ${!isVertical ? 'chapter-page-horizontal' : ''} ${isNightMode ? 'night-mode' : ''}`}
                     alt={`${comic.title} Chương ${chapterData.slug} Ảnh ${i + 1}`}
                     src={img}
+                    quality={50}
                     width={1200}
                     height={1800}
+                    sizes="(max-width: 768px) 100vw, 1200px"
                     onError={handleImageError}
                   />
                 </div>

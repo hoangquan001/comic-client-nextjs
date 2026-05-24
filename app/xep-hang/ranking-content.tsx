@@ -87,6 +87,7 @@ export default function RankingContent({ page, sort, status, initialData }: Rank
           <div className="flex items-center gap-2">
             <label className="text-sm font-medium">Sắp xếp:</label>
             <Selection
+              ariaLabel="Sắp xếp bảng xếp hạng"
               value={sort}
               options={SORT_OPTIONS}
               onChange={(nextValue) => updateQuery({ sort: Number(nextValue), page: 1 })}
@@ -96,6 +97,7 @@ export default function RankingContent({ page, sort, status, initialData }: Rank
           <div className="flex items-center gap-2">
             <label className="text-sm font-medium">Trạng thái:</label>
             <Selection
+              ariaLabel="Lọc trạng thái truyện"
               value={status}
               options={STATUS_OPTIONS}
               onChange={(nextValue) => updateQuery({ status: Number(nextValue), page: 1 })}

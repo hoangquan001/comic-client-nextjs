@@ -109,7 +109,7 @@ export default function TermsPage() {
             ].map((service) => (
               <div key={service.title} className="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800/50">
                 <div className="text-xl mb-1">{service.icon}</div>
-                <h4 className="font-semibold text-sm">{service.title}</h4>
+                <h3 className="font-semibold text-sm">{service.title}</h3>
                 <p className="text-xs opacity-70 mt-1">{service.desc}</p>
                 <ul className="list-disc pl-5 text-xs opacity-80 mt-2 space-y-0.5">
                   {service.items.map((item) => <li key={item}>{item}</li>)}
@@ -129,7 +129,7 @@ export default function TermsPage() {
 
           <div className="grid sm:grid-cols-2 gap-4 mb-4">
             <div className="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800/50">
-              <h4 className="font-semibold text-sm mb-2">🔐 Trách nhiệm của bạn</h4>
+              <h3 className="font-semibold text-sm mb-2">🔐 Trách nhiệm của bạn</h3>
               <ul className="list-disc pl-5 text-sm opacity-80 space-y-1">
                 <li>Giữ bí mật thông tin đăng nhập</li>
                 <li>Không chia sẻ tài khoản với người khác</li>
@@ -138,7 +138,7 @@ export default function TermsPage() {
               </ul>
             </div>
             <div className="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800/50">
-              <h4 className="font-semibold text-sm mb-2">🛡️ Trách nhiệm của chúng tôi</h4>
+              <h3 className="font-semibold text-sm mb-2">🛡️ Trách nhiệm của chúng tôi</h3>
               <ul className="list-disc pl-5 text-sm opacity-80 space-y-1">
                 <li>Bảo vệ thông tin cá nhân</li>
                 <li>Mã hóa dữ liệu nhạy cảm</li>
@@ -158,7 +158,7 @@ export default function TermsPage() {
           <h2 className="text-xl font-bold mb-3">5. Quyền và nghĩa vụ</h2>
           <div className="grid sm:grid-cols-2 gap-4">
             <div className="p-4 rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
-              <h4 className="font-semibold text-sm mb-2">✅ Quyền của người dùng</h4>
+              <h3 className="font-semibold text-sm mb-2">✅ Quyền của người dùng</h3>
               <ul className="list-disc pl-5 text-sm opacity-80 space-y-1">
                 <li>Truy cập và sử dụng dịch vụ miễn phí</li>
                 <li>Tạo tài khoản và quản lý thông tin cá nhân</li>
@@ -169,7 +169,7 @@ export default function TermsPage() {
               </ul>
             </div>
             <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20">
-              <h4 className="font-semibold text-sm mb-2">📋 Nghĩa vụ của người dùng</h4>
+              <h3 className="font-semibold text-sm mb-2">📋 Nghĩa vụ của người dùng</h3>
               <ul className="list-disc pl-5 text-sm opacity-80 space-y-1">
                 <li>Tuân thủ các điều khoản sử dụng</li>
                 <li>Không vi phạm bản quyền của bên thứ ba</li>
@@ -194,15 +194,15 @@ export default function TermsPage() {
 
           <div className="grid sm:grid-cols-3 gap-4 mb-4">
             <div className="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800/50">
-              <h4 className="font-semibold text-sm mb-1">🔍 Kiểm duyệt nội dung</h4>
+              <h3 className="font-semibold text-sm mb-1">🔍 Kiểm duyệt nội dung</h3>
               <p className="text-xs opacity-70">Chúng tôi thực hiện kiểm duyệt nội dung để đảm bảo phù hợp với quy định pháp luật và tiêu chuẩn cộng đồng.</p>
             </div>
             <div className="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800/50">
-              <h4 className="font-semibold text-sm mb-1">⚖️ Xử lý vi phạm bản quyền</h4>
+              <h3 className="font-semibold text-sm mb-1">⚖️ Xử lý vi phạm bản quyền</h3>
               <p className="text-xs opacity-70">Khi nhận được khiếu nại về vi phạm bản quyền từ chủ sở hữu hợp pháp, chúng tôi sẽ xem xét và gỡ bỏ nội dung vi phạm trong thời gian sớm nhất.</p>
             </div>
             <div className="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800/50">
-              <h4 className="font-semibold text-sm mb-1">📧 Báo cáo vi phạm</h4>
+              <h3 className="font-semibold text-sm mb-1">📧 Báo cáo vi phạm</h3>
               <p className="text-xs opacity-70">Nếu bạn là chủ sở hữu bản quyền và phát hiện nội dung vi phạm, vui lòng liên hệ qua email: cskh.metruyenmoi@gmail.com</p>
             </div>
           </div>
@@ -222,7 +222,7 @@ export default function TermsPage() {
               { icon: '⚖️', title: 'Hành vi pháp lý', items: ['Vi phạm bản quyền, sở hữu trí tuệ', 'Hoạt động bất hợp pháp', 'Mạo danh cá nhân, tổ chức', 'Thu thập thông tin cá nhân trái phép', 'Tạo nhiều tài khoản ảo'] },
             ].map((category) => (
               <div key={category.title} className="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800/50">
-                <h4 className="font-semibold text-sm mb-2">{category.icon} {category.title}</h4>
+                <h3 className="font-semibold text-sm mb-2">{category.icon} {category.title}</h3>
                 <ul className="list-disc pl-5 text-xs opacity-80 space-y-1">
                   {category.items.map((item) => <li key={item}>{item}</li>)}
                 </ul>
@@ -284,10 +284,10 @@ export default function TermsPage() {
           <h2 className="text-xl font-bold mb-3">10. Bảo mật thông tin</h2>
           <p className="opacity-80 text-sm mb-4">
             Chúng tôi cam kết bảo vệ thông tin cá nhân của bạn theo{' '}
-            <Link href="/chinh-sach-bao-mat" className="text-blue-600 hover:underline">Chính sách bảo mật</Link> của chúng tôi.
+            <Link href="/chinh-sach-bao-mat" className="font-medium text-blue-800 underline hover:text-blue-900 dark:text-blue-300">Chính sách bảo mật</Link> của chúng tôi.
           </p>
           <div className="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800/50 mb-3">
-            <h4 className="font-semibold text-sm mb-2">Thu thập thông tin</h4>
+            <h3 className="font-semibold text-sm mb-2">Thu thập thông tin</h3>
             <ul className="list-disc pl-5 text-sm opacity-80 space-y-1">
               <li>Thông tin đăng ký tài khoản (email, tên người dùng)</li>
               <li>Lịch sử đọc truyện và sở thích</li>
@@ -307,7 +307,7 @@ export default function TermsPage() {
             Chúng tôi có quyền thay đổi, cập nhật hoặc sửa đổi điều khoản này bất kỳ lúc nào mà không cần thông báo trước.
           </p>
           <div className="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800/50 mb-4">
-            <h4 className="font-semibold text-sm mb-2">Quy trình thông báo thay đổi:</h4>
+            <h3 className="font-semibold text-sm mb-2">Quy trình thông báo thay đổi:</h3>
             <ol className="list-decimal pl-5 text-sm opacity-80 space-y-1">
               <li>Điều khoản mới được cập nhật trên website</li>
               <li>Gửi thông báo đến người dùng đã đăng ký (nếu có thay đổi quan trọng)</li>

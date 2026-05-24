@@ -199,13 +199,14 @@ export function useCharactersByComicId(comicId: number | null) {
   });
 }
 
-export function useAnnouncement() {
+export function useAnnouncement(initialData?: Announcement[]) {
   return useQuery({
     queryKey: ['announcement'],
     queryFn: () =>
       clientFetch<IServiceResponse<Announcement[]>>(`/announcement`).then(
         unwrap
       ),
+    initialData,
   });
 }
 

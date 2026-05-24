@@ -1,0 +1,348 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --color-light-text: #e5e7eb;
+  --color-dark-text: #000;
+  --color-light-bg: #fff;
+  --color-dark-bg: #191A1C;
+  --color-primary-50: #FFC49B;
+  --color-primary-100: #A92811;
+  --color-primary-200: #820000;
+  --color-primary-300: #5F0000;
+  --color-primary-400: #470000;
+  --color-primary-500: #350000;
+  --color-secondary-100: #050505;
+  --breakpoint-xs: 480px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 940px;
+  --breakpoint-xl: 1100px;
+  --breakpoint-2xl: 1200px;
+  --font-heading: var(--font-sans);
+  --font-sans: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* ===== COMIC DETAIL ===== */
+.comic-content {
+  @apply h-full w-full flex flex-col relative border-spacing-3 overflow-hidden text-secondary-100 dark:text-light-text;
+}
+
+.comic-bg {
+  @apply absolute inset-0 h-full border-spacing-2 z-[1] blur-sm;
+}
+
+.comic-bg-image {
+  @apply w-full h-[200%] bg-cover bg-black bg-no-repeat bg-top -translate-y-[20%];
+}
+
+.comic-bg-overlay {
+  @apply absolute inset-0 bg-black opacity-30;
+}
+
+.comic-detail {
+  @apply lg:flex xl:flex rounded-t-3xl z-[2] mx-auto lg:container md:w-3/4 w-full lg:w-full mt-8 lg:mt-5 backdrop-blur-sm bg-gradient-to-t from-white to-white/80 dark:from-dark-bg dark:to-dark-bg/50;
+}
+
+.comic-image-section {
+  @apply lg:ml-10;
+}
+
+.comic-image-container {
+  @apply flex justify-center relative h-[280px] lg:h-auto;
+}
+
+.comic-bg-img {
+  @apply w-[220px] h-[300px] flex shadow-md rounded absolute lg:relative bottom-8 translate-y-4 lg:translate-y-0 lg:bottom-5 border-neutral-200 dark:border-dark-bg border-4 overflow-hidden;
+}
+
+.comic-bg-img::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  transform: skewX(-25deg);
+  height: 100%;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.3) 100%);
+  animation: none;
+}
+
+.comic-bg-img:hover::before {
+  animation: slideOnHover 0.5s ease-in-out forwards;
+}
+
+@keyframes slideOnHover {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.comic-cover-image {
+  @apply w-[216px] h-[300px] object-cover;
+}
+
+.follow-button-container {
+  @apply mb-3 flex justify-center;
+}
+
+.btn-follow {
+  @apply py-1 px-4 gap-1 bg-sky-700 text-white rounded hover:bg-sky-800 flex items-center transition-colors duration-150 cursor-pointer border-none;
+}
+
+.btn-unfollow {
+  @apply py-1 px-4 border-red-500 border text-red-500 rounded hover:opacity-75 flex space-x-1 gap-1 items-center transition-all duration-150 cursor-pointer bg-transparent;
+}
+
+.keywords {
+  @apply mt-2 inline-block space-x-2 items-center px-3;
+}
+
+.keyword {
+  @apply px-2 py-0.5 text-sm h-fit bg-neutral-100 dark:bg-neutral-700 rounded text-neutral-900 dark:text-neutral-300 cursor-pointer;
+}
+
+.comic-detail-info {
+  @apply flex flex-col justify-center items-center lg:items-start mx-4 my-3 mb-5 gap-1;
+}
+
+.comic-detail-title {
+  @apply font-bold uppercase text-xl lg:text-2xl text-center lg:text-left text-gray-700 dark:text-white text-pretty leading-tight;
+}
+
+.comic-other-title {
+  @apply text-neutral-600 dark:text-light-text capitalize text-sm lg:text-base line-clamp-2 lg:line-clamp-1 font-medium;
+}
+
+.star-rating-container-1 {
+  @apply flex items-center col-span-3;
+}
+
+.star-rating-item {
+  @apply relative cursor-pointer mr-1 transform transition-all duration-200;
+  @apply hover:scale-125 active:scale-110;
+  @apply focus:outline-none focus:ring-2 focus:ring-amber-300/50;
+  @apply rounded-full;
+}
+
+.comic-star-icon {
+  @apply fill-current transition-all duration-200 w-4 h-4;
+}
+
+.comic-star-icon.star-empty {
+  @apply text-neutral-300 dark:text-neutral-600;
+}
+
+.comic-star-icon.star-filled {
+  @apply text-amber-400;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.1));
+}
+
+.star-fill-overlay {
+  @apply absolute top-0 left-0 h-full overflow-hidden;
+}
+
+.comic-author {
+  @apply dark:text-light-text text-sm sm:text-base;
+}
+
+.comic-info-list {
+  @apply text-sm;
+}
+
+.list-main-info {
+  @apply flex flex-wrap justify-center lg:justify-start gap-3 sm:gap-4 text-sm;
+}
+
+.info-item {
+  @apply flex flex-col items-center lg:items-start;
+}
+
+.info-label {
+  @apply text-sm sm:text-base dark:text-light-text;
+}
+
+.info-value {
+  @apply flex space-x-1 items-center text-gray-800 dark:text-light-text;
+}
+
+.info-icon {
+  @apply size-4 sm:size-5;
+}
+
+.info-label-text {
+  @apply text-xs sm:text-sm text-gray-800 dark:text-light-text;
+}
+
+.info-number {
+  @apply font-semibold;
+}
+
+.list-genre {
+  @apply text-sm sm:text-base gap-2 inline-flex flex-wrap justify-center lg:justify-normal;
+}
+
+.genre-item {
+  @apply text-[0.75rem] inline-block whitespace-nowrap leading-[20px] px-1.5 font-semibold hover:text-white text-neutral-600 dark:text-light-text dark:border-neutral-500 hover:bg-primary-100 rounded-md border-neutral-400 border border-dashed no-underline;
+}
+
+.comic-update {
+  @apply dark:text-light-text text-sm sm:text-base inline-block;
+}
+
+.comic-description-section {
+  @apply mt-2 lg:text-left lg:w-full lg:mx-0 lg:mt-1;
+}
+
+.comic-description {
+  @apply text-sm lg:mr-4;
+}
+
+.description-collapsed {
+  @apply line-clamp-2;
+}
+
+.description-expanded {
+  @apply line-clamp-none;
+}
+
+.btn-viewmore {
+  @apply underline text-sm font-semibold dark:text-neutral-500 hover:text-neutral-700 transition-colors duration-150 cursor-pointer bg-transparent border-none;
+}
+
+.read-action-container {
+  @apply flex space-x-4 mt-3;
+}
+
+.btn-recent {
+  @apply bg-primary-100 rounded p-1 md:p-2 px-4 hover:opacity-90 text-white flex items-center space-x-2 transition-all duration-150 cursor-pointer no-underline border-none;
+}
+
+.btn-list-characters {
+  @apply flex px-4 p-1 md:p-2 border dark:text-light-text dark:bg-neutral-800 border-neutral-600 cursor-pointer rounded text-black font-semibold text-sm hover:text-white hover:bg-secondary-100 transition-all duration-150;
+}
+
+.read-action-icon {
+  @apply w-4 h-4;
+}
+
+.read-action-text {
+  @apply font-semibold text-sm;
+}
+
+
+
+
+/* ===== CHAPTER LIST (comic detail) ===== */
+.chapter-panel {
+  @apply flex flex-col gap-2 lg:flex-row justify-between;
+}
+
+.chapter-title {
+  @apply font-semibold uppercase md:mt-3 flex items-center;
+}
+
+.chapter-title-text {
+  @apply ml-2 font-extrabold text-xl text-gray-700 dark:text-light-text;
+}
+
+.chapter-controls {
+  @apply flex justify-between items-center;
+}
+
+.chapter-search-container {
+  @apply relative mr-2;
+}
+
+.chapter-search-icon {
+  @apply absolute inset-y-0 start-0 flex items-center px-3 pointer-events-none;
+}
+
+.chapter-search-svg {
+  @apply w-3 h-3 text-neutral-400;
+}
+
+.chapter-search-input {
+  @apply block w-48 pt-1 px-10 text-sm text-neutral-900 border-b border-solid border-[#ccc] dark:bg-dark-bg outline-none focus:ring-primary-100 focus:border-primary-100 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-light-text dark:focus:ring-primary-100 dark:focus:border-primary-100;
+}
+
+.chapter-list-container {
+  @apply flex w-full mt-4 relative;
+}
+
+.chapter-item {
+  @apply mr-2 mb-2 h-12 flex items-center justify-between bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-700 dark:hover:bg-neutral-500 text-sm rounded-lg px-2 py-1 cursor-pointer select-none no-underline;
+}
+
+.chapter-item-read {
+  @apply bg-neutral-200 dark:bg-neutral-800;
+}
+
+.chapter-item-content {
+  @apply p-1;
+}
+
+.chapter-item-title-read {
+  @apply text-neutral-700 dark:text-neutral-200;
+}
+
+.chapter-item-date {
+  @apply ml-auto p-1;
+}
+
+.chapter-item-date-text {
+  @apply text-neutral-700 dark:text-neutral-300 text-xs;
+}
+
+.chapter-not-found {
+  @apply font-light bg-neutral-100 dark:bg-neutral-800 h-20 rounded-lg my-3 p-3 text-neutral-600 dark:text-neutral-200;
+}
+
+.chapter-selection {
+  @apply w-32 ml-2 text-sm border rounded px-2 py-1 bg-white dark:bg-neutral-800;
+}
+
+.chapter-loading {
+  @apply absolute top-0 right-0 w-full h-full min-h-48 flex justify-center items-center;
+}
+
+.status-text {
+  @apply text-sm font-semibold;
+}

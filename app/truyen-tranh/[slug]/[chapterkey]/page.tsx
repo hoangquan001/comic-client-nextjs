@@ -5,6 +5,7 @@ import { generateChapterMetadata } from '@/lib/seo/metadata';
 import { generateChapterSchema, generateBreadcrumbSchema } from '@/lib/seo/json-ld';
 import type { Comic, ChapterPage, IServiceResponse } from '@/types';
 import ChapterReaderContent from './chapter-reader-content';
+import "./style.css";
 
 interface ChapterPageProps {
   params: Promise<{ slug: string; chapterkey: string }>;

@@ -25,6 +25,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [shouldLoadTurnstile, setShouldLoadTurnstile] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState('');
   const [errors, setErrors] = useState<{ email?: string; password?: string; turnstile?: string }>({});
@@ -88,7 +89,7 @@ export default function LoginPage() {
         <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">Đăng nhập để tiếp tục hành trình đọc truyện của bạn</p>
       </div>
 
-      <form className="space-y-6" onSubmit={handleSubmit}>
+      <form className="space-y-6" onFocusCapture={() => setShouldLoadTurnstile(true)} onSubmit={handleSubmit}>
         {/* Email */}
         <div className="space-y-2">
           <label htmlFor="email" className="flex items-center gap-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
@@ -112,7 +113,7 @@ export default function LoginPage() {
           </label>
           <div className="relative">
             <input id="password" type={showPassword ? 'text' : 'password'} placeholder="Nhập mật khẩu của bạn" className="w-full px-4 py-3 pr-12 border border-neutral-300 dark:border-neutral-600 rounded-xl bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-light-text placeholder-neutral-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-100 focus:border-transparent transition-all duration-200 focus:bg-white dark:focus:bg-neutral-700 focus:shadow-lg focus:-translate-y-px" autoComplete="current-password" value={password} onChange={(e) => { setPassword(e.target.value); if (submitted) validate(); }} />
-            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300 transition-colors duration-200 border-none bg-transparent cursor-pointer">
+            <button type="button" aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'} onClick={() => setShowPassword(!showPassword)} className="absolute right-2 top-1/2 flex min-h-11 min-w-11 -translate-y-1/2 cursor-pointer items-center justify-center border-none bg-transparent text-neutral-400 transition-colors duration-200 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300">
               <EyeIcon show={showPassword} />
             </button>
           </div>
@@ -129,7 +130,7 @@ export default function LoginPage() {
         </div>
 
         <div className="space-y-2">
-          {turnstileSiteKey ? (
+          {turnstileSiteKey && shouldLoadTurnstile ? (
             <Turnstile
               ref={turnstileRef}
               siteKey={turnstileSiteKey}
@@ -147,9 +148,9 @@ export default function LoginPage() {
                 setErrors((prev) => ({ ...prev, turnstile: 'Không thể xác minh bảo mật, vui lòng thử lại' }));
               }}
             />
-          ) : (
+          ) : !turnstileSiteKey ? (
             <p className="text-red-500 text-xs">Chưa cấu hình Cloudflare Turnstile site key</p>
-          )}
+          ) : <div aria-hidden="true" className="h-[65px]" />}
           {errors.turnstile && <p className="text-red-500 text-xs mt-1">⚠️ {errors.turnstile}</p>}
         </div>
 

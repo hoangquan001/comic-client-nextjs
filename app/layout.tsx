@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import { Roboto, Geist } from 'next/font/google';
+import localFont from 'next/font/local';
 import './globals.css';
 import { AppProviders } from '@/components/providers/app-providers';
-import { Header ,Footer, Nav} from '@/components/layout';
+import { Header, Footer, Nav } from '@/components/layout';
 import { ChatBubble } from '@/components/layout/chat-bubble';
 import { PopupManager } from '@/components/layout/popup-manager';
 import { config } from '@/lib/config';
@@ -11,15 +11,15 @@ import { Toaster } from '@/components/ui/sonner';
 import { Suspense } from 'react';
 import NextTopLoader from 'nextjs-toploader';
 
-const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
-
-const roboto = Roboto({
-  variable: '--font-roboto',
-  subsets: ['latin', 'vietnamese'],
-  weight: ['300', '400', '500', '700'],
+const roboto = localFont({
+  src: './fonts/Roboto-Variable.ttf',
+  weight: '100 900',
+  style: 'normal',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(config.BASE_URL),
   title: `${config.APP_NAME} - Đọc Truyện Tranh Online`,
   description: `Đọc truyện tranh online miễn phí tại ${config.APP_NAME}. Kho truyện manga, manhwa, manhua khổng lồ, cập nhật liên tục.`,
   icons: {
@@ -35,8 +35,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi" className={cn("h-full", "antialiased", roboto.variable, "font-sans", geist.variable)} suppressHydrationWarning>
-      <body>
+    <html lang="vi" className={cn("h-full", "antialiased")} suppressHydrationWarning>
+      <body className={roboto.className}>
 
         <AppProviders>
           <NextTopLoader

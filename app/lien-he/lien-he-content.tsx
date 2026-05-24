@@ -122,7 +122,7 @@ export default function ContactPage() {
         ].map((method) => (
           <div key={method.title} className="p-4 rounded-xl bg-white/80 dark:bg-zinc-900/60 border border-zinc-200/60 dark:border-zinc-800 text-center">
             <div className="text-2xl mb-2">{method.icon}</div>
-            <h3 className="font-semibold">{method.title}</h3>
+            <h2 className="font-semibold">{method.title}</h2>
             <p className="text-sm opacity-70 mt-1">{method.desc}</p>
             {method.href.startsWith('/') ? (
               <Link
@@ -198,6 +198,7 @@ export default function ContactPage() {
                 rules={{ required: 'Vui lòng chọn chủ đề' }}
                 render={({ field }) => (
                   <Selection
+                    ariaLabel="Chọn chủ đề liên hệ"
                     value={field.value}
                     onChange={(nextValue) => field.onChange(String(nextValue))}
                     options={SUBJECT_OPTIONS}
@@ -286,7 +287,7 @@ export default function ContactPage() {
         ].map((info) => (
           <div key={info.title} className="p-4 rounded-xl bg-white/80 dark:bg-zinc-900/60 border border-zinc-200/60 dark:border-zinc-800">
             <div className="text-2xl mb-2">{info.icon}</div>
-            <h3 className="font-semibold mb-2">{info.title}</h3>
+            <h2 className="font-semibold mb-2">{info.title}</h2>
             <div className="text-sm opacity-80 space-y-1">
               {info.items.map((item, i) => (
                 <p key={i}>{item}</p>
@@ -329,7 +330,7 @@ export default function ContactPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowSuccess(false)}>
           <div className="bg-white dark:bg-zinc-800 rounded-xl p-8 max-w-sm mx-4 text-center shadow-xl" onClick={(e) => e.stopPropagation()}>
             <div className="text-4xl mb-4">✅</div>
-            <h3 className="text-lg font-bold mb-2">Gửi thành công!</h3>
+            <h2 className="text-lg font-bold mb-2">Gửi thành công!</h2>
             <p className="text-sm opacity-80 mb-4">Cảm ơn bạn đã liên hệ với chúng tôi. Chúng tôi sẽ phản hồi trong thời gian sớm nhất.</p>
             <button
               onClick={() => setShowSuccess(false)}

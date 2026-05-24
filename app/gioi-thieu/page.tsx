@@ -51,7 +51,7 @@ export default function AboutPage() {
           },
         ].map((feature) => (
           <div key={feature.title} className="p-5 rounded-xl bg-white/80 dark:bg-zinc-900/60 border border-zinc-200/60 dark:border-zinc-800">
-            <h3 className="font-semibold mb-2">{feature.title}</h3>
+            <h2 className="font-semibold mb-2">{feature.title}</h2>
             <p className="text-sm opacity-80">{feature.desc}</p>
           </div>
         ))}
@@ -81,7 +81,7 @@ export default function AboutPage() {
       <div className="mt-8 p-6 rounded-xl bg-white/80 dark:bg-zinc-900/60 border border-zinc-200/60 dark:border-zinc-800">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h3 className="font-semibold">Bạn có góp ý hay muốn hợp tác?</h3>
+            <h2 className="font-semibold">Bạn có góp ý hay muốn hợp tác?</h2>
             <p className="text-sm opacity-80">Liên hệ với chúng tôi để cùng xây dựng một cộng đồng đọc truyện văn minh.</p>
           </div>
           <Link href="/lien-he" className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-500 text-center">

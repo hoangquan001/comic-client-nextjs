@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdvanceSearch } from '@/lib/hooks/use-comic-queries';
 import { GridComic } from '@/components/common/grid-comic/grid-comic';
@@ -43,6 +43,13 @@ interface SearchContentProps {
   initialData?: ComicList | null;
 }
 
+function getInitialGenreState(genresParam: string, nogenresParam: string) {
+  const state: Record<number, number> = {};
+  genresParam.split(',').filter(Boolean).forEach((id) => { state[Number(id)] = 1; });
+  nogenresParam.split(',').filter(Boolean).forEach((id) => { state[Number(id)] = 2; });
+  return state;
+}
+
 export default function SearchContent({
   page: initialPage,
   sort: initialSort,
@@ -60,14 +67,9 @@ export default function SearchContent({
   const [selectedSort, setSelectedSort] = useState(initialSort);
   const [selectedStatus, setSelectedStatus] = useState(initialStatus);
   const [selectedYear, setSelectedYear] = useState(yearParam > 0 ? yearParam : new Date().getFullYear());
-  const [genreState, setGenreState] = useState<Record<number, number>>({});
-
-  useEffect(() => {
-    const state: Record<number, number> = {};
-    genresParam.split(',').filter(Boolean).forEach((id) => { state[Number(id)] = 1; });
-    nogenresParam.split(',').filter(Boolean).forEach((id) => { state[Number(id)] = 2; });
-    setGenreState(state);
-  }, []);
+  const [genreState, setGenreState] = useState<Record<number, number>>(
+    () => getInitialGenreState(genresParam, nogenresParam)
+  );
 
   const { data, isLoading } = useAdvanceSearch({
     page: initialPage,
@@ -192,6 +194,7 @@ export default function SearchContent({
             <div className="space-y-1">
               <label className="text-xs text-neutral-500">Sắp xếp theo</label>
               <Selection
+                ariaLabel="Sắp xếp kết quả tìm kiếm"
                 value={selectedSort}
                 options={SORT_OPTIONS}
                 onChange={(nextValue) => setSelectedSort(Number(nextValue))}
@@ -201,6 +204,7 @@ export default function SearchContent({
             <div className="space-y-1">
               <label className="text-xs text-neutral-500">Trạng thái</label>
               <Selection
+                ariaLabel="Lọc trạng thái kết quả tìm kiếm"
                 value={selectedStatus}
                 options={STATUS_OPTIONS}
                 onChange={(nextValue) => setSelectedStatus(Number(nextValue))}

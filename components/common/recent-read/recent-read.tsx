@@ -15,7 +15,7 @@ export default function RecentRead() {
       c.coverImage = 'https://cdn1.anhtruyen.com/coverimg/' + c.coverImage;
     }
   });
-
+  
   return (
     <div className="bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700  overflow-hidden">
       <div className="flex items-center justify-between p-3 bg-neutral-50 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700">
@@ -25,7 +25,7 @@ export default function RecentRead() {
           {listHistory.length > 0 && <span className="px-2 py-1 bg-primary-100 text-white text-xs font-bold rounded-full">{listHistory.length}</span>}
         </div>
         <div className="flex items-center">
-          <Link href="/lich-su" className="flex items-center gap-2 px-2 py-1 text-neutral-600 dark:text-neutral-400 hover:text-primary-100 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-lg">
+          <Link href="/lich-su" aria-label="Xem lịch sử đọc truyện" className="flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-lg px-2 py-1 text-neutral-600 hover:bg-neutral-100 hover:text-primary-100 dark:text-neutral-400 dark:hover:bg-neutral-700">
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9,18 15,12 9,6" /></svg>
           </Link>
         </div>
@@ -45,7 +45,7 @@ export default function RecentRead() {
               <div key={comic.id} className="border-b border-neutral-200 dark:border-neutral-700 last:border-b-0 flex items-center gap-2 p-1">
                 <div className="relative flex-shrink-0">
                   <Link href={getComicDetailUrl(comic)} className="relative block overflow-hidden rounded-lg">
-                    <Image className="w-12 h-16 object-cover" src={comic.coverImage || '/empty.png'} alt={comic.title} loading="lazy" width={48} height={64} onError={(e) => { (e.target as HTMLImageElement).src = '/empty.png'; }} />
+                    <Image className="w-12 h-16 object-cover" src={comic.coverImage || '/empty.png'} alt={comic.title} width={48} height={64} onError={(e) => { (e.target as HTMLImageElement).src = '/empty.png'; }} />
                     <div className="absolute inset-0 bg-black/0 hover:bg-black/10" />
                   </Link>
                 </div>

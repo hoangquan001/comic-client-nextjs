@@ -21,7 +21,7 @@ export function ChatBubble() {
           </svg>
         </button>
       )}
-      <ChatBox isVisible={showChat} onClose={() => setShowChat(false)} />
+      {showChat && <ChatBox isVisible onClose={() => setShowChat(false)} />}
     </>
   );
 }

@@ -5,7 +5,7 @@ import { generateComicMetadata } from '@/lib/seo/metadata';
 import { generateComicSchema, generateBreadcrumbSchema } from '@/lib/seo/json-ld';
 import type { Comic, IServiceResponse } from '@/types';
 import ComicDetailContent from './comic-detail-content';
-
+import "./style.css";
 interface ComicDetailPageProps {
   params: Promise<{ slug: string }>;
 }

@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { generateStaticMetadata } from '@/lib/seo/metadata';
 
 export function generateMetadata(): Metadata {
@@ -136,7 +135,7 @@ export default function PrivacyPolicyPage() {
             ].map((purpose) => (
               <div key={purpose.title} className="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800/50">
                 <div className="text-xl mb-1">{purpose.icon}</div>
-                <h4 className="font-semibold mb-2">{purpose.title}</h4>
+                <h3 className="font-semibold mb-2">{purpose.title}</h3>
                 <ul className="list-disc pl-5 text-sm opacity-80 space-y-1">
                   {purpose.items.map((item) => <li key={item}>{item}</li>)}
                 </ul>
@@ -200,7 +199,7 @@ export default function PrivacyPolicyPage() {
             ].map((sharing) => (
               <div key={sharing.title} className="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800/50">
                 <div className="text-xl mb-1">{sharing.icon}</div>
-                <h4 className="font-semibold mb-1 text-sm">{sharing.title}</h4>
+                <h3 className="font-semibold mb-1 text-sm">{sharing.title}</h3>
                 <p className="text-xs opacity-70 mb-2">{sharing.desc}</p>
                 <ul className="list-disc pl-5 text-xs opacity-80 space-y-0.5">
                   {sharing.items.map((item) => <li key={item}>{item}</li>)}
@@ -216,7 +215,7 @@ export default function PrivacyPolicyPage() {
           <p className="opacity-80 mb-4 text-sm">Chúng tôi áp dụng các biện pháp bảo mật tiên tiến để bảo vệ thông tin của bạn:</p>
           <div className="grid sm:grid-cols-2 gap-4 mb-4">
             <div className="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800/50">
-              <h4 className="font-semibold mb-2">🔐 Bảo mật kỹ thuật</h4>
+              <h3 className="font-semibold mb-2">🔐 Bảo mật kỹ thuật</h3>
               <ul className="list-disc pl-5 text-sm opacity-80 space-y-1">
                 <li><strong>Mã hóa SSL/TLS:</strong> Tất cả dữ liệu được mã hóa khi truyền tải</li>
                 <li><strong>Mã hóa mật khẩu:</strong> Sử dụng thuật toán hash an toàn</li>
@@ -225,7 +224,7 @@ export default function PrivacyPolicyPage() {
               </ul>
             </div>
             <div className="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800/50">
-              <h4 className="font-semibold mb-2">👥 Bảo mật quản lý</h4>
+              <h3 className="font-semibold mb-2">👥 Bảo mật quản lý</h3>
               <ul className="list-disc pl-5 text-sm opacity-80 space-y-1">
                 <li><strong>Kiểm soát truy cập:</strong> Chỉ nhân viên được ủy quyền mới có thể truy cập</li>
                 <li><strong>Đào tạo bảo mật:</strong> Nhân viên được đào tạo về bảo mật thông tin</li>
@@ -235,7 +234,7 @@ export default function PrivacyPolicyPage() {
             </div>
           </div>
           <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200/60 dark:border-amber-800 text-sm">
-            <h4 className="font-semibold mb-2">⚠️ Lưu ý quan trọng</h4>
+            <h3 className="font-semibold mb-2">⚠️ Lưu ý quan trọng</h3>
             <p className="opacity-80 mb-2">Mặc dù chúng tôi áp dụng các biện pháp bảo mật tốt nhất, không có hệ thống nào là hoàn toàn an toàn 100%. Chúng tôi khuyến khích bạn:</p>
             <ul className="list-disc pl-5 opacity-80 space-y-1">
               <li>Sử dụng mật khẩu mạnh và duy nhất</li>
@@ -303,13 +302,13 @@ export default function PrivacyPolicyPage() {
             ].map((right) => (
               <div key={right.title} className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/50">
                 <div className="text-lg mb-1">{right.icon}</div>
-                <h4 className="font-semibold text-sm">{right.title}</h4>
+                <h3 className="font-semibold text-sm">{right.title}</h3>
                 <p className="text-xs opacity-70 mt-1">{right.desc}</p>
               </div>
             ))}
           </div>
           <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200/60 dark:border-blue-800 text-sm">
-            <h4 className="font-semibold mb-2">Cách thực hiện quyền của bạn</h4>
+            <h3 className="font-semibold mb-2">Cách thực hiện quyền của bạn</h3>
             <p className="opacity-80 mb-2">Để thực hiện các quyền trên, bạn có thể:</p>
             <ol className="list-decimal pl-5 opacity-80 space-y-1">
               <li>Đăng nhập tài khoản và truy cập trang quản lý</li>
@@ -332,7 +331,7 @@ export default function PrivacyPolicyPage() {
               { title: '💬 Disqus Comments', purpose: 'Hệ thống bình luận', data: 'Thông tin tài khoản, nội dung bình luận' },
             ].map((service) => (
               <div key={service.title} className="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800/50">
-                <h4 className="font-semibold text-sm mb-1">{service.title}</h4>
+                <h3 className="font-semibold text-sm mb-1">{service.title}</h3>
                 <p className="text-xs opacity-80"><strong>Mục đích:</strong> {service.purpose}</p>
                 <p className="text-xs opacity-80"><strong>Dữ liệu:</strong> {service.data}</p>
               </div>
@@ -350,7 +349,7 @@ export default function PrivacyPolicyPage() {
             Chúng tôi có thể cập nhật chính sách bảo mật này theo thời gian để phản ánh các thay đổi trong dịch vụ hoặc yêu cầu pháp lý.
           </p>
           <div className="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800/50 mb-4">
-            <h4 className="font-semibold text-sm mb-2">Quy trình thông báo thay đổi:</h4>
+            <h3 className="font-semibold text-sm mb-2">Quy trình thông báo thay đổi:</h3>
             <ol className="list-decimal pl-5 text-sm opacity-80 space-y-1">
               <li>Thông báo ít nhất 30 ngày trước khi có thay đổi quan trọng</li>
               <li>Cập nhật chính sách mới trên website với ngày hiệu lực</li>
@@ -359,7 +358,7 @@ export default function PrivacyPolicyPage() {
             </ol>
           </div>
           <div className="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800/50">
-            <h4 className="font-semibold text-sm mb-2">Lịch sử phiên bản:</h4>
+            <h3 className="font-semibold text-sm mb-2">Lịch sử phiên bản:</h3>
             <div className="text-sm opacity-80 space-y-2">
               <div className="flex gap-3"><span className="w-24 shrink-0">15/05/2026</span><span className="w-10 shrink-0">v2.0</span><span>Cập nhật toàn diện, bổ sung quyền người dùng</span></div>
               <div className="flex gap-3"><span className="w-24 shrink-0">01/01/2024</span><span className="w-10 shrink-0">v1.5</span><span>Bổ sung chính sách cookies chi tiết</span></div>

@@ -1,14 +1,15 @@
-import { GridComic, Pagination, TopList, AnnouncementBanner, RecentRead, TopUsers, SimpleCarousel, RecentCommentsPanel } from '@/components/common';
-import type { ComicList, Comic } from '@/types';
+import { GridComic, Pagination, TopList, AnnouncementBanner, RecentRead, TopUsers, SimpleCarousel } from '@/components/common';
+import type { Announcement, ComicList, Comic } from '@/types';
 import { Suspense } from 'react';
 
 interface HomeContentProps {
   page: number;
   initialComics?: ComicList | null;
   initialCarousel?: Comic[] | null;
+  initialAnnouncements?: Announcement[];
 }
 
-export default function HomeContent({ page, initialComics, initialCarousel }: HomeContentProps) {
+export default function HomeContent({ page, initialComics, initialCarousel, initialAnnouncements }: HomeContentProps) {
 
   const comics = initialComics?.comics ?? [];
   const totalpage = initialComics?.totalpage ?? 1;
@@ -21,11 +22,14 @@ export default function HomeContent({ page, initialComics, initialCarousel }: Ho
       {/* Carousel / Recommend Comics */}
       {/* Title - hidden on mobile */}
       <SimpleCarousel comics={carousel} />
-      <AnnouncementBanner />
+      <AnnouncementBanner initialAnnouncements={initialAnnouncements} />
 
       {/* Main Grid */}
       <div className="mt-4 grid grid-cols-1 xl:grid-cols-4 gap-2 lg:gap-4">
-        <div id="comics" className="xl:col-span-3 row-span-3">
+        <div className="xl:col-start-4 xl:row-start-1">
+          <RecentRead />
+        </div>
+        <div id="comics" className="xl:col-span-3 xl:col-start-1 xl:row-span-3 xl:row-start-1">
 
           <GridComic
             title="Mới cập nhật"
@@ -38,9 +42,6 @@ export default function HomeContent({ page, initialComics, initialCarousel }: Ho
             totalpage={totalpage}
             rootLink="/"
           />
-        </div>
-        <div className="row-start-1 xl:row-start-auto">
-          <RecentRead />
         </div>
         <div className="flex flex-col gap-4">
           <Suspense>
