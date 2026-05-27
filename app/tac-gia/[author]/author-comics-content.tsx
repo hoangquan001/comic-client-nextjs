@@ -12,9 +12,10 @@ interface AuthorComicsContentProps {
   author: string;
   encodedAuthor: string;
   initialData?: Comic[] | null;
+  gridType: number;
 }
 
-export default function AuthorComicsContent({ author, encodedAuthor, initialData }: AuthorComicsContentProps) {
+export default function AuthorComicsContent({ author, encodedAuthor, initialData , gridType}: AuthorComicsContentProps) {
   const { data, isLoading, error } = useComicsByAuthor(author);
 
   const comics = initialData ?? (data as any)?.data ?? [];
@@ -30,7 +31,7 @@ export default function AuthorComicsContent({ author, encodedAuthor, initialData
         ]} />
       </div>
 
-      <div className="lg:container mx-auto px-4 py-6">
+      <div className="lg:container mx-auto w-full px-4 py-6">
         {/* Header */}
         <div className="bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 p-6 mb-6">
           <div className="flex items-center gap-4">
@@ -72,7 +73,7 @@ export default function AuthorComicsContent({ author, encodedAuthor, initialData
               <h2 className="text-xl font-bold text-neutral-900 dark:text-light-text">Tác phẩm của {author}</h2>
               <span className="text-sm text-neutral-500">{comics.length} tác phẩm</span>
             </div>
-            <GridComic title={`Tác phẩm của ${author}`} listComics={comics} />
+            <GridComic title={`Tác phẩm của ${author}`} listComics={comics} defaultGridType={gridType} />
           </div>
         )}
       </div>

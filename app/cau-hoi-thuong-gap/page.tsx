@@ -12,7 +12,7 @@ export function generateMetadata(): Metadata {
 
 export default function FAQPage() {
   return (
-    <section className="lg:container mx-auto px-3 py-8">
+    <section className="lg:container mx-auto w-full px-3 py-8">
       <div className="bg-white/80 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-6">
         <h1 className="text-2xl font-bold mb-4">Câu hỏi thường gặp</h1>
 

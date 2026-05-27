@@ -197,7 +197,7 @@ export default function CommentSection({ comic, chapterID }: CommentSectionProps
   }
 
   return (
-    <div ref={sectionRef} className="lg:container mx-auto w-full mt-8 space-y-6">
+    <div ref={sectionRef} className="lg:container mx-auto w-full w-full mt-8 space-y-6">
       {!isAuthenticated && (
         <div className="mb-6">
           <div className="flex items-center gap-4 p-6 bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700 ">

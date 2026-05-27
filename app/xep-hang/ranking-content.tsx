@@ -33,9 +33,10 @@ interface RankingContentProps {
   sort: number;
   status: number;
   initialData?: ComicList | null;
+  gridType: number
 }
 
-export default function RankingContent({ page, sort, status, initialData }: RankingContentProps) {
+export default function RankingContent({ page, sort, status, initialData, gridType }: RankingContentProps) {
   const router = useRouter();
 
   const { data, isLoading } = useComics({
@@ -62,7 +63,7 @@ export default function RankingContent({ page, sort, status, initialData }: Rank
   };
 
   return (
-    <div className="lg:container mx-auto py-2">
+    <div className="lg:container mx-auto w-full p-2">
       <Breadcrumb items={[
         { label: 'Trang chủ', href: '/' },
         { label: 'Xếp hạng', href: '/xep-hang' },
@@ -110,7 +111,7 @@ export default function RankingContent({ page, sort, status, initialData }: Rank
         {loading ? (
           <Spinner />
         ) : (
-          <GridComic listComics={comics} title="" />
+          <GridComic listComics={comics} title="Xếp hạng" defaultGridType={gridType} />
         )}
 
         <Pagination

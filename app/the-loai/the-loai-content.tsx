@@ -16,7 +16,7 @@ export default function GenreIndexPage() {
     : GENRES;
 
   return (
-    <section className="lg:container mx-auto px-3 py-8">
+    <section className="lg:container mx-auto w-full px-3 py-8">
       <div className="flex items-center justify-between mb-5">
         <div>
           <h1 className="text-2xl font-bold">Danh mục thể loại</h1>

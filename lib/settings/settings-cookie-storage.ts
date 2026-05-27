@@ -2,6 +2,7 @@ import Cookies from 'js-cookie';
 import { InputType } from '@/types';
 import type { EnhancedSettingOption, SettingsRecord, SettingValue } from '@/types';
 import { ENHANCED_SETTINGS } from '@/lib/constants/settings';
+import { StoredSettingsPayload } from './type';
 
 const SETTINGS_COOKIE_NAME = 'app-settings';
 const SETTINGS_SCHEMA_VERSION = 1;
@@ -11,10 +12,6 @@ const SETTINGS_COOKIE_OPTIONS = {
   sameSite: 'lax' as const,
 };
 
-type StoredSettingsPayload = {
-  version?: number;
-  values?: Record<string, unknown>;
-};
 
 const SETTINGS_BY_ID = new Map(ENHANCED_SETTINGS.map((setting) => [setting.id, setting]));
 

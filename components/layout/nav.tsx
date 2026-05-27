@@ -114,7 +114,7 @@ export function Nav() {
       <ul className={`absolute top-full left-0 z-40 w-full bg-white dark:bg-neutral-900 text-black dark:text-light-text border shadow-lg lg:hidden transition-all origin-top duration-200 flex flex-col list-none p-0 m-0 border-primary-100 dark:border-neutral-700 ${showSidebar ? 'translate-y-0' : '-translate-y-full hidden'}`}>
 
         {/* Mobile genre dropdown */}
-        <li className="relative border-b border-neutral-100 dark:border-neutral-700" onMouseEnter={() => setShowGenre(true)} onMouseLeave={() => setShowGenre(false)}>
+        <li className="relative border-b border-neutral-100 dark:border-neutral-700" onClick={() => setShowGenre(!showGenre)} onMouseLeave={() => setShowGenre(false)}>
           <div className="flex items-center gap-3 p-3 text-inherit no-underline w-full h-10 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-700">
             <svg className="w-6 h-6 shrink-0" viewBox="0 0 24 24" stroke="currentColor" fill="none">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />

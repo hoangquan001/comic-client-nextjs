@@ -12,17 +12,16 @@ interface GridComicProps {
   gridClass?: string;
   nPreview?: number;
   iconTemplate?: React.ReactNode;
-  toolTemplate?: React.ReactNode;
   actionTemplate?: React.ReactNode;
   emptyTemplate?: React.ReactNode;
-  onComicHover?: (comic?: Comic) => void;
+  defaultGridType?: number;
+  actionClick?: (comic: Comic) => void;
 }
 
 const CLASS_SMALL =
   'grid gap-3 grid-cols-3 @lg:grid-cols-4 @2xl:grid-cols-5 @4xl:grid-cols-6 @5xl:grid-cols-7 @6xl:grid-cols-8 mx-2';
 const CLASS_MEDIUM =
-  'grid gap-3 grid-cols-2 @lg:grid-cols-3 @2xl:grid-cols-4 @4xl:grid-cols-5 @5xl:grid-cols-6 @6xl:grid-cols-7 mx-2';
-const GRID_TYPE_COOKIE = 'grid-type';
+  'grid gap-3 grid-cols-2 @lg:grid-cols-3 @2xl:grid-cols-4 @3xl:grid-cols-5 @5xl:grid-cols-6 @6xl:grid-cols-7 mx-2';
 
 export function GridComic({
   title,
@@ -30,21 +29,23 @@ export function GridComic({
   gridClass,
   nPreview = 30,
   iconTemplate,
-  toolTemplate,
   actionTemplate,
+  actionClick,
   emptyTemplate,
-  onComicHover,
+  defaultGridType = 0,
 }: GridComicProps) {
-  const [gridType, setGridType] = useState(() => {
-    if (typeof window === 'undefined') return 0;
-    const savedGridType = Cookies.get(GRID_TYPE_COOKIE);
-    const parsedGridType = savedGridType ? parseInt(savedGridType, 10) : 0;
-    return Number.isFinite(parsedGridType) ? parsedGridType : 0;
-  });
-  const [hoveredComic, setHoveredComic] = useState<Comic | undefined>(undefined);
-  const hoverTimeoutRef = useRef<NodeJS.Timeout>(undefined);
-  const cardSizeSetting = useSettingsStore((state) => state.settings.cardComicSize);
+
+  const cardSizeSetting = useSettingsStore(
+    (state) => state.settings.cardComicSize
+  );
+
+  const gridTypeSetting = useSettingsStore(
+    (state) => state.settings.gridType
+  );
+
+  const gridType = defaultGridType ?? parseInt(gridTypeSetting as string, 0) ?? 0;
   const cardSize = cardSizeSetting === 'small' ? 'small' : 'medium';
+  const [gridTypeState, setGridTypeState] = useState(gridType);
 
   const defaultGridClass =
     gridClass ||
@@ -52,45 +53,13 @@ export function GridComic({
 
   // Display placeholder loading cards when no comics
   const displayComics =
-    listComics.length === 0 ? Array(nPreview).fill(undefined) : listComics;
+    listComics.length === 0 ? Array(nPreview).fill(null) : listComics;
+  const setSettingValue = useSettingsStore((state) => state.setSettingValue);
 
   const handleChangeGridType = useCallback((type: number) => {
-    setGridType(type);
-    if (typeof window !== 'undefined') {
-      Cookies.set(GRID_TYPE_COOKIE, type.toString(), { expires: 365, path: '/', sameSite: 'lax' });
-    }
+    setGridTypeState(type);
+    setSettingValue("gridType", type);
   }, []);
-
-  const handleComicHover = useCallback(
-    (comic?: Comic) => {
-      if (hoverTimeoutRef.current) {
-        clearTimeout(hoverTimeoutRef.current);
-      }
-
-      const delay = comic ? 500 : 0;
-      hoverTimeoutRef.current = setTimeout(() => {
-        setHoveredComic(comic);
-        onComicHover?.(comic);
-      }, delay);
-    },
-    [onComicHover]
-  );
-
-  const handleScroll = useCallback(() => {
-    if (hoveredComic) {
-      setHoveredComic(undefined);
-    }
-  }, [hoveredComic]);
-
-  useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      if (hoverTimeoutRef.current) {
-        clearTimeout(hoverTimeoutRef.current);
-      }
-    };
-  }, [handleScroll]);
 
   return (
     <div className="@container/main">
@@ -102,18 +71,14 @@ export function GridComic({
         </div>
 
         <div className="flex items-center gap-4">
-          {toolTemplate}
-          {actionTemplate}
-
           {/* Grid Type Switch */}
           <div className="relative p-0.5 flex items-center bg-neutral-100 dark:bg-neutral-700 rounded-md  border border-neutral-200 dark:border-neutral-600">
             {/* Switch Thumb */}
             <div
-              className={`w-1/2 absolute inset-0 rounded-md  transition-transform duration-300 ease-in-out ${
-                gridType === 0
-                  ? 'translate-x-full bg-neutral-700 dark:bg-neutral-900'
-                  : 'translate-x-0 bg-neutral-700 dark:bg-neutral-900'
-              }`}
+              className={`w-1/2 absolute inset-0 rounded-md  transition-transform duration-300 ease-in-out ${gridTypeState === 0
+                ? 'translate-x-full bg-neutral-700 dark:bg-neutral-900'
+                : 'translate-x-0 bg-neutral-700 dark:bg-neutral-900'
+                }`}
             />
 
             {/* List View Button */}
@@ -121,11 +86,10 @@ export function GridComic({
               onClick={() => handleChangeGridType(1)}
               title="Xem dạng danh sách"
               aria-label="Chuyển sang chế độ xem danh sách"
-              className={`relative flex items-center justify-center p-2 min-w-10 text-sm font-medium rounded-md border-none cursor-pointer z-10 transition-colors duration-200 ${
-                gridType === 1
-                  ? 'text-white'
-                  : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
-              }`}
+              className={`relative flex items-center justify-center p-2 min-w-10 text-sm font-medium rounded-md border-none cursor-pointer z-10 transition-colors duration-200 ${gridType === 1
+                ? 'text-white'
+                : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                }`}
             >
               <svg
                 className="w-5 h-5"
@@ -144,11 +108,10 @@ export function GridComic({
               onClick={() => handleChangeGridType(0)}
               title="Xem dạng lưới"
               aria-label="Chuyển sang chế độ xem lưới"
-              className={`relative flex items-center justify-center p-2 min-w-10 text-sm font-medium rounded-md border-none cursor-pointer z-10 transition-colors duration-200 ${
-                gridType === 0
-                  ? 'text-white'
-                  : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
-              }`}
+              className={`relative flex items-center justify-center p-2 min-w-10 text-sm font-medium rounded-md border-none cursor-pointer z-10 transition-colors duration-200 ${gridTypeState === 0
+                ? 'text-white'
+                : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
+                }`}
             >
               <svg
                 className="w-5 h-5"
@@ -167,16 +130,19 @@ export function GridComic({
       </div>
 
       {/* Grid Content */}
-      {gridType === 0 ? (
+      {gridTypeState === 0 ? (
         <div className={defaultGridClass}>
           {displayComics.map((comic, index) => (
-            <div
-              key={comic?.id ?? index}
-              onMouseEnter={() => handleComicHover(comic)}
-              onMouseLeave={() => handleComicHover(undefined)}
-            >
+            (actionTemplate ? (
+            <div key={comic?.id ?? index} className="comic-card relative">
+              <div onClick={() => actionClick?.(comic)} className="comic-card-action cursor-pointer">{actionTemplate}</div>
               <ComicCard comic={comic} eager={index < 2} />
-            </div>
+
+            </div>)
+            : (
+              <ComicCard key={comic?.id ?? index} comic={comic} eager={index < 2} />
+            )
+          )
           ))}
         </div>
       ) : (

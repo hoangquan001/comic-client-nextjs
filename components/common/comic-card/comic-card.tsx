@@ -84,8 +84,8 @@ export function ComicCard({ comic, eager = false }: ComicCardProps) {
         </div>
       </Link>
 
-      <div className="px-2 pt-1 text-sm">
-        <Link href={getComicDetailUrl(comic)} title={comic.title} className="flex min-h-8 items-center py-1">
+      <div className="px-2 text-sm">
+        <Link href={getComicDetailUrl(comic)} title={comic.title} className="flex py-1 items-center">
           <p className="line-clamp-2 font-semibold leading-snug text-neutral-800 transition group-hover:text-primary-100 dark:text-neutral-100">{comic.title}</p>
         </Link>
       </div>
@@ -94,7 +94,7 @@ export function ComicCard({ comic, eager = false }: ComicCardProps) {
 
         <Link
           href={getChapterDetailUrl(comic, firstChapter)}
-          className="mt-auto flex min-h-8 items-center justify-between gap-2 border-t border-neutral-100 px-2 py-1 text-xs text-neutral-600 transition hover:bg-neutral-50 hover:text-primary-100 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-700/60"
+          className="mt-auto flex items-center justify-between gap-2 border-t border-neutral-100 px-2 py-1 text-xs text-neutral-600 transition hover:bg-neutral-50 hover:text-primary-100 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-700/60"
         >
           <p className="min-w-0 truncate font-semibold">Chapter {firstChapter.slug}</p>
           <span className="shrink-0 text-end text-[0.7rem]">{dateAgo(comic.updateAt)}</span>

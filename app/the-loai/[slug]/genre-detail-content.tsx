@@ -35,9 +35,10 @@ interface GenreDetailContentProps {
   sort: number;
   status: number;
   initialData?: ComicList | null;
+  gridType: number
 }
 
-export default function GenreDetailContent({ slug, genre, page, sort, status, initialData }: GenreDetailContentProps) {
+export default function GenreDetailContent({ slug, genre, page, sort, status, initialData , gridType}: GenreDetailContentProps) {
   const router = useRouter();
 
   const { data, isLoading } = useComics({
@@ -66,7 +67,7 @@ export default function GenreDetailContent({ slug, genre, page, sort, status, in
   const description = genre.description || `Khám phá kho tàng truyện tranh thể loại ${genre.title} với những câu chuyện hấp dẫn, đa dạng và phong phú.`;
 
   return (
-    <div className="lg:container mx-auto py-2">
+    <div className="lg:container mx-auto w-full p-2">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-sm mb-5 text-neutral-500">
         <Link href="/" className="hover:text-primary-100">Trang chủ</Link>
@@ -122,7 +123,7 @@ export default function GenreDetailContent({ slug, genre, page, sort, status, in
           {loading ? (
             <Spinner />
           ) : (
-            <GridComic listComics={comics} title="" />
+            <GridComic listComics={comics} title="Danh sách truyện" defaultGridType ={gridType} />
           )}
 
           <Pagination

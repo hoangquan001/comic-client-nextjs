@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { SettingCategory } from '@/types';
 import dynamic from 'next/dynamic';
+import { openFeedback } from '@/lib/utils/event.define';
 const FeedbackForm = dynamic(() => import('@/components/common/feedback/feedback-form'), {
   ssr: false,
   loading: () => null,
@@ -50,13 +51,13 @@ export function PopupManager() {
 
   useEffect(() => {
     window.addEventListener('open-settings', handleOpenSettings);
-    window.addEventListener('open-feedback', handleOpenFeedback);
+    window.addEventListener(openFeedback, handleOpenFeedback);
     window.addEventListener('open-user-info', handleOpenUserInfo);
     window.addEventListener('open-report-error', handleOpenReportError);
 
     return () => {
       window.removeEventListener('open-settings', handleOpenSettings);
-      window.removeEventListener('open-feedback', handleOpenFeedback);
+      window.removeEventListener(openFeedback, handleOpenFeedback);
       window.removeEventListener('open-user-info', handleOpenUserInfo);
       window.removeEventListener('open-report-error', handleOpenReportError);
     };
@@ -73,7 +74,7 @@ export function PopupManager() {
         isVisible={feedback}
         onClose={() => setFeedback(false)}
       />}
-      {userInfo.visible&& <UserInfoPopup
+      {userInfo.visible && <UserInfoPopup
         userId={userInfo.userId}
         visible={userInfo.visible}
         onClose={() => setUserInfo({ visible: false, userId: null })}

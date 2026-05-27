@@ -149,7 +149,7 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
       ...comic,
       chapters: [{ id: chapterData.id, title: chapterData.title, slug: chapterData.slug, updateAt: chapterData.updateAt, viewCount: chapterData.viewCount }],
     });
-  }, [comic.id]);
+  }, [comic, chapterData.id, chapterData.slug, chapterData.title, chapterData.updateAt, chapterData.viewCount, saveHistory]);
 
   useEffect(() => {
     if (!viewTracked) {

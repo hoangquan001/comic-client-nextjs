@@ -4,3 +4,4 @@ export * from './device';
 export * from './emoji';
 export * from './number';
 export * from './url';
+export * from './cookie';

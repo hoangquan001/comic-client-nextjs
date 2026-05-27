@@ -1,28 +1,23 @@
-'use client';
-
-import { useHotComics } from '@/lib/hooks/use-comic-queries';
 import { GridComic } from '@/components/common/grid-comic/grid-comic';
 import { Pagination } from '@/components/common/pagination/pagination';
 import { Breadcrumb } from '@/components/common/breadcrumb/breadcrumb';
 import { TopList } from '@/components/common/top-list/top-list';
-import RecentCommentsPanel from '@/components/common/recent-comments/recent-comments-panel';
-import { Spinner } from '@/components/common/spinner/spinner';
 import type { ComicList } from '@/types';
+import { getServerGridType } from '@/lib/utils/cookie';
 
 interface HotComicsContentProps {
   page: number;
-  initialData?: ComicList | null;
+  initialData: ComicList | null;
 }
 
-export default function HotComicsContent({ page, initialData }: HotComicsContentProps) {
-  const { data, isLoading } = useHotComics(page);
+export default async function HotComicsContent({ page, initialData }: HotComicsContentProps) {
 
-  const comics = initialData?.comics ?? data?.comics ?? [];
-  const totalpage = initialData?.totalpage ?? data?.totalpage ?? 1;
-  const loading = !initialData && isLoading;
+  const comics = initialData?.comics ?? []
+  const totalpage = initialData?.totalpage ?? 1;
+  const gridType = await getServerGridType();
 
   return (
-    <div className="lg:container mx-auto py-2">
+    <div className="lg:container mx-auto w-full p-2">
       <Breadcrumb items={[
         { label: 'Trang chủ', href: '/' },
         { label: 'Truyện tranh hot', href: '/truyen-hot' },
@@ -30,14 +25,13 @@ export default function HotComicsContent({ page, initialData }: HotComicsContent
 
       <div className="mt-4 grid grid-cols-1 xl:grid-cols-4 gap-4">
         <div id="listComic" className="xl:col-span-3">
-          {loading ? (
-            <Spinner />
-          ) : (
-            <GridComic
-              title="Truyện tranh hot"
-              listComics={comics}
-            />
-          )}
+
+          <GridComic
+            title="Truyện tranh hot"
+            listComics={comics}
+            defaultGridType={gridType}
+          />
+
           <Pagination
             currentPage={page}
             totalpage={totalpage}
@@ -46,9 +40,7 @@ export default function HotComicsContent({ page, initialData }: HotComicsContent
         </div>
         <div className="xl:col-span-1">
           <TopList />
-          <div className="mt-4">
-            <RecentCommentsPanel />
-          </div>
+        
         </div>
       </div>
     </div>

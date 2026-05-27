@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { publicFetch } from '@/lib/api/server-fetch';
 import type { ComicList, IServiceResponse } from '@/types';
 import RankingContent from './ranking-content';
+import { getServerGridType } from '@/lib/utils/cookie';
 
 export const metadata: Metadata = {
   title: 'Xếp hạng truyện tranh - MeTruyenMoi',
@@ -17,7 +18,7 @@ export default async function RankingPage({ searchParams }: RankingPageProps) {
   const page = Number(sp.page) || 1;
   const sort = Number(sp.sort) || 0;
   const status = Number(sp.status) >= 0 ? Number(sp.status) : -1;
-
+  const gridType = await getServerGridType();
   let initialData: ComicList | null = null;
   try {
     const res = await publicFetch<IServiceResponse<ComicList>>(
@@ -26,5 +27,5 @@ export default async function RankingPage({ searchParams }: RankingPageProps) {
     if ((res.status === 200 || res.status === 1) && res.data) initialData = res.data;
   } catch {}
 
-  return <RankingContent page={page} sort={sort} status={status} initialData={initialData} />;
+  return <RankingContent page={page} sort={sort} status={status} initialData={initialData} gridType={gridType} />;
 }

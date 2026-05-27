@@ -6,6 +6,7 @@ import { generateComicSchema, generateBreadcrumbSchema } from '@/lib/seo/json-ld
 import type { Comic, IServiceResponse } from '@/types';
 import ComicDetailContent from './comic-detail-content';
 import "./style.css";
+import { getServerGridType } from '@/lib/utils/cookie';
 interface ComicDetailPageProps {
   params: Promise<{ slug: string }>;
 }
@@ -36,16 +37,16 @@ export default async function ComicDetailPage({ params }: ComicDetailPageProps) 
     comic.coverImage = 'https://cdn1.anhtruyen.com/coverimg/' + comic.coverImage;
   }
 
-  const comicSchema = generateComicSchema(comic);
-  const breadcrumbSchema = generateBreadcrumbSchema([
-    { name: 'Trang chủ', url: 'https://metruyenmoi.org' },
-    { name: 'Truyện tranh', url: 'https://metruyenmoi.org/tim-truyen' },
-    { name: comic.title, url: `https://metruyenmoi.org/truyen-tranh/${comic.url}` },
-  ]);
+  // const comicSchema = generateComicSchema(comic);
+  // const breadcrumbSchema = generateBreadcrumbSchema([
+  //   { name: 'Trang chủ', url: 'https://metruyenmoi.org' },
+  //   { name: 'Truyện tranh', url: 'https://metruyenmoi.org/tim-truyen' },
+  //   { name: comic.title, url: `https://metruyenmoi.org/truyen-tranh/${comic.url}` },
+  // ]);
+
+  const gridType = await getServerGridType();
 
   return (
-    <>
-      <ComicDetailContent comic={comic} />
-    </>
+      <ComicDetailContent comic={comic} gridType={gridType} />
   );
 }

@@ -1,4 +1,6 @@
 import { GridComic, Pagination, TopList, AnnouncementBanner, RecentRead, TopUsers, SimpleCarousel } from '@/components/common';
+import { StoredSettingsPayload } from '@/lib/settings/type';
+import { getServerCookie, getServerGridType } from '@/lib/utils/cookie';
 import type { Announcement, ComicList, Comic } from '@/types';
 import { Suspense } from 'react';
 
@@ -9,21 +11,16 @@ interface HomeContentProps {
   initialAnnouncements?: Announcement[];
 }
 
-export default function HomeContent({ page, initialComics, initialCarousel, initialAnnouncements }: HomeContentProps) {
-
+export default async function HomeContent({ page, initialComics, initialCarousel, initialAnnouncements }: HomeContentProps) {
   const comics = initialComics?.comics ?? [];
   const totalpage = initialComics?.totalpage ?? 1;
   const carousel = initialCarousel ?? [];
-
-
-  const isContentExpanded = true;
+  const gridType = await getServerGridType();
   return (
-    <div className="container mx-auto pb-4">
+    <div className="lg:container w-full mx-auto pb-4">
       {/* Carousel / Recommend Comics */}
-      {/* Title - hidden on mobile */}
       <SimpleCarousel comics={carousel} />
       <AnnouncementBanner initialAnnouncements={initialAnnouncements} />
-
       {/* Main Grid */}
       <div className="mt-4 grid grid-cols-1 xl:grid-cols-4 gap-2 lg:gap-4">
         <div className="xl:col-start-4 xl:row-start-1">
@@ -35,6 +32,7 @@ export default function HomeContent({ page, initialComics, initialCarousel, init
             title="Mới cập nhật"
             listComics={comics}
             nPreview={30}
+            defaultGridType={gridType}
           />
 
           <Pagination
@@ -66,8 +64,7 @@ export default function HomeContent({ page, initialComics, initialCarousel, init
 
         <div className="relative">
           <div
-            className={`overflow-hidden transition-all duration-500 ${isContentExpanded ? 'max-h-none' : 'max-h-80'
-              }`}
+            className={`overflow-hidden transition-all duration-500`}
           >
             <div className="space-y-5 text-sm text-gray-700 dark:text-gray-300">
               <section>
@@ -127,30 +124,6 @@ export default function HomeContent({ page, initialComics, initialCarousel, init
             </div>
           </div>
 
-          {!isContentExpanded && (
-            <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white via-white/80 to-transparent dark:from-gray-900 dark:via-gray-900/80 pointer-events-none" />
-          )}
-
-          <div className="text-center mt-4">
-            <button className="inline-flex items-center px-5 py-2 text-sm text-blue-600 dark:text-blue-400 hover:shadow-md">
-              <span>{isContentExpanded ? 'Thu gọn' : 'Đọc thêm'}</span>
-
-              <svg
-                className={`w-4 h-4 ml-2 transition-transform ${isContentExpanded ? 'rotate-180' : ''
-                  }`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </button>
-          </div>
         </div>
       </div>
     </div>

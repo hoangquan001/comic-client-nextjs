@@ -5,6 +5,7 @@ import type { IUser } from '@/types';
 interface AuthState {
   user: IUser | null;
   isAuthenticated: boolean;
+  initialized: boolean;
   setUser: (user: IUser | null) => void;
   saveUser: (user: IUser) => void;
   logout: () => void;
@@ -13,6 +14,7 @@ interface AuthState {
 
 function loadUser(): IUser | null {
   if (typeof window === 'undefined') return null;
+
   const raw = Cookies.get('auth');
   if (!raw) return null;
   try {
@@ -25,20 +27,21 @@ function loadUser(): IUser | null {
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isAuthenticated: false,
+  initialized: false,
 
   setUser: (user) => {
-    set({ user, isAuthenticated: !!user });
+    set({ user, isAuthenticated: !!user, initialized: true });
   },
 
 
   saveUser: (user) => {
     Cookies.set('auth', JSON.stringify(user), { expires: 365, path: '/' });
-    set({ user, isAuthenticated: true });
+    set({ user, isAuthenticated: true, initialized: true });
   },
 
   logout: () => {
     Cookies.remove('auth', { path: '/' });
-    set({ user: null, isAuthenticated: false });
+    set({ user: null, isAuthenticated: false, initialized: true });
   },
 
   getToken: () => {
@@ -47,8 +50,5 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 }));
 
 export function initializeAuth() {
-  const user = loadUser();
-  if (user) {
-    useAuthStore.getState().setUser(user);
-  }
+  useAuthStore.getState().setUser(loadUser());
 }

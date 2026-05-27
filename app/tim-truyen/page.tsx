@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { publicFetch } from '@/lib/api/server-fetch';
 import type { ComicList, IServiceResponse } from '@/types';
 import SearchContent from './search-content';
+import { getServerGridType } from '@/lib/utils/cookie';
 
 export const metadata: Metadata = {
   title: 'Tìm truyện tranh - MeTruyenMoi',
@@ -29,7 +30,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const nogenres = sp.nogenres || '';
   const year = Number(sp.year) || -1;
   const keyword = sp.keyword || '';
-
+  const gridType = await getServerGridType();
   let initialData: ComicList | null = null;
   try {
     const params = new URLSearchParams();
@@ -58,6 +59,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       year={year}
       keyword={keyword}
       initialData={initialData}
+      gridType={gridType}
     />
   );
 }

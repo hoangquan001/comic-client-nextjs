@@ -72,9 +72,7 @@ body {
   overflow-x: hidden;
 }
 
-.wrapper-container {
-  @apply bg-white dark:bg-dark-bg dark:text-light-text;
-}
+
 
 main {
   @apply min-h-[80vh] flex flex-col bg-white dark:bg-dark-bg;

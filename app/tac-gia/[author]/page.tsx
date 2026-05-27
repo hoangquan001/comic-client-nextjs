@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { publicFetch } from '@/lib/api/server-fetch';
 import type { Comic, IServiceResponse } from '@/types';
 import AuthorComicsContent from './author-comics-content';
+import { getServerGridType } from '@/lib/utils/cookie';
 
 interface Props {
   params: Promise<{ author: string }>;
@@ -19,14 +20,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function AuthorComicsPage({ params }: Props) {
   const { author: encodedAuthor } = await params;
   const author = decodeURIComponent(encodedAuthor);
+  const gridType = await getServerGridType();
 
   let initialData: Comic[] | null = null;
   try {
     const res = await publicFetch<IServiceResponse<Comic[]>>(
       `/comicsbyauthor?author=${encodeURIComponent(author)}&size=20`
     );
-    if ((res.status === 200 || res.status === 1) && res.data) initialData = res.data;
+    if (res.status === 1&& res.data) initialData = res.data;
   } catch {}
 
-  return <AuthorComicsContent author={author} encodedAuthor={encodedAuthor} initialData={initialData} />;
+  return <AuthorComicsContent 
+  author={author} 
+  encodedAuthor={encodedAuthor} 
+  initialData={initialData} 
+  gridType={gridType} />;
 }

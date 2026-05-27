@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const TEMP_COMMENTS_API = 'https://metruyenmoi.org/api/comments/comic/52203';
+const TEMP_COMMENTS_API = 'http://localhost:5080/api/comments/comic/52203';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

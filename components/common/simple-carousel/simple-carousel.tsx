@@ -23,6 +23,8 @@ export function SimpleCarousel({
     slidesToScroll: 1,
   });
 
+
+
   const autoplayTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const autoplayPausedRef = useRef(false);
   const stopAutoplay = useCallback(() => {

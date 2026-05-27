@@ -21,7 +21,7 @@ export default async function HotComicsPage({ searchParams }: HotPageProps) {
     const res = await publicFetch<IServiceResponse<ComicList>>(
       `/hotcomics?page=${page}&step=30`
     );
-    if ((res.status === 200 || res.status === 1) && res.data) initialData = res.data;
+    if (res.status === 1 && res.data) initialData = res.data;
   } catch {}
 
   return <HotComicsContent page={page} initialData={initialData} />;
