@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { generateGenreMetadata } from '@/lib/seo/metadata';
-import { publicFetch } from '@/lib/api/server-fetch';
+import { ComicAPI } from '@/lib/api';
 import { GENRES } from '@/lib/constants/genres';
-import type { ComicList, IServiceResponse } from '@/types';
+import type { ComicList } from '@/types';
 import GenreDetailContent from './genre-detail-content';
 import { getServerGridType } from '@/lib/utils/cookie';
 
@@ -32,10 +32,7 @@ export default async function GenreDetailPage({ params, searchParams }: GenreDet
   const gridType = await getServerGridType();
   let initialData: ComicList | null = null;
   try {
-    const res = await publicFetch<IServiceResponse<ComicList>>(
-      `/comics?page=${page}&step=35&genre=${genre.id}&sort=${sort}&status=${status}`
-    );
-    if ((res.status === 200 || res.status === 1) && res.data) initialData = res.data;
+    initialData = await ComicAPI.getComics({ page, step: 35, genre: genre.id, sort, status }) ?? null;
   } catch { }
 
   return (

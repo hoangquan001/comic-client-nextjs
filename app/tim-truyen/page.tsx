@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import { publicFetch } from '@/lib/api/server-fetch';
-import type { ComicList, IServiceResponse } from '@/types';
+import { ComicAPI } from '@/lib/api';
+import type { ComicList } from '@/types';
 import SearchContent from './search-content';
 import { getServerGridType } from '@/lib/utils/cookie';
 
@@ -33,20 +33,15 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const gridType = await getServerGridType();
   let initialData: ComicList | null = null;
   try {
-    const params = new URLSearchParams();
-    params.set('page', String(page));
-    params.set('step', '30');
-    params.set('sort', String(sort));
-    params.set('status', String(status));
-    if (genres) params.set('genres', genres);
-    if (nogenres) params.set('nogenres', nogenres);
-    if (year > 0) params.set('year', String(year));
-    if (keyword) params.set('keyword', keyword);
-
-    const res = await publicFetch<IServiceResponse<ComicList>>(
-      `/comic/advance?${params.toString()}`
-    );
-    if ((res.status === 200 || res.status === 1) && res.data) initialData = res.data;
+    initialData = await ComicAPI.getAdvanceComics({
+      page,
+      sort,
+      status,
+      genres,
+      nogenres,
+      year,
+      keyword,
+    }) ?? null;
   } catch {}
 
   return (

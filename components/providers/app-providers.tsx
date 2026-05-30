@@ -11,7 +11,6 @@ function StoreInitializer() {
   const syncHistoryForUser = useHistoryStore((state) => state.syncForUser);
   const initializeSettings = useSettingsStore((state) => state.initialize);
   const userId = useAuthStore((state) => state.user?.id ?? null);
-  console.log(userId)
   useEffect(() => {
     initializeAuth();
     initializeHistory();

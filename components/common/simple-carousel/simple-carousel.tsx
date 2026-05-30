@@ -176,6 +176,7 @@ export function SimpleCarousel({
                     draggable={false}
                     width={128}
                     height={192}
+                    unoptimized
                   />
                 </div>
               </Link>

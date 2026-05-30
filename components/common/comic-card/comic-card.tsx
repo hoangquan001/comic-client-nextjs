@@ -60,16 +60,18 @@ export function ComicCard({ comic, eager = false }: ComicCardProps) {
           fetchPriority={eager ? 'high' : undefined}
           quality={40}
           className="object-cover transition duration-300 group-hover:scale-[1.03] group-hover:brightness-95"
-          onError={(e) => { (e.target as HTMLImageElement).src = '/option2.png'; }}
+          onError={(e) => {
+            e.currentTarget.src = "/option2.png";
+          }} 
           fill
-          sizes="(max-width: 639px) calc((100vw - 28px) / 2), (max-width: 1024px) 25vw, 16vw"
+          unoptimized
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/5 to-transparent opacity-90" />
         <div className="absolute inset-x-0 bottom-0 flex w-full flex-col px-2 pb-2 pt-6 text-xs text-white">
           {/* <h3 className="font-semibold line-clamp-2 text-sm text-white">{comic.title}</h3> */}
           <div className="flex w-full items-center justify-between gap-2">
             <div className="flex min-w-0 items-center gap-1 text-neutral-200">
-              <Image src="/icons/view.svg" alt="views" className="w-3 h-3" width={12} height={12} />
+              <Image src="/icons/view.svg" alt="views" className="w-3 h-3" width={12} height={12} unoptimized/>
               <span className="truncate text-[0.7rem] font-medium uppercase leading-none">{formatNumber(comic.viewCount)}</span>
             </div>
             <div className="flex items-center gap-1 text-neutral-200">

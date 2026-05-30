@@ -11,8 +11,9 @@ import { useSettingsStore } from '@/lib/stores/use-settings-store';
 import { Breadcrumb } from '@/components/common/breadcrumb/breadcrumb';
 import Selection from '@/components/common/selection/selection';
 import { getComicDetailUrl, getChapterDetailUrl } from '@/lib/utils/url';
+import { openReportError, openSettings } from '@/lib/utils/event.define';
 import { SettingCategory } from '@/types';
-import type { ChapterPage, ChapterServer, Chapter, Comic } from '@/types';
+import type { ChapterPage, ChapterServer, Chapter } from '@/types';
 
 const BANNER_IMG = '/banner/banner-manga-4.webp';
 
@@ -33,24 +34,20 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
   const endChapterRef = useRef<HTMLDivElement>(null);
 
   // State
-  const [selectedServerIdx, setSelectedServerIdx] = useState(() => {
-    if (typeof window === 'undefined') return 0;
-    const saved = localStorage.getItem('currentServerIdx');
-    return saved ? Number(saved) : 0;
-  });
+  const [selectedServerIdx, setSelectedServerIdx] = useState(0);
   const [listImgs, setListImgs] = useState<string[]>(() => {
     const server = chapterServers[selectedServerIdx] || chapterServers[0];
     return server?.images ? [BANNER_IMG, ...server.images] : [];
   });
   const [isImageLoading, setIsImageLoading] = useState(false);
   const [showAllServers, setShowAllServers] = useState(false);
-  const [errorCount, setErrorCount] = useState(0);
+  const [, setErrorCount] = useState(0);
   const [isErrorPages, setIsErrorPages] = useState(false);
   const [countdown, setCountdown] = useState(5);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [showScrollToTop, setShowScrollToTop] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [toolbarStyle, setToolbarStyle] = useState<'sticky-top' | 'sticky-invisible' | ''>('');
+  const [toolbarStyle, setToolbarStyle] = useState<'top' | 'hidden' | ''>('');
   const [zoomValue, setZoomValue] = useState(100);
   const [zoomPanelOpen, setZoomPanelOpen] = useState(false);
   const [viewTracked, setViewTracked] = useState(false);
@@ -59,11 +56,11 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
   // Stores
   const { saveHistory } = useHistoryStore();
   const { getSettingValue } = useSettingsStore();
-  const updateViewMutation = useUpdateViewAndExp();
+  const { mutate: updateView } = useUpdateViewAndExp();
 
   // Hooks
   const { data: chapters } = useChapters(comic.id);
-  const allChapters = chapters || [];
+  const allChapters = useMemo(() => chapters || [], [chapters]);
 
   // Reading settings
   const isNightMode = getSettingValue('nightMode') as boolean ?? false;
@@ -89,6 +86,15 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
   const nextChapterLink = nextChapter ? getChapterDetailUrl(comic, nextChapter) : null;
   const prevChapterLink = prevChapter ? getChapterDetailUrl(comic, prevChapter) : null;
 
+  const navigateChapter = useCallback(
+    (isNext: boolean) => {
+      if (isImageLoading) return;
+      const chapter = isNext ? nextChapter : prevChapter;
+      if (chapter) router.push(getChapterDetailUrl(comic, chapter));
+    },
+    [isImageLoading, nextChapter, prevChapter, comic, router]
+  );
+
   // Server switching
   const changeServer = useCallback(
     (server: ChapterServer, idx: number) => {
@@ -96,39 +102,79 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
       localStorage.setItem('currentServerIdx', String(idx));
       if (server.images && server.images.length > 0) {
         setListImgs([BANNER_IMG, ...server.images]);
+        setIsImageLoading(false);
         return;
       }
+      setListImgs([]);
       setIsImageLoading(true);
     },
     []
   );
 
+  useEffect(() => {
+    const savedIndex = Number(localStorage.getItem('currentServerIdx'));
+    const index = Number.isInteger(savedIndex) && chapterServers[savedIndex] ? savedIndex : 0;
+    const server = chapterServers[index];
+    if (!server) return;
+    const timer = window.setTimeout(() => changeServer(server, index), 0);
+    return () => window.clearTimeout(timer);
+  }, [changeServer, chapterServers]);
+
+  const handleSubmitChangeServer = useCallback(() => {
+    setShowErrorModal(false);
+    const nextIdx = (selectedServerIdx + 1) % chapterServers.length;
+    const next = chapterServers[nextIdx];
+    if (next && nextIdx !== selectedServerIdx) {
+      changeServer(next, nextIdx);
+    }
+  }, [changeServer, chapterServers, selectedServerIdx]);
+
+  const cancelServerFallback = useCallback(() => {
+    setShowErrorModal(false);
+    setIsErrorPages(false);
+    setErrorCount(0);
+  }, []);
+
   const openReadingSettings = useCallback(() => {
     window.dispatchEvent(
-      new CustomEvent('open-settings', {
+      new CustomEvent(openSettings, {
         detail: { category: SettingCategory.READING },
       }),
     );
   }, []);
+
+  const openChapterErrorReport = useCallback(() => {
+    window.dispatchEvent(
+      new CustomEvent(openReportError, {
+        detail: { chapterID: chapterData.id },
+      }),
+    );
+  }, [chapterData.id]);
 
   const chapterServerQuery = useChapterServer(
     isErrorPages ? chapterServers[(selectedServerIdx + 1) % chapterServers.length]?.id : null
   );
 
   useEffect(() => {
-    if (chapterServerQuery.data?.images) {
-      setListImgs([BANNER_IMG, ...chapterServerQuery.data.images]);
-      setIsImageLoading(false);
-      setIsErrorPages(false);
-      setErrorCount(0);
+    const images = chapterServerQuery.data?.images;
+    if (images) {
+      const timer = window.setTimeout(() => {
+        setListImgs([BANNER_IMG, ...images]);
+        setIsImageLoading(false);
+        setIsErrorPages(false);
+        setErrorCount(0);
+      }, 0);
+      return () => window.clearTimeout(timer);
     }
   }, [chapterServerQuery.data]);
 
   // Auto error modal
   useEffect(() => {
     if (isErrorPages && chapterServers.length > 1) {
-      setShowErrorModal(true);
-      setCountdown(5);
+      const openTimer = window.setTimeout(() => {
+        setShowErrorModal(true);
+        setCountdown(5);
+      }, 0);
       const interval = setInterval(() => {
         setCountdown((prev) => {
           if (prev <= 1) {
@@ -139,9 +185,12 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
           return prev - 1;
         });
       }, 1000);
-      return () => clearInterval(interval);
+      return () => {
+        window.clearTimeout(openTimer);
+        clearInterval(interval);
+      };
     }
-  }, [isErrorPages]);
+  }, [chapterServers.length, handleSubmitChangeServer, isErrorPages]);
 
   // History & view tracking
   useEffect(() => {
@@ -154,12 +203,12 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
   useEffect(() => {
     if (!viewTracked) {
       const timer = setTimeout(() => {
-        updateViewMutation.mutate({ comicId: comic.id, chapterId: chapterData.id, exp: 10 });
+        updateView({ comicId: comic.id, chapterId: chapterData.id, exp: 10 });
         setViewTracked(true);
       }, 5000);
       return () => clearTimeout(timer);
     }
-  }, [viewTracked, comic.id, chapterData.id]);
+  }, [viewTracked, comic.id, chapterData.id, updateView]);
 
   // Fullscreen
   const toggleFullscreen = useCallback(() => {
@@ -218,13 +267,13 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
         setToolbarStyle('');
         setShowScrollToTop(false);
       } else if (isEndChapter) {
-        setToolbarStyle('sticky-top');
+        setToolbarStyle('top');
         setShowScrollToTop(true);
       } else if (scrollState.current === 'up' && statePosition.current - scrollTop > 50) {
-        setToolbarStyle('sticky-top');
+        setToolbarStyle('top');
         setShowScrollToTop(true);
       } else if (scrollState.current === 'down' && scrollTop - statePosition.current > 200) {
-        setToolbarStyle('sticky-invisible');
+        setToolbarStyle('hidden');
         setShowScrollToTop(false);
       }
 
@@ -245,21 +294,20 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
   // Keyboard navigation
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (
+        e.defaultPrevented ||
+        target?.isContentEditable ||
+        target?.closest('input, textarea, select, [role="dialog"]')
+      ) {
+        return;
+      }
       if (e.key === 'ArrowLeft') navigateChapter(false);
       if (e.key === 'ArrowRight') navigateChapter(true);
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [allChapters, chapterData.id, isImageLoading, comic]);
-
-  const navigateChapter = useCallback(
-    (isNext: boolean) => {
-      if (isImageLoading) return;
-      const chapter = isNext ? nextChapter : prevChapter;
-      if (chapter) router.push(getChapterDetailUrl(comic, chapter));
-    },
-    [isImageLoading, nextChapter, prevChapter, comic, router]
-  );
+  }, [navigateChapter]);
 
   // Image error handling
   const handleImageError = useCallback(() => {
@@ -278,15 +326,6 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
   const zoomOut = () => setZoomValue((v) => Math.max(v - 10, 50));
   const resetZoom = () => setZoomValue(100);
 
-  const handleSubmitChangeServer = () => {
-    setShowErrorModal(false);
-    const nextIdx = (selectedServerIdx + 1) % chapterServers.length;
-    const next = chapterServers[nextIdx];
-    if (next && nextIdx !== selectedServerIdx) {
-      changeServer(next, nextIdx);
-    }
-  };
-
   const scrollToTop = () => {
     if (isFullscreen && screenRef.current) {
       screenRef.current.scrollTo({ top: 0, behavior: 'instant' });
@@ -296,9 +335,9 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
   };
 
   return (
-    <div ref={screenRef} className="chapter-container scrollbar-style-1">
-      <div className="header-container">
-        <div className="breadcrumb-wrapper">
+    <div ref={screenRef} className="scrollbar-style-1 relative flex flex-col overflow-y-auto overflow-x-hidden bg-[#333] dark:bg-dark-bg">
+      <div className="mx-auto mb-3 w-full text-white lg:container">
+        <div className="z-10 mx-auto my-2 flex">
           <Breadcrumb
             items={[
               { label: 'Trang chủ', href: '/' },
@@ -309,9 +348,9 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
         </div>
       </div>
 
-      <div className="main-container">
-        <section className="chapter-header-container">
-          <div className="chapter-header-card">
+      <div className="mx-auto min-h-screen w-full lg:container">
+        <section className="relative z-10 mx-auto flex w-full flex-col items-center text-base font-bold">
+          <div className="z-20 w-full rounded-t-xl border bg-white p-4 text-black dark:border-neutral-700 dark:bg-neutral-800 dark:text-light-text lg:p-6 max-sm:rounded-t-lg max-sm:p-3">
             {/* Error Modal */}
             {showErrorModal && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -339,7 +378,7 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
                     </button>
                     <button
                       className="border border-gray-300 text-gray-700 dark:text-gray-300 px-4 py-2 rounded"
-                      onClick={() => setShowErrorModal(false)}
+                      onClick={cancelServerFallback}
                     >
                       Hủy
                     </button>
@@ -349,58 +388,58 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
             )}
 
             {/* Chapter Info */}
-            <div className="chapter-info-section">
-              <div className="comic-title-section">
-                <h1 className="comic-title">
+            <div className="space-y-4 text-center">
+              <div className="space-y-2">
+                <h1>
                   <Link
                     href={getComicDetailUrl(comic)}
                     title={`Đọc Truyện ${comic.title} - ${chapterData.title}`}
-                    className="comic-title-link"
+                    className="cursor-pointer text-xl font-bold text-gray-700 transition-colors duration-200 hover:text-primary-200 hover:underline max-sm:text-lg lg:text-2xl dark:text-primary-100"
                   >
                     Đọc Truyện {comic.title} - {chapterData.title}
                   </Link>
                 </h1>
               </div>
-              <div className="chapter-details">
-                <h2 className="chapter-title">{chapterData.title}</h2>
-                <time className="chapter-date" dateTime={chapterData.updateAt?.split('T')[0]}>
+              <div className="space-y-3">
+                <h2 className="text-base font-semibold text-gray-900 max-sm:text-sm lg:text-lg dark:text-light-text">{chapterData.title}</h2>
+                <time className="text-xs font-medium text-gray-500 dark:text-gray-300" dateTime={chapterData.updateAt?.split('T')[0]}>
                   Đăng lúc: {chapterData.updateAt ? new Date(chapterData.updateAt).toLocaleDateString('vi-VN') : ''}
                 </time>
               </div>
             </div>
 
             {/* Server Selection */}
-            <div className="server-selection-section">
-              <div className="server-list">
+            <div className="mt-4">
+              <div className="flex flex-wrap items-center justify-center gap-3 max-sm:gap-2">
                 {(showAllServers ? chapterServers : chapterServers.slice(0, 3)).map((server, i) => (
                   <button
                     key={server.id}
                     onClick={() => changeServer(server, i)}
-                    className={`server-button ${server.id === chapterServers[selectedServerIdx]?.id ? 'server-button-active' : ''}`}
+                    className={`flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-200 max-sm:text-xs dark:border-neutral-600 dark:bg-neutral-700 dark:text-gray-300 dark:hover:bg-neutral-600 ${server.id === chapterServers[selectedServerIdx]?.id ? 'border-sky-700 text-sky-700' : ''}`}
                   >
-                    <svg className="server-icon" viewBox="0 0 24 24">
+                    <svg className="h-5 w-5 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24">
                       <path d="M7 18a4.6 4.4 0 0 1 0 -9h0a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-12" />
                     </svg>
-                    <span className="server-text">Server {i + 1}</span>
+                    <span className="font-medium">Server {i + 1}</span>
                   </button>
                 ))}
                 {chapterServers.length > 3 && (
-                  <button onClick={() => setShowAllServers(!showAllServers)} className="server-expand-button">
+                  <button onClick={() => setShowAllServers(!showAllServers)} className="flex items-center justify-center rounded-lg border border-gray-200 bg-gray-100 p-2 text-gray-600 hover:bg-gray-200 dark:border-neutral-600 dark:bg-neutral-700 dark:text-gray-300 dark:hover:bg-neutral-600">
                     <svg
-                      className={`expand-icon ${showAllServers ? 'expand-icon-rotated' : ''}`}
+                      className={`h-5 w-5 fill-none stroke-current stroke-2 transition-transform duration-200 [stroke-linecap:round] [stroke-linejoin:round] ${showAllServers ? 'rotate-180' : ''}`}
                       viewBox="0 0 24 24"
                     >
                       <path d="M18 15l-6-6l-6 6h12" />
                     </svg>
                   </button>
                 )}
-                <button className="report-error-button">
-                  <svg className="report-icon" viewBox="0 0 24 24">
+                <button type="button" className="flex items-center gap-2 rounded-lg border border-yellow-200 bg-yellow-50 px-3 py-1.5 text-yellow-800 hover:border-yellow-300 hover:bg-yellow-100 dark:border-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300 dark:hover:border-yellow-700 dark:hover:bg-yellow-900/30" onClick={openChapterErrorReport}>
+                  <svg className="h-5 w-5 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24">
                     <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
                     <line x1="12" y1="9" x2="12" y2="13" />
                     <line x1="12" y1="17" x2="12.01" y2="17" />
                   </svg>
-                  <span className="report-text">Báo lỗi</span>
+                  <span className="text-xs font-bold">Báo lỗi</span>
                 </button>
               </div>
             </div>
@@ -408,11 +447,20 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
 
           {/* Control Bar */}
           <nav ref={controlBarContainerRef} className="w-full h-12">
-            <div ref={controlBarRef} className={`control-bar ${toolbarStyle}`}>
+            <div
+              ref={controlBarRef}
+              className={`z-[999] flex max-w-full items-center justify-center gap-2 rounded-b-lg border bg-white px-2 py-1.5 transition-[top] duration-500 ease-in-out dark:border-neutral-700 dark:bg-neutral-800 md:gap-3 ${
+                toolbarStyle === 'top'
+                  ? 'fixed left-0 right-0 top-0 rounded-none border'
+                  : toolbarStyle === 'hidden'
+                    ? 'fixed -top-12 left-0 right-0 rounded-none'
+                    : ''
+              }`}
+            >
               {/* Home */}
-              <div className="control-group">
-                <Link href="/" title="Trang chủ" className="control-button control-button-home">
-                  <svg className="control-icon" viewBox="0 0 24 24">
+              <div className="z-10 flex items-center gap-2">
+                <Link href="/" title="Trang chủ" className="flex items-center gap-2 rounded-lg border border-primary-100/30 bg-primary-100/5 px-3 py-2 text-sm font-medium text-primary-100 hover:border-primary-100/50 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-neutral-700">
+                  <svg className="h-4 w-4 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24">
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                     <polyline points="9,22 9,12 15,12 15,22" />
                   </svg>
@@ -420,28 +468,28 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
               </div>
 
               {/* Fullscreen */}
-              <div className="control-group">
-                <button title="Toàn màn hình" className="control-button" onClick={toggleFullscreen}>
-                  <svg className="control-icon" viewBox="0 0 24 24">
+              <div className="z-10 flex items-center gap-2">
+                <button title="Toàn màn hình" className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 hover:border-primary-100/50 hover:bg-gray-100 hover:text-primary-100 dark:border-neutral-600 dark:text-gray-300 dark:hover:bg-neutral-700" onClick={toggleFullscreen}>
+                  <svg className="h-4 w-4 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24">
                     <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
                   </svg>
                 </button>
               </div>
 
               {/* Chapter Navigation */}
-              <div className="chapter-navigation-group">
+              <div className="flex items-center gap-1 px-4 max-md:gap-0 max-md:px-1">
                 <button
-                  className={`nav-button nav-button-prev ${prevChapter ? 'nav-button-active' : ''}`}
+                  className={`flex cursor-pointer items-center gap-2 rounded-lg border-none bg-gray-200 px-2 py-2 text-sm font-medium text-gray-600 hover:bg-primary-100 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 max-md:px-1 max-md:py-1.5 max-md:text-xs dark:bg-neutral-600 dark:text-gray-300 ${prevChapter ? 'bg-primary-100 text-white' : ''}`}
                   onClick={() => navigateChapter(false)}
                   aria-label="Chương trước"
                   disabled={isImageLoading || !prevChapter}
                 >
-                  <svg className="nav-icon" viewBox="0 0 24 24">
+                  <svg className="h-5 w-5 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24">
                     <polyline points="15 18 9 12 15 6" />
                   </svg>
                 </button>
 
-                <div className="chapter-selector-wrapper">
+                <div className="mx-1">
                   <Selection
                     ariaLabel="Chọn chương để đọc"
                     className="text-sm border rounded px-2 py-1 bg-white dark:bg-neutral-800 dark:text-gray-300 dark:border-neutral-600"
@@ -458,29 +506,29 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
                 </div>
 
                 <button
-                  className={`nav-button nav-button-next ${nextChapter ? 'nav-button-active' : ''}`}
+                  className={`flex cursor-pointer items-center gap-2 rounded-lg border-none bg-gray-200 px-2 py-2 text-sm font-medium text-gray-600 hover:bg-primary-100 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 max-md:px-1 max-md:py-1.5 max-md:text-xs dark:bg-neutral-600 dark:text-gray-300 ${nextChapter ? 'bg-primary-100 text-white' : ''}`}
                   onClick={() => navigateChapter(true)}
                   aria-label="Chương tiếp"
                   disabled={isImageLoading || !nextChapter}
                 >
-                  <svg className="nav-icon" viewBox="0 0 24 24">
+                  <svg className="h-5 w-5 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24">
                     <polyline points="9 18 15 12 9 6" />
                   </svg>
                 </button>
               </div>
 
               {/* Zoom */}
-              <div className="control-group zoom-group">
+              <div className="relative z-10 flex items-center gap-2">
                 <button
                   title="Thu phóng"
-                  className="control-button zoom-button"
+                  className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 hover:border-primary-100/50 hover:bg-gray-100 hover:text-primary-100 dark:border-neutral-600 dark:text-gray-300 dark:hover:bg-neutral-700"
                   onClick={() => {
                     if (zoomValue < 150) zoomIn();
                     else zoomOut();
                     setZoomPanelOpen(true);
                   }}
                 >
-                  <svg className="control-icon" viewBox="0 0 24 24">
+                  <svg className="h-4 w-4 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24">
                     <circle cx="11" cy="11" r="8" />
                     <line x1="21" y1="21" x2="16.65" y2="16.65" />
                     {zoomValue < 150 ? (
@@ -494,25 +542,25 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
                   </svg>
                 </button>
                 {zoomPanelOpen && (
-                  <div className="zoom-panel zoom-panel-active">
-                    <div className="zoom-info">
-                      <span className="zoom-percentage">{zoomValue}%</span>
-                      <div className="zoom-controls">
-                        <button className="zoom-control-btn" onClick={zoomOut} title="Thu nhỏ">
-                          <svg className="zoom-control-icon" viewBox="0 0 24 24">
+                  <div className="absolute top-12 z-[9999] min-w-40 -translate-x-full items-center space-y-3 rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-neutral-700 dark:bg-neutral-800">
+                    <div className="flex w-full items-center gap-4">
+                      <span className="min-w-12 text-sm font-semibold text-primary-100">{zoomValue}%</span>
+                      <div className="flex gap-2">
+                        <button className="flex h-8 w-8 items-center justify-center rounded-md text-gray-600 transition-all duration-200 hover:bg-gray-100 hover:text-primary-100 dark:text-gray-300 dark:hover:bg-neutral-700" onClick={zoomOut} title="Thu nhỏ">
+                          <svg className="h-4 w-4 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24">
                             <line x1="5" y1="12" x2="19" y2="12" />
                           </svg>
                         </button>
-                        <button className="zoom-control-btn" onClick={zoomIn} title="Phóng to">
-                          <svg className="zoom-control-icon" viewBox="0 0 24 24">
+                        <button className="flex h-8 w-8 items-center justify-center rounded-md text-gray-600 transition-all duration-200 hover:bg-gray-100 hover:text-primary-100 dark:text-gray-300 dark:hover:bg-neutral-700" onClick={zoomIn} title="Phóng to">
+                          <svg className="h-4 w-4 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24">
                             <line x1="12" y1="5" x2="12" y2="19" />
                             <line x1="5" y1="12" x2="19" y2="12" />
                           </svg>
                         </button>
                       </div>
                     </div>
-                    <button onClick={resetZoom} title="Đặt lại" className="zoom-reset-btn">
-                      <svg className="zoom-reset-icon" viewBox="0 0 24 24">
+                    <button onClick={resetZoom} title="Đặt lại" className="flex cursor-pointer items-center gap-2 rounded-lg border-none bg-primary-100 px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-200">
+                      <svg className="h-4 w-4 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24">
                         <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                       </svg>
                     </button>
@@ -521,9 +569,9 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
               </div>
 
               {/* Settings */}
-              <div className="control-group">
-                <button type="button" title="Cài đặt" className="control-button settings-button" onClick={openReadingSettings}>
-                  <svg className="control-icon" width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+              <div className="z-10 flex items-center gap-2">
+                <button type="button" title="Cài đặt" className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-600 hover:border-primary-100/50 hover:bg-gray-100 hover:text-primary-100 dark:border-neutral-600 dark:bg-neutral-700 dark:text-gray-300 dark:hover:bg-neutral-700" onClick={openReadingSettings}>
+                  <svg className="h-4 w-4 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]" width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" />
                     <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                     <circle cx="12" cy="12" r="3" />
@@ -535,11 +583,11 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
         </section>
 
         {/* Reading Container */}
-        <div onDoubleClick={toggleFullscreen} className="reading-container">
+        <div onDoubleClick={toggleFullscreen} className="relative z-0 mt-2 sm:px-[5%] md:px-[15%]">
           <div
             ref={imageContainerRef}
             id="image-container"
-            className="reading-content"
+            className="relative min-h-screen"
             style={{
               width: `${zoomValue}%`,
               left: `${(100 - zoomValue) * 0.5}%`,
@@ -547,17 +595,17 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
           >
             {/* Loading */}
             {isImageLoading && (
-              <div className="loading-container">
-                <div className="loading-content">
-                  <div className="loading-spinner">
-                    <svg className="loading-icon" viewBox="0 0 24 24">
-                      <circle className="loading-circle-bg" cx="12" cy="12" r="10" />
-                      <circle className="loading-circle-progress" cx="12" cy="12" r="10" />
+              <div className="mt-10 flex flex-col items-center justify-center space-y-8 p-8">
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="relative">
+                    <svg className="h-16 w-16 animate-spin text-primary-100" viewBox="0 0 24 24">
+                      <circle className="fill-none stroke-current stroke-2 opacity-25" cx="12" cy="12" r="10" />
+                      <path className="fill-none stroke-current stroke-2 opacity-75 [stroke-linecap:round]" d="M12 2a10 10 0 0 1 10 10" />
                     </svg>
                   </div>
-                  <div className="loading-text">
-                    <h3 className="loading-title">Đang tải chương...</h3>
-                    <p className="loading-subtitle">Vui lòng đợi trong giây lát</p>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-light-text">Đang tải chương...</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Vui lòng đợi trong giây lát</p>
                   </div>
                 </div>
               </div>
@@ -566,16 +614,17 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
             {/* Images */}
             {!isImageLoading &&
               listImgs.map((img, i) => (
-                <div key={i} className="page-chapter">
+                <div key={i} className="relative mx-auto block object-contain">
                   <Image
                     loading={i <= 1 || (canPreloadPages && i <= preloadPages) ? 'eager' : 'lazy'}
                     fetchPriority={i === 1 ? 'high' : 'auto'}
-                    className={`chapter-page-image ${!isVertical ? 'chapter-page-horizontal' : ''} ${isNightMode ? 'night-mode' : ''}`}
+                    className={`h-full w-full object-cover ${!isVertical ? 'h-full min-w-80' : ''} ${isNightMode ? 'brightness-90 sepia' : ''}`}
                     alt={`${comic.title} Chương ${chapterData.slug} Ảnh ${i + 1}`}
                     src={img}
                     quality={50}
                     width={1200}
                     height={1800}
+                    unoptimized
                     sizes="(max-width: 768px) 100vw, 1200px"
                     onError={handleImageError}
                   />
@@ -584,29 +633,29 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
           </div>
 
           {/* End Chapter Navigation */}
-          <div ref={endChapterRef} className="end-chapter-navigation">
-            <div className="end-chapter-content">
+          <div ref={endChapterRef} className="mt-8 mb-6 flex w-full justify-center">
+            <div className="flex w-full max-w-4xl items-center justify-between gap-6 rounded-xl border border-gray-200 bg-white p-6 dark:border-neutral-700 dark:bg-neutral-800">
               <Link
                 title="Chương trước"
                 href={prevChapterLink || '#'}
-                className={`end-nav-button end-nav-prev ${!prevChapterLink ? 'disabled pointer-events-none opacity-50' : ''}`}
+                className={`flex cursor-pointer items-center gap-3 rounded-lg border border-gray-200 bg-gray-100 px-4 py-3 text-sm font-medium text-gray-600 transition-all duration-200 hover:bg-primary-100 hover:text-white max-md:w-full max-md:justify-center dark:border-neutral-600 dark:bg-neutral-700 dark:text-gray-300 ${!prevChapterLink ? 'pointer-events-none opacity-50' : ''}`}
               >
-                <svg className="end-nav-icon" viewBox="0 0 24 24">
+                <svg className="h-5 w-5 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24">
                   <polyline points="15 18 9 12 15 6" />
                 </svg>
-                <span className="end-nav-text">Chương trước</span>
+                <span className="font-medium max-sm:hidden">Chương trước</span>
               </Link>
-              <div className="end-chapter-info">
-                <h3 className="end-chapter-title">Kết thúc chương</h3>
-                <p className="end-chapter-subtitle">{chapterData.title}</p>
+              <div className="hidden flex-1 space-y-2 text-center sm:block">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-light-text">Kết thúc chương</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{chapterData.title}</p>
               </div>
               <Link
                 title="Chương tiếp"
                 href={nextChapterLink || '#'}
-                className={`end-nav-button end-nav-next ${!nextChapterLink ? 'disabled pointer-events-none opacity-50' : ''}`}
+                className={`flex cursor-pointer items-center gap-3 rounded-lg border border-gray-200 bg-gray-100 px-4 py-3 text-sm font-medium text-gray-600 transition-all duration-200 hover:bg-primary-100 hover:text-white max-md:w-full max-md:justify-center dark:border-neutral-600 dark:bg-neutral-700 dark:text-gray-300 ${!nextChapterLink ? 'pointer-events-none opacity-50' : ''}`}
               >
-                <span className="end-nav-text">Chương tiếp</span>
-                <svg className="end-nav-icon" viewBox="0 0 24 24">
+                <span className="font-medium max-sm:hidden">Chương tiếp</span>
+                <svg className="h-5 w-5 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24">
                   <polyline points="9 18 15 12 9 6" />
                 </svg>
               </Link>
@@ -618,11 +667,11 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
       {/* Scroll to Top */}
       <button
         onClick={scrollToTop}
-        className={`scroll-to-top-btn ${showScrollToTop ? 'scroll-to-top-visible' : ''}`}
+        className={`fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full bg-primary-100 px-4 py-3 text-white shadow-lg transition-all duration-300 hover:bg-primary-200 max-md:bottom-4 max-md:right-4 max-md:px-3 max-md:py-2 ${showScrollToTop ? 'translate-y-0 opacity-100 pointer-events-auto' : 'pointer-events-none translate-y-4 opacity-0'}`}
         title="Lên đầu trang"
         type="button"
       >
-        <svg className="scroll-to-top-icon" viewBox="0 0 24 24">
+        <svg className="h-5 w-5 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24">
           <polyline points="18 15 12 9 6 15" />
         </svg>
       </button>

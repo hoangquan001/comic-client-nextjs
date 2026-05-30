@@ -21,8 +21,8 @@ export interface IUserLite {
   lastName?: string;
   username?: string;
   avatar?: string;
-  experience?: number;
-  typeLevel?: number;
+  experience: number;
+  typeLevel: number;
   levelInfo?: { percent: number; level: string; nextLevel: string };
 }
 

@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { Roboto, Geist } from 'next/font/google';
 import './globals.css';
 import { AppProviders } from '@/components/providers/app-providers';
 import { Header ,Footer, Nav} from '@/components/layout';
@@ -10,14 +9,6 @@ import { cn } from "@/lib/utils";
 import { Toaster } from '@/components/ui/sonner';
 import { Suspense } from 'react';
 import NextTopLoader from 'nextjs-toploader';
-
-const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
-
-const roboto = Roboto({
-  variable: '--font-roboto',
-  subsets: ['latin', 'vietnamese'],
-  weight: ['300', '400', '500', '700'],
-});
 
 export const metadata: Metadata = {
   title: `${config.APP_NAME} - Đọc Truyện Tranh Online`,
@@ -36,7 +27,7 @@ export default function RootLayout({
 }>) {
   // console.log("RootLayout");
   return (
-    <html lang="vi" className={cn("h-full", "antialiased", roboto.variable, "font-sans", geist.variable)} suppressHydrationWarning>
+    <html lang="vi" className={cn("h-full", "antialiased", "font-sans")} suppressHydrationWarning>
       <body>
 
         <AppProviders>

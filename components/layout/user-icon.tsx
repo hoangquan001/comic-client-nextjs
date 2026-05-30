@@ -12,7 +12,8 @@ interface UserIconProps {
 }
 export function UserIcon({ initialUser }: UserIconProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const user = initialUser;
+  const { user: clientUser, initialized } = useAuthStore();
+  const user = initialized ? clientUser : initialUser;
   const isAuthenticated = !!user;
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -25,7 +26,7 @@ export function UserIcon({ initialUser }: UserIconProps) {
         aria-label="User menu"
         aria-expanded={isOpen}
       >
-        {isAuthenticated? (
+        {isAuthenticated ? (
           <div className="relative">
             <Image
               loading="lazy"
@@ -45,8 +46,9 @@ export function UserIcon({ initialUser }: UserIconProps) {
           </div>
         )}
       </button>
-    {isOpen && (
-      <UserMenu initialUser={user} onClose={() => setIsOpen(false)} />
-    )}
-    </div>)
+      {isOpen && (
+        <UserMenu initialUser={user} onClose={() => setIsOpen(false)} />
+      )}
+    </div>
+  );
 }

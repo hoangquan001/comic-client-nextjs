@@ -43,7 +43,7 @@ export default function EmojiPicker({ onSelect }: EmojiPickerProps) {
   }
 
   return (
-    <div ref={containerRef} className="absolute right-0 bottom-0 z-20 block bg-white dark:bg-neutral-800 rounded-2xl shadow-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden w-72 h-96 sm:w-80 md:w-72">
+    <div ref={containerRef} className="absolute bottom-0 z-20 block bg-white dark:bg-neutral-800 rounded-2xl shadow-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden w-72 h-96 sm:w-80 md:w-72">
       {/* Header - Pack selector */}
       <div className="flex items-center gap-2 p-2 border-b border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900/50">
         {visiblePacks.map((pack) => (

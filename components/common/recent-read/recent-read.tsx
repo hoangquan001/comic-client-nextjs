@@ -45,7 +45,11 @@ export default function RecentRead() {
               <div key={comic.id} className="border-b border-neutral-200 dark:border-neutral-700 last:border-b-0 flex items-center gap-2 p-1">
                 <div className="relative flex-shrink-0">
                   <Link href={getComicDetailUrl(comic)} className="relative block overflow-hidden rounded-lg">
-                    <Image className="w-12 h-16 object-cover" src={comic.coverImage || '/empty.png'} alt={comic.title} width={48} height={64} onError={(e) => { (e.target as HTMLImageElement).src = '/empty.png'; }} />
+                    <Image className="w-12 h-16 object-cover"
+                    src={comic.coverImage || '/empty.png'} 
+                    alt={comic.title} width={48} height={64} 
+                    unoptimized
+                    onError={(e) => { (e.target as HTMLImageElement).src = '/empty.png'; }} />
                     <div className="absolute inset-0 bg-black/0 hover:bg-black/10" />
                   </Link>
                 </div>

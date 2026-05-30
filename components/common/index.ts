@@ -3,7 +3,7 @@ export { SearchBox } from './search-result/search-result';
 export { default as UserInfoPopup } from './user-info-popup/user-info-popup';
 export { ComicCard } from './comic-card/comic-card';
 export { ComicCardV2 } from './comic-card/comic-card-v2';
-export { GridComic, ListComicGrid } from './grid-comic/grid-comic';
+export { GridComic } from './grid-comic/grid-comic';
 export { Pagination } from './pagination/pagination';
 export { Breadcrumb } from './breadcrumb/breadcrumb';
 export { Spinner } from './spinner/spinner';

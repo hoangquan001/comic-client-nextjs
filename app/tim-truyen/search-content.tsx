@@ -3,14 +3,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdvanceSearch } from '@/lib/hooks/use-comic-queries';
-import { GridComic } from '@/components/common/grid-comic/grid-comic';
-import { Pagination } from '@/components/common/pagination/pagination';
-import { Breadcrumb } from '@/components/common/breadcrumb/breadcrumb';
-import { TopList } from '@/components/common/top-list/top-list';
-import RecentCommentsPanel from '@/components/common/recent-comments/recent-comments-panel';
-import { Spinner } from '@/components/common/spinner/spinner';
-import { Empty } from '@/components/common/empty/empty';
-import Selection from '@/components/common/selection/selection';
+import { Breadcrumb, Selection, Empty, GridComic, Pagination, RecentCommentsPanel, Spinner, TopList } from '@/components/common';
 import { GENRES } from '@/lib/constants/genres';
 import { SortType } from '@/types';
 import type { ComicList, Genre } from '@/types';
@@ -132,7 +125,7 @@ export default function SearchContent({
     if (selectedYear > 0) params.set('year', String(selectedYear));
     params.set('page', '1');
 
-    return(`/tim-truyen?${params.toString()}#listComic`);
+    return (`/tim-truyen?${params.toString()}#listComic`);
   };
 
   const toggleGenre = (genre?: Genre) => {

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import { publicFetch } from '@/lib/api/server-fetch';
-import type { ComicList, IServiceResponse } from '@/types';
+import { ComicAPI } from '@/lib/api';
+import type { ComicList } from '@/types';
 import RankingContent from './ranking-content';
 import { getServerGridType } from '@/lib/utils/cookie';
 
@@ -21,10 +21,7 @@ export default async function RankingPage({ searchParams }: RankingPageProps) {
   const gridType = await getServerGridType();
   let initialData: ComicList | null = null;
   try {
-    const res = await publicFetch<IServiceResponse<ComicList>>(
-      `/comics?page=${page}&step=35&genre=-1&sort=${sort}&status=${status}`
-    );
-    if ((res.status === 200 || res.status === 1) && res.data) initialData = res.data;
+    initialData = await ComicAPI.getComics({ page, step: 35, sort, status }) ?? null;
   } catch {}
 
   return <RankingContent page={page} sort={sort} status={status} initialData={initialData} gridType={gridType} />;

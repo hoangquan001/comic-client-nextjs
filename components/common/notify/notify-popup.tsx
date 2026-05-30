@@ -9,33 +9,40 @@ import type { INotification } from '@/types';
 import { dateAgo } from '@/lib/utils/date';
 
 interface NotifyPopupProps {
+  enabled?: boolean;
   onClose: () => void;
 }
 
+type DisplayNotification = INotification & {
+  comic_title?: string;
+  link?: string;
+};
 
-export default function NotifyPopup({ onClose }: NotifyPopupProps) {
+export default function NotifyPopup({ enabled = true, onClose }: NotifyPopupProps) {
   const [optionNotify, setOptionNotify] = useState(0);
   const [showOptions, setShowOptions] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [optionIndex, setOptionIndex] = useState<number | null>(null);
 
-  const { data: rawData = [] } = useUserNotify();
+  const { data: rawData = [] } = useUserNotify(enabled);
   const updateNotifyMutation = useUpdateNotify();
   const deleteNotifyMutation = useDeleteNotify();
 
-  const notifications = useMemo(() =>
-    rawData.map((e: any) => {
-      let parsed = {};
-      try { parsed = JSON.parse(e.params || '{}'); } catch {}
-      const merged = { ...e, ...parsed };
-      if (e.type === 0) merged.content = `<b>${merged.comic_title || 'Truyện'}</b> đã ra chapter mới.`;
+  const notifications = useMemo<DisplayNotification[]>(() =>
+    rawData.map((notification) => {
+      let parsed: Partial<DisplayNotification> = {};
+      try {
+        parsed = JSON.parse(notification.params || '{}') as Partial<DisplayNotification>;
+      } catch {}
+      const merged = { ...notification, ...parsed };
+      if (notification.type === 0) merged.content = `<b>${merged.comic_title || 'Truyện'}</b> đã ra chapter mới.`;
       return merged;
     }),
     [rawData]
   );
 
-  const filtered = optionNotify === 0 ? notifications : notifications.filter((n: any) => !n.isRead);
-  const unreadCount = notifications.filter((n: any) => !n.isRead).length;
+  const filtered = optionNotify === 0 ? notifications : notifications.filter((notification) => !notification.isRead);
+  const unreadCount = notifications.filter((notification) => !notification.isRead).length;
   const totalCount = notifications.length;
 
   function handleMarkAllRead() {
@@ -73,6 +80,9 @@ export default function NotifyPopup({ onClose }: NotifyPopupProps) {
           <div className="flex items-center gap-2">
             <button className={`p-2 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-lg cursor-pointer ${showOptions ? 'text-primary-100 bg-primary-100/10' : ''}`} onClick={() => setShowOptions(!showOptions)}>
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 8h16M4 16h16" /></svg>
+            </button>
+            <button type="button" aria-label="Đóng thông báo" className="p-2 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-lg cursor-pointer" onClick={onClose}>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
             </button>
           </div>
         </div>
@@ -120,7 +130,7 @@ export default function NotifyPopup({ onClose }: NotifyPopupProps) {
       {filtered.length > 0 && (
         <div className="bg-white dark:bg-dark-bg overflow-y-auto max-h-80 scrollbar-style-1">
           <div className="flex flex-col">
-            {filtered.map((notify: any, i: number) => (
+            {filtered.map((notify, i) => (
               <div key={notify.id} className={`relative border-b border-neutral-100 dark:border-neutral-800 last:border-b-0 ${!notify.isRead ? 'bg-sky-50/50 dark:bg-sky-900/10' : ''} ${hoveredIndex === i ? 'bg-neutral-50 dark:bg-neutral-800/50' : ''}`} onMouseEnter={() => setHoveredIndex(i)} onMouseLeave={() => { setHoveredIndex(null); if (optionIndex !== i) setOptionIndex(null); }}>
                 {!notify.isRead && <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-12 bg-primary-100 rounded-r" />}
                 <div className="flex items-center p-3 gap-3 hover:bg-neutral-50 dark:hover:bg-neutral-800/50">

@@ -29,7 +29,7 @@ export default function NotifyBell() {
           </span>
         </div>
       </button>
-      {isVisible && <NotifyPopup onClose={() => setIsVisible(false)} />}
+      {isVisible && <NotifyPopup enabled={isAuthenticated} onClose={() => setIsVisible(false)} />}
     </div>
   );
 }

@@ -1,17 +1,16 @@
 import { GridComic, Pagination, TopList, AnnouncementBanner, RecentRead, TopUsers, SimpleCarousel } from '@/components/common';
-import { StoredSettingsPayload } from '@/lib/settings/type';
 import { getServerCookie, getServerGridType } from '@/lib/utils/cookie';
 import type { Announcement, ComicList, Comic } from '@/types';
 import { Suspense } from 'react';
 
 interface HomeContentProps {
   page: number;
-  initialComics?: ComicList | null;
-  initialCarousel?: Comic[] | null;
-  initialAnnouncements?: Announcement[];
+  comics?: ComicList;
+  carousel?: Comic[];
+  announcements?: Announcement[];
 }
 
-export default async function HomeContent({ page, initialComics, initialCarousel, initialAnnouncements }: HomeContentProps) {
+export default async function HomeContent({ page, comics: initialComics, carousel: initialCarousel, announcements: initialAnnouncements }: HomeContentProps) {
   const comics = initialComics?.comics ?? [];
   const totalpage = initialComics?.totalpage ?? 1;
   const carousel = initialCarousel ?? [];

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import { publicFetch } from '@/lib/api/server-fetch';
-import type { ComicList, IServiceResponse } from '@/types';
+import { ComicAPI } from '@/lib/api';
+import type { ComicList } from '@/types';
 import HotComicsContent from './hot-comics-content';
 
 export const metadata: Metadata = {
@@ -18,10 +18,7 @@ export default async function HotComicsPage({ searchParams }: HotPageProps) {
 
   let initialData: ComicList | null = null;
   try {
-    const res = await publicFetch<IServiceResponse<ComicList>>(
-      `/hotcomics?page=${page}&step=30`
-    );
-    if (res.status === 1 && res.data) initialData = res.data;
+    initialData = await ComicAPI.getHotComics(page) ?? null;
   } catch {}
 
   return <HotComicsContent page={page} initialData={initialData} />;

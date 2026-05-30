@@ -48,6 +48,7 @@ export function ComicCardV2({ comic }: ComicCardV2Props) {
             alt={`Ảnh bìa truyện ${comic.title}`}
             width={134}
             height={128}
+            unoptimized
             onError={(e) => { (e.target as HTMLImageElement).src = '/option2.png'; }}
           />
         </Link>

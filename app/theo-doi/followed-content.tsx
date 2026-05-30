@@ -2,30 +2,20 @@
 
 import { useFollowedComics, useFollow } from '@/lib/hooks/use-account-queries';
 import { useAuthStore } from '@/lib/stores/use-auth-store';
-import { GridComic } from '@/components/common/grid-comic/grid-comic';
-import { Pagination } from '@/components/common/pagination/pagination';
-import { Breadcrumb } from '@/components/common/breadcrumb/breadcrumb';
-import { Spinner } from '@/components/common/spinner/spinner';
-import { Empty } from '@/components/common/empty/empty';
+import { GridComic, Pagination, Breadcrumb, Spinner, Empty } from '@/components/common';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useState } from 'react';
 import type { Comic } from '@/types';
-import { getComicDetailUrl, getChapterDetailUrl } from '@/lib/utils/url';
-import { dateAgo } from '@/lib/utils/date';
-import { formatNumber } from '@/lib/utils/number';
-
 interface FollowedContentProps {
   page: number;
   gridType: number;
+  isAuthenticated: boolean;
 }
 
-export default function FollowedContent({ page, gridType }: FollowedContentProps) {
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-
-  const { data, isLoading } = useFollowedComics(page);
+export default function FollowedContent({ page, gridType, isAuthenticated }: FollowedContentProps) {
+  const { data, isLoading } = useFollowedComics(page, 28, isAuthenticated);
+  console.log(isAuthenticated);
   const followMutation = useFollow();
-
   const comics = data?.comics ?? [];
   const totalpage = data?.totalpage ?? 1;
 

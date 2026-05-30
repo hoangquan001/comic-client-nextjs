@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import { publicFetch } from '@/lib/api/server-fetch';
-import type { Comic, IServiceResponse } from '@/types';
+import { ComicAPI } from '@/lib/api';
+import type { Comic } from '@/types';
 import AuthorComicsContent from './author-comics-content';
 import { getServerGridType } from '@/lib/utils/cookie';
 
@@ -24,10 +24,7 @@ export default async function AuthorComicsPage({ params }: Props) {
 
   let initialData: Comic[] | null = null;
   try {
-    const res = await publicFetch<IServiceResponse<Comic[]>>(
-      `/comicsbyauthor?author=${encodeURIComponent(author)}&size=20`
-    );
-    if (res.status === 1&& res.data) initialData = res.data;
+    initialData = await ComicAPI.getComicsByAuthor(author) ?? null;
   } catch {}
 
   return <AuthorComicsContent 

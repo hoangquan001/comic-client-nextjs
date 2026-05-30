@@ -53,7 +53,7 @@ export function GridComic({
 
   // Display placeholder loading cards when no comics
   const displayComics =
-    listComics.length === 0 ? Array(nPreview).fill(null) : listComics;
+    listComics.length === 0 ? Array(nPreview).fill(undefined) : listComics;
   const setSettingValue = useSettingsStore((state) => state.setSettingValue);
 
   const handleChangeGridType = useCallback((type: number) => {
@@ -75,18 +75,23 @@ export function GridComic({
           <div className="relative p-0.5 flex items-center bg-neutral-100 dark:bg-neutral-700 rounded-md  border border-neutral-200 dark:border-neutral-600">
             {/* Switch Thumb */}
             <div
-              className={`w-1/2 absolute inset-0 rounded-md  transition-transform duration-300 ease-in-out ${gridTypeState === 0
-                ? 'translate-x-full bg-neutral-700 dark:bg-neutral-900'
-                : 'translate-x-0 bg-neutral-700 dark:bg-neutral-900'
+              className={`p-1 w-1/2 absolute inset-0 rounded-md  transition-transform duration-300 ease-in-out ${gridTypeState === 0
+                ? 'translate-x-full '
+                : 'translate-x-0 '
                 }`}
-            />
+            >
+              <div
+                className="rounded-md size-full bg-neutral-700 dark:bg-neutral-900"
+              />
+            </div>
+
 
             {/* List View Button */}
             <button
               onClick={() => handleChangeGridType(1)}
               title="Xem dạng danh sách"
               aria-label="Chuyển sang chế độ xem danh sách"
-              className={`relative flex items-center justify-center p-2 min-w-10 text-sm font-medium rounded-md border-none cursor-pointer z-10 transition-colors duration-200 ${gridType === 1
+              className={`relative flex items-center justify-center p-2 min-w-10 text-sm font-medium rounded-md border-none cursor-pointer z-10 transition-colors duration-200 ${gridTypeState === 1
                 ? 'text-white'
                 : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
                 }`}
@@ -134,15 +139,15 @@ export function GridComic({
         <div className={defaultGridClass}>
           {displayComics.map((comic, index) => (
             (actionTemplate ? (
-            <div key={comic?.id ?? index} className="comic-card relative">
-              <div onClick={() => actionClick?.(comic)} className="comic-card-action cursor-pointer">{actionTemplate}</div>
-              <ComicCard comic={comic} eager={index < 2} />
+              <div key={comic?.id ?? index} className="comic-card relative">
+                <div onClick={() => actionClick?.(comic)} className="comic-card-action cursor-pointer">{actionTemplate}</div>
+                <ComicCard comic={comic} eager={index < 2} />
 
-            </div>)
-            : (
-              <ComicCard key={comic?.id ?? index} comic={comic} eager={index < 2} />
+              </div>)
+              : (
+                <ComicCard key={comic?.id ?? index} comic={comic} eager={index < 2} />
+              )
             )
-          )
           ))}
         </div>
       ) : (
@@ -161,20 +166,6 @@ export function GridComic({
       ) : listComics.length === 0 ? (
         <div className="text-center py-8 text-gray-500">Không có truyện nào</div>
       ) : null}
-    </div>
-  );
-}
-
-interface ListComicGridProps {
-  comics: Comic[];
-}
-
-export function ListComicGrid({ comics }: ListComicGridProps) {
-  return (
-    <div className="grid gap-3 @xl:gap-4 grid-cols-1 @2xl:grid-cols-2 @5xl:grid-cols-3">
-      {comics.map((comic) => (
-        <ComicCardV2 key={comic.id} comic={comic} />
-      ))}
     </div>
   );
 }

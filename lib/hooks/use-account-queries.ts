@@ -9,6 +9,7 @@ import type {
   VoteInfo,
   IServiceResponse,
 } from '@/types';
+import { getLevelUser } from '../constants';
 
 function unwrap<T>(res: IServiceResponse<T>): T {
   if ((res.status !== 200 && res.status !== 1) || !res.data) {
@@ -34,20 +35,22 @@ export function useUserById(id: number | null) {
   });
 }
 
-export function useFollowedComics(page = 1, size = 28) {
+export function useFollowedComics(page = 1, size = 28, enabled = true) {
   return useQuery({
     queryKey: ['followedComics', page, size],
     queryFn: () =>
       clientFetch<IServiceResponse<ComicList>>(
         `/user/followed-comics?page=${page}&size=${size}`
       ).then(unwrap),
+    enabled,
   });
 }
 
 export function useCommentsByComicId(
   comicId: number | null,
   page = 1,
-  step = 10
+  step = 10,
+  enabled = true
 ) {
   return useQuery({
     queryKey: ['comments', comicId, page, step],
@@ -55,7 +58,7 @@ export function useCommentsByComicId(
       clientFetch<IServiceResponse<CommentList>>(
         `/comments/comic/${comicId}?page=${page}&size=${step}`
       ).then(unwrap),
-    enabled: !!comicId,
+    enabled: enabled && !!comicId,
   });
 }
 
@@ -148,7 +151,7 @@ export function useAddComment() {
       replyfromUser?: number;
       replyfromCmt?: number | null;
     }) =>
-      clientFetch('/user/comment', {
+      clientFetch<IServiceResponse<unknown>>('/user/comment', {
         method: 'POST',
         data: {
           chapterId,
@@ -296,4 +299,23 @@ export function useUpdateViewAndExp() {
         `/comic/view_exp?comicId=${comicId}&exp=${exp ?? 10}&chapterId=${chapterId}`
       ),
   });
+}
+export function useUserProfile( userId: number | null, visible = true) {
+  return useQuery<IUser>({
+      queryKey: ['user-profile', userId],
+      queryFn: async () => {
+        const res = await clientFetch<IServiceResponse<IUser>>(
+          `/user/profile/${userId}`
+        );
+        if ((res.status !== 200 && res.status !== 1) || !res.data) {
+          throw new Error(res.message || 'API error');
+        }
+        const user = res.data;
+        if (user.experience != null && user.typeLevel != null) {
+          user.levelInfo = getLevelUser(user.experience, user.typeLevel);
+        }
+        return user;
+      },
+      enabled: visible && !!userId,
+    });
 }

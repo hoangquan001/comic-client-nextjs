@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { StoredSettingsPayload } from "../settings/type";
+import { IUser } from "@/types";
 
 export function parseCookie<T>(rawCookie: string | undefined): T | null {
     if (!rawCookie) return null;
@@ -26,4 +27,9 @@ export async function getServerGridType() : Promise<number>
       const settings = await getServerCookie<StoredSettingsPayload>('app-settings');
       const gridType = parseInt(settings?.values?.gridType  ?? '0');
       return gridType
+}
+
+export async function isAuthenticated(): Promise<boolean> {
+  const user = await getServerCookie<IUser>('auth');
+  return !!user;
 }

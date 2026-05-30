@@ -6,11 +6,12 @@ import { useQuery } from '@tanstack/react-query';
 import { clientFetch } from '@/lib/api/client-fetch';
 import { Spinner } from '@/components/common/spinner/spinner';
 import type { IUserLite, IServiceResponse } from '@/types';
+import { formatNumber } from '@/lib/utils/number';
+import { openUserInfo } from '@/lib/utils/event.define';
+import { getLevel } from '@/lib/constants';
 
-function formatNumber(num: number): string {
-  if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-  if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-  return num.toString();
+function getDisplayName(user: IUserLite) {
+  return [user.firstName, user.lastName].filter(Boolean).join(' ') || user.username || 'User';
 }
 
 export default function TopUsers() {
@@ -29,6 +30,10 @@ export default function TopUsers() {
     enabled: inView,
   });
 
+  function showUserInfo(userId: number) {
+    window.dispatchEvent(new CustomEvent(openUserInfo, { detail: { userId } }));
+  }
+
   return (
     <div ref={ref} className="w-full bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700  overflow-hidden">
       <div className="w-full flex items-center justify-center py-3 bg-neutral-50 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700 uppercase">
@@ -43,15 +48,21 @@ export default function TopUsers() {
         {!isLoading && topUsers.length > 0 && (
           <div className="grid grid-cols-1 gap-1 p-1">
             {topUsers.map((user, i) => (
-              <div key={user.id} className="shrink h-full border-b border-neutral-200 dark:border-neutral-700 last:border-b-0 relative flex items-center gap-3 p-1.5 h-full cursor-pointer">
+              <button
+                key={user.id}
+                type="button"
+                aria-label={`Xem hồ sơ ${getDisplayName(user)}`}
+                onClick={() => showUserInfo(user.id)}
+                className="shrink h-full w-full border-0 border-b border-neutral-200 bg-transparent text-left dark:border-neutral-700 last:border-b-0 relative flex items-center gap-3 p-1.5 cursor-pointer transition-colors hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-primary-100 dark:hover:bg-neutral-700/40"
+              >
                 <Image src={`/frames/icon_txztxk${i + 1}.png`} alt={`frame ${i + 1}`} className="h-14 w-auto bg-cover absolute z-10" width={56} height={56} />
                 <div className="relative shrink-0">
-                  <Image className="w-10 h-11 object-cover ml-2" src={user.avatar || '/default_avatar.jpg'} alt="" width={40} height={44}  />
+                  <Image className="w-10 h-11 object-cover ml-2" src={user.avatar || '/default_avatar.jpg'} alt="" width={40} height={44} unoptimized onError={(e) => (e.currentTarget.src = '/default_avatar.jpg')}  />
                 </div>
                 <div className="flex flex-col justify-between w-full gap-1">
                   <div className="space-y-0">
                     <h3 className="text-sm font-bold text-neutral-900 dark:text-light-text line-clamp-1">
-                      <span className="hover:text-primary-100">{user.firstName + ' ' + user.lastName || 'User'}</span>
+                      <span className="hover:text-primary-100">{getDisplayName(user)}</span>
                     </h3>
                   </div>
                   <div className="flex items-center justify-between">
@@ -61,11 +72,11 @@ export default function TopUsers() {
                     </div>
                     <div className="flex items-center gap-2 text-xs text-neutral-600 dark:text-neutral-400">
                       <svg className="w-3 h-3 shrink-0 text-yellow-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" /></svg>
-                      <span className="hover:text-primary-100 hover:underline line-clamp-1">{user.levelInfo?.level || 'Newbie'}</span>
+                      <span className="hover:text-primary-100 hover:underline line-clamp-1">{getLevel(user.experience || 0, user.typeLevel || 0)}</span>
                     </div>
                   </div>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         )}

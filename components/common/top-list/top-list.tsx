@@ -123,6 +123,7 @@ export function TopList() {
                       alt={comic.title}
                       width={64}
                       height={80}
+                      unoptimized
                     />
                     <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors" />
                   </Link>

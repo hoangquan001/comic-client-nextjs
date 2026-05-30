@@ -5,35 +5,18 @@ import { dateAgo } from "@/lib/utils/date";
 import { getChapterDetailUrl } from "@/lib/utils/url";
 import { Chapter, Comic } from "@/types";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Selection from '@/components/common/selection/selection';
 
-const DEFAULT_CHAPTER_GRID_SIZE = 4;
-
-function calcGridSize(): number {
-  if (window.innerWidth < 640) return 2;
-  if (window.innerWidth < 1100) return 3;
-  return DEFAULT_CHAPTER_GRID_SIZE;
-}
-
 export default function ChapterList({ comic, chapters: initialChapters }: { comic: Comic; chapters: Chapter[] }) {
-
   const [asc, setAsc] = useState(false);
   const [search, setSearch] = useState('');
-  const [gridSize, setGridSize] = useState(DEFAULT_CHAPTER_GRID_SIZE);
   const [curOptionValue, setCurOptionValue] = useState(0);
   const loopRef = useRef<LoopScrollHandle>(null);
 
   const history = useHistoryStore((s) => s.listHistory);
   const historyComic = history.find((c) => c.id === comic.id);
   const readChapters = useMemo(() => new Set(historyComic?.chapters?.map((ch) => ch.id) ?? []), [historyComic]);
-
-  useEffect(() => {
-    const handleResize = () => setGridSize(calcGridSize());
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   const sorted = useMemo(() =>
     [...initialChapters].sort((a, b) => asc ? a.slug - b.slug : b.slug - a.slug),
@@ -54,7 +37,7 @@ export default function ChapterList({ comic, chapters: initialChapters }: { comi
     }));
   }, [comic.numChapter, distance, asc]);
 
-  function onScrollChange(idx: number) {
+  function onScrollChange(idx: number, gridSize: number) {
     const optionValue = Math.round(idx * gridSize / distance);
     setCurOptionValue((prev) => {
       const newVal = Math.min(optionValue, options.length - 1);
@@ -71,14 +54,14 @@ export default function ChapterList({ comic, chapters: initialChapters }: { comi
     const isRead = readChapters.has(ch.id);
     return (
       <Link href={getChapterDetailUrl(comic, ch)} title={ch.title}>
-        <div className={`chapter-item ${isRead ? 'chapter-item-read' : ''}`}>
-          <div className="chapter-item-content">
-            <p className={`chapter-item-title ${isRead ? 'chapter-item-title-read' : ''}`}>
+        <div className={`mr-2 mb-2 flex h-12 cursor-pointer select-none items-center justify-between rounded-lg bg-neutral-100 px-2 py-1 text-sm no-underline hover:bg-neutral-200 dark:bg-neutral-700 dark:hover:bg-neutral-500 ${isRead ? 'bg-neutral-200 dark:bg-neutral-800' : ''}`}>
+          <div className="p-1">
+            <p className={isRead ? 'text-neutral-700 dark:text-neutral-200' : ''}>
               Chapter {ch.slug}
             </p>
           </div>
-          <div className="chapter-item-date">
-            <div className="chapter-item-date-text">{dateAgo(ch.updateAt)}</div>
+          <div className="ml-auto p-1">
+            <div className="text-xs text-neutral-700 dark:text-neutral-300">{dateAgo(ch.updateAt)}</div>
           </div>
         </div>
       </Link>
@@ -87,24 +70,24 @@ export default function ChapterList({ comic, chapters: initialChapters }: { comi
 
   return (
     <div className="max-h-96 flex flex-col">
-      <div className="chapter-panel">
-        <span className="chapter-title">
+      <div className="flex flex-col justify-between gap-2 lg:flex-row">
+        <span className="flex items-center font-semibold uppercase md:mt-3">
           <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" fill="currentColor" viewBox="0 0 512 512">
             <path d="M64 144a48 48 0 1 0 0-96 48 48 0 1 0 0 96zM192 64c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zM64 464a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm48-208a48 48 0 1 0 -96 0 48 48 0 1 0 96 0z" />
           </svg>
-          <p className="chapter-title-text">Danh sách chương</p>
+          <p className="ml-2 text-xl font-extrabold text-gray-700 dark:text-light-text">Danh sách chương</p>
         </span>
-        <div className="chapter-controls">
-          <div className="chapter-search-container">
-            <div className="chapter-search-icon">
-              <svg className="chapter-search-svg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+        <div className="flex items-center justify-between">
+          <div className="relative mr-2">
+            <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center px-3">
+              <svg className="h-3 w-3 text-neutral-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                 <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
               </svg>
             </div>
             <input
               type="search"
               maxLength={255}
-              className="chapter-search-input"
+              className="block w-48 border-b border-solid border-[#ccc] px-10 pt-1 text-sm text-neutral-900 outline-none focus:border-primary-100 focus:ring-primary-100 dark:border-neutral-600 dark:bg-dark-bg dark:text-light-text dark:placeholder-neutral-400 dark:focus:border-primary-100 dark:focus:ring-primary-100"
               placeholder="Tìm chương..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -128,7 +111,7 @@ export default function ChapterList({ comic, chapters: initialChapters }: { comi
             {options.length > 1 && (
               <Selection
                 ariaLabel="Chọn nhóm chương"
-                className="chapter-selection"
+                className="ml-2 w-32 rounded border bg-white px-2 py-1 text-sm dark:bg-neutral-800"
                 value={curOptionValue}
                 onChange={onSelectRange}
                 options={options}
@@ -139,14 +122,13 @@ export default function ChapterList({ comic, chapters: initialChapters }: { comi
       </div>
 
       {filtered.length === 0 && (
-        <div className="chapter-not-found">Không tìm thấy chương ...</div>
+        <div className="my-3 h-20 rounded-lg bg-neutral-100 p-3 font-light text-neutral-600 dark:bg-neutral-800 dark:text-neutral-200">Không tìm thấy chương ...</div>
       )}
 
-      <div className="chapter-list-container overflow-hidden min-h-32">
+      <div className="relative mt-4 flex min-h-32 w-full overflow-hidden">
         <LoopScroll
           loopRef={loopRef}
           allItems={filtered}
-          gridSize={gridSize}
           preloadItemCount={40}
           itemHeight={56}
           renderItem={renderChapter}

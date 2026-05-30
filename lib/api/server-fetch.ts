@@ -1,13 +1,13 @@
 import { cookies, headers as nextHeaders } from 'next/headers';
 import { config } from '@/lib/config';
 
-export async function publicFetch<T>(path: string): Promise<T> {
+export async function publicFetch<T>(path: string, revalidate: number = 60): Promise<T> {
   const baseUrl = config.BASE_API_URL + '/api';
   const url = path.startsWith('http') ? path : `${baseUrl}${path}`;
 
   const res = await fetch(url, {
     headers: { 'Content-Type': 'application/json' },
-    next: { revalidate: 3600 },
+    next: { revalidate: revalidate },
   });
 
   if (!res.ok) throw new Error(`API error: ${res.status} ${res.statusText}`);
@@ -31,7 +31,7 @@ export async function serverFetch<T>(
     try {
       const user = JSON.parse(authToken);
       if (user?.token) reqHeaders['Authorization'] = `Bearer ${user.token}`;
-    } catch {}
+    } catch { }
   }
 
   const realHost = headersList.get('host');

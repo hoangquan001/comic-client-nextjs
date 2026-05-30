@@ -288,6 +288,7 @@ function SearchResultItem({
               onError={(e) => {
                 (e.target as HTMLImageElement).src = '/option2.png';
               }}
+              unoptimized
             />
             <div className="relative flex px-2 lg:px-3 justify-between">
               <div className="pr-3 my-auto">

@@ -112,8 +112,9 @@ export const useHistoryStore = create<HistoryState>((set, get) => {
 
   function persist(history: Comic[]) {
     const userId = get().authenticatedUserId;
+    saveLocalHistory(history);
+
     if (userId === null) {
-      saveLocalHistory(history);
       return;
     }
     set({ syncStatus: 'syncing' });

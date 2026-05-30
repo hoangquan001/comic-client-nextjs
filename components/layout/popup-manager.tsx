@@ -3,7 +3,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { SettingCategory } from '@/types';
 import dynamic from 'next/dynamic';
-import { openFeedback } from '@/lib/utils/event.define';
+import {
+  openFeedback,
+  openReportError,
+  openSettings,
+  openUserInfo,
+} from '@/lib/utils/event.define';
 const FeedbackForm = dynamic(() => import('@/components/common/feedback/feedback-form'), {
   ssr: false,
   loading: () => null,
@@ -39,7 +44,8 @@ export function PopupManager() {
 
   const handleOpenUserInfo = useCallback((e: Event) => {
     const detail = (e as CustomEvent).detail;
-    if (detail?.userId) {
+    console.log(detail);
+    if (typeof detail?.userId === 'number') {
       setUserInfo({ visible: true, userId: detail.userId });
     }
   }, []);
@@ -50,16 +56,16 @@ export function PopupManager() {
   }, []);
 
   useEffect(() => {
-    window.addEventListener('open-settings', handleOpenSettings);
+    window.addEventListener(openSettings, handleOpenSettings);
     window.addEventListener(openFeedback, handleOpenFeedback);
-    window.addEventListener('open-user-info', handleOpenUserInfo);
-    window.addEventListener('open-report-error', handleOpenReportError);
+    window.addEventListener(openUserInfo, handleOpenUserInfo);
+    window.addEventListener(openReportError, handleOpenReportError);
 
     return () => {
-      window.removeEventListener('open-settings', handleOpenSettings);
+      window.removeEventListener(openSettings, handleOpenSettings);
       window.removeEventListener(openFeedback, handleOpenFeedback);
-      window.removeEventListener('open-user-info', handleOpenUserInfo);
-      window.removeEventListener('open-report-error', handleOpenReportError);
+      window.removeEventListener(openUserInfo, handleOpenUserInfo);
+      window.removeEventListener(openReportError, handleOpenReportError);
     };
   }, [handleOpenSettings, handleOpenFeedback, handleOpenUserInfo, handleOpenReportError]);
 
