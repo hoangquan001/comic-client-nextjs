@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
+import { MessageCircle } from 'lucide-react';
 
 const ChatBox = dynamic(() => import('@/components/common/chat-box/chat-box'), { ssr: false });
 
@@ -11,15 +12,22 @@ export function ChatBubble() {
   return (
     <>
       {!showChat && (
-        <button
-          onClick={() => setShowChat(true)}
-          className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-primary-100 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform border-none cursor-pointer"
-          aria-label="Trợ lý AI"
-        >
-          <svg className="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-          </svg>
-        </button>
+        <div className="fixed bottom-4 right-4 z-50 sm:bottom-6 sm:right-6">
+          <button
+            onClick={() => setShowChat(true)}
+            className="relative flex size-12 cursor-pointer items-center justify-center rounded-full border-none bg-primary-100 text-white shadow-2xl transition-all duration-300 hover:scale-110 hover:bg-primary-200 focus:outline-none focus:ring-4 focus:ring-primary-100/50"
+            aria-label="Mở chat"
+            title="Mở chat"
+          >
+            <span className="relative">
+              <MessageCircle className="h-7 w-7" strokeWidth={2} />
+            </span>
+          </button>
+          <div className="pointer-events-none absolute bottom-full right-0 mb-3 opacity-0 transition-opacity duration-200">
+            <span className="whitespace-nowrap rounded-lg bg-neutral-900 px-3 py-2 text-sm text-white">Tin nhắn mới</span>
+            <div className="absolute right-4 top-full h-0 w-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-neutral-900" />
+          </div>
+        </div>
       )}
       {showChat && <ChatBox isVisible onClose={() => setShowChat(false)} />}
     </>

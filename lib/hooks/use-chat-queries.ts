@@ -58,8 +58,9 @@ export function useTopUsers(page = 1, size = 10) {
 export function useSendMessage() {
   const queryClient = useQueryClient();
   return useMutation({
+
     mutationFn: (data: ISendMessage) =>
-      clientFetch<IServiceResponse<IMessage>>('/chat/send', {
+      clientFetch<IServiceResponse<IMessage>>('/chat/message', {
         method: 'POST',
         data,
       }),
