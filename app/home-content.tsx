@@ -1,4 +1,4 @@
-import { GridComic, Pagination, TopList, AnnouncementBanner, RecentRead, TopUsers, SimpleCarousel } from '@/components/common';
+import { GridComic, Pagination, TopList, AnnouncementBanner, RecentRead, TopUsers, SimpleCarousel, RecentCommentsPanel } from '@/components/common';
 import { getServerCookie, getServerGridType } from '@/lib/utils/cookie';
 import type { Announcement, ComicList, Comic } from '@/types';
 import { Suspense } from 'react';
@@ -43,8 +43,8 @@ export default async function HomeContent({ page, comics: initialComics, carouse
         <div className="flex flex-col gap-4">
           <Suspense>
             <TopList />
-            {/* <RecentCommentsPanel /> */}
             <TopUsers />
+            <RecentCommentsPanel />
           </Suspense>
         </div>
 

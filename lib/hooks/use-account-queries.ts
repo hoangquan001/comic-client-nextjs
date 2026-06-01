@@ -162,6 +162,7 @@ export function useAddComment() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['comments'] });
+      queryClient.invalidateQueries({ queryKey: ['recentComment'] });
     },
   });
 }

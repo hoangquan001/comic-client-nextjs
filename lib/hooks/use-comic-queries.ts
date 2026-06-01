@@ -13,6 +13,8 @@ import type {
   ComicStatus,
   SortType,
   UserExpType,
+  CommentList,
+  Comment
 } from '@/types';
 
 function unwrap<T>(res: IServiceResponse<T>): T {
@@ -219,4 +221,16 @@ export function useChapterServer(serverId: number | null) {
       ).then(unwrap),
     enabled: !!serverId,
   });
+}
+
+export function useRecentComments(enable = true) {
+  return useQuery({
+    queryKey: ['recentComment'],
+    queryFn: () =>
+      clientFetch<IServiceResponse<Comment[]>>(`/comments/latest`).then(
+        unwrap
+      ),
+    enabled: enable
+  });
+
 }

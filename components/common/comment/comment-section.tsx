@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useRef, type ReactNode } from 'react';
+import { useEffect, useState, useRef, type ReactNode } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/lib/stores/use-auth-store';
 import { useCommentsByComicId, useAddComment } from '@/lib/hooks/use-account-queries';
 import { Pagination } from '@/components/common/pagination/pagination';
@@ -20,6 +21,7 @@ interface CommentSectionProps {
   chapterID: number;
 }
 
+const EMPTY_COMMENTS: Comment[] = [];
 
 function renderEmojiContent(content: string) {
   const nodes: ReactNode[] = [];
@@ -74,6 +76,7 @@ function renderEmojiContent(content: string) {
 
 export default function CommentSection({ comic, chapterID }: CommentSectionProps) {
   const { user, isAuthenticated } = useAuthStore();
+  const searchParams = useSearchParams();
   const [currentPage, setCurrentPage] = useState(1);
   const [showEmoji, setShowEmoji] = useState(false);
   const [showEmoji2, setShowEmoji2] = useState(false);
@@ -81,9 +84,16 @@ export default function CommentSection({ comic, chapterID }: CommentSectionProps
   const [replyContent, setReplyContent] = useState('');
   const [replyCommentId, setReplyCommentId] = useState<number | null>(null);
   const [replyUserId, setReplyUserId] = useState(-1);
-  const [expandedReplies, setExpandedReplies] = useState<Set<number>>(new Set());
+  const targetCommentId = searchParams.get('comment');
+  const targetParentCommentId = searchParams.get('parent');
+  const [expandedReplies, setExpandedReplies] = useState<Set<number>>(() => {
+    const parentId = Number(targetParentCommentId);
+    return parentId ? new Set([parentId]) : new Set();
+  });
   const sectionRef = useRef<HTMLElement>(null);
   const shouldLoadComments = useInViewport(sectionRef, { once: true });
+  const shouldLoadTargetComment = Boolean(targetCommentId || targetParentCommentId);
+  const shouldFetchComments = shouldLoadComments || shouldLoadTargetComment;
   const emojiRef = useRef<HTMLDivElement>(null);
   useClickOutside(emojiRef, () => { setShowEmoji(false); setShowEmoji2(false); });
   const emojiRef2 = useRef<HTMLDivElement>(null);
@@ -92,13 +102,39 @@ export default function CommentSection({ comic, chapterID }: CommentSectionProps
     comic.id,
     currentPage,
     10,
-    shouldLoadComments
+    shouldFetchComments
   );
   const addCommentMutation = useAddComment();
 
-  const comments = commentData?.comments ?? [];
+  const comments = commentData?.comments ?? EMPTY_COMMENTS;
   const totalPages = commentData?.totalpage ?? 0;
   const commentsCount = comments.reduce((t, c) => t + 1 + (c.replies?.length || 0), 0);
+
+  useEffect(() => {
+    const parentId = Number(targetParentCommentId);
+    if (!parentId) return;
+
+    const timer = window.setTimeout(() => {
+      setExpandedReplies((prev) => {
+        if (prev.has(parentId)) return prev;
+        const next = new Set(prev);
+        next.add(parentId);
+        return next;
+      });
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [targetParentCommentId]);
+
+  useEffect(() => {
+    if (!targetCommentId || comments.length === 0) return;
+
+    const timer = window.setTimeout(() => {
+      document.getElementById(`id${targetCommentId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 150);
+
+    return () => window.clearTimeout(timer);
+  }, [comments, expandedReplies, targetCommentId]);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -218,7 +254,7 @@ export default function CommentSection({ comic, chapterID }: CommentSectionProps
             <div className="text-sm text-neutral-600 dark:text-neutral-400">Chia sẻ cảm nhận của bạn về truyện</div>
           </div>
           <span className="rounded-full bg-primary-100/10 px-3 py-1 text-sm font-bold text-primary-100">
-            {shouldLoadComments && !isLoading ? commentsCount : '...'}
+            {shouldFetchComments && !isLoading ? commentsCount : '...'}
           </span>
         </div>
       </div>
@@ -277,13 +313,13 @@ export default function CommentSection({ comic, chapterID }: CommentSectionProps
         </div>
       )}
 
-      {!shouldLoadComments && (
+      {!shouldFetchComments && (
         <div className="rounded-xl border border-dashed border-neutral-300 bg-white/80 px-5 py-8 text-center text-sm text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800/60 dark:text-neutral-400">
           Bình luận sẽ được tải khi bạn cuộn đến khu vực này.
         </div>
       )}
 
-      {shouldLoadComments && isLoading && (
+      {shouldFetchComments && isLoading && (
         <div className="space-y-3">
           {[1, 2].map((item) => (
             <div key={item} className="animate-pulse rounded-xl border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-800">
@@ -299,20 +335,20 @@ export default function CommentSection({ comic, chapterID }: CommentSectionProps
         </div>
       )}
 
-      {shouldLoadComments && isError && (
+      {shouldFetchComments && isError && (
         <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-300">
           Không thể tải bình luận lúc này. Vui lòng thử lại sau.
         </div>
       )}
 
-      {shouldLoadComments && !isLoading && !isError && comments.length === 0 && (
+      {shouldFetchComments && !isLoading && !isError && comments.length === 0 && (
         <div className="rounded-xl border border-dashed border-neutral-300 bg-white px-5 py-10 text-center dark:border-neutral-700 dark:bg-neutral-800">
           <p className="font-medium text-neutral-700 dark:text-neutral-200">Chưa có bình luận nào</p>
           <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">Hãy là người đầu tiên chia sẻ cảm nhận về truyện.</p>
         </div>
       )}
 
-      {shouldLoadComments && !isLoading && !isError && comments.length > 0 && (
+      {shouldFetchComments && !isLoading && !isError && comments.length > 0 && (
         <div className="space-y-3">
           {comments.map((comment) => (
             <div key={comment.id} className="space-y-1">
@@ -358,7 +394,7 @@ export default function CommentSection({ comic, chapterID }: CommentSectionProps
         </div>
       )}
 
-      {shouldLoadComments && totalPages > 1 && (
+      {shouldFetchComments && totalPages > 1 && (
         <div className="border-t border-neutral-200 pt-3 dark:border-neutral-700">
           <Pagination currentPage={currentPage} totalpage={totalPages} onChange={setCurrentPage} />
         </div>

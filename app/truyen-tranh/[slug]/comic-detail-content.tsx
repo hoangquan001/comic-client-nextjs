@@ -56,7 +56,6 @@ export default function ComicDetailContent({ comic: initialComic, gridType }: Co
 
   const keywords = useMemo(() => {
     const kws = generateComicKeywords(comic);
-    if (lastChapter) kws.push(...generateChapterKeywords(comic, lastChapter));
     return [...new Set(kws)].map((kw) => ({
       title: kw,
       href: `/tim-truyen?query=${encodeURIComponent(kw)}`,
@@ -385,8 +384,8 @@ export default function ComicDetailContent({ comic: initialComic, gridType }: Co
         <div className="flex flex-col col-span-4 2xl:col-span-1 gap-4 mx-2 2xl:mt-4">
           <Suspense fallback={<div>Loading...</div>} >
             <TopList />
-            <RecentCommentsPanel />
             <TopUsers />
+            <RecentCommentsPanel />
           </Suspense>
         </div>
       </div>

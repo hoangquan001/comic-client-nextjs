@@ -153,12 +153,13 @@ export const useHistoryStore = create<HistoryState>((set, get) => {
 
           const activeHistory = mergeHistories(get().listHistory, localHistory);
           const merged = mergeHistories(activeHistory, remoteHistory);
+          console.log(merged);
           const syncedHistory = localHistory.length > 0
             ? await replaceRemoteHistory(merged)
             : merged;
           if (get().authenticatedUserId !== userId) return;
 
-          if (localHistory.length > 0) saveLocalHistory([]);
+          if (localHistory.length > 0) saveLocalHistory(localHistory.slice(0, MAX_HISTORY));
           set({ listHistory: syncedHistory, syncStatus: 'synced' });
         } catch {
           if (get().authenticatedUserId === userId) {

@@ -23,17 +23,17 @@ interface HistoryContentProps {
 }
 
 export default function HistoryContent({ page, gridType }: HistoryContentProps) {
-  const { listHistory, initialize, removeHistory } = useHistoryStore();
+  const { listHistory, initialize, removeHistory, initialized } = useHistoryStore();
   const [confirmComic, setConfirmComic] = useState<Comic | null>(null);
-
+  const comics =  listHistory.slice((page - 1) * COMICS_PER_PAGE, page * COMICS_PER_PAGE);
   useEffect(() => { initialize(); }, [initialize]);
 
   const totalpage = Math.max(1, Math.ceil(listHistory.length / COMICS_PER_PAGE));
-  const pageIds = listHistory
-    .slice((page - 1) * COMICS_PER_PAGE, page * COMICS_PER_PAGE)
-    .map((c) => c.id);
+  // const pageIds = listHistory
+  //   .slice((page - 1) * COMICS_PER_PAGE, page * COMICS_PER_PAGE)
+  //   .map((c) => c.id);
 
-  const { data: comics, isLoading } = useComicsByIds(pageIds);
+  // const { data: comics, isLoading } = useComicsByIds(pageIds);
 
   const handleRemove = (comic: Comic) => setConfirmComic(comic);
   const confirmRemove = () => {
@@ -49,11 +49,11 @@ export default function HistoryContent({ page, gridType }: HistoryContentProps) 
         { label: 'Lịch sử', href: '/lich-su' },
       ]} />
       <div className="mt-4">
-        {isLoading ? (
+        {!initialized ? (
           <Spinner />
         ) : comics && comics.length > 0 ? (
           <>
-            <GridComic title="Lịch sử" listComics={comics} defaultGridType={gridType} 
+            <GridComic alwayType={0} title="Lịch sử" listComics={comics}
             actionClick={handleRemove}
             actionTemplate={
               <span

@@ -202,7 +202,7 @@ export default function LoopScroll<T>({
   return (
     <div
       ref={containerRef}
-      className="w-full overflow-y-auto overflow-x-hidden relative min-h-0"
+      className="w-full overflow-y-auto overflow-x-hidden relative min-h-0 scrollbar-style-1"
       onScroll={handleScroll}
     >
       <div style={{ height: totalHeight, position: 'relative' }}>

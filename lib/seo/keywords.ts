@@ -64,10 +64,10 @@ export function generateLongTailKeywords(
 
 export function generateComicKeywords(comic: Comic, count = 8): string[] {
   const keywords = generateLongTailKeywords(comic.title, 'comic');
-  if (comic.genres) {
-    const genreKeywords = comic.genres.map((g) => `truyện ${g.title}`);
-    keywords.push(...genreKeywords);
-  }
+  // if (comic.genres) {
+  //   const genreKeywords = comic.genres.map((g) => `truyện ${g.title}`);
+  //   keywords.push(...genreKeywords);
+  // }
   if (comic.status === 1) keywords.push(`${comic.title} đã hoàn thành`);
   return keywords.slice(0, count);
 }

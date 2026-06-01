@@ -38,8 +38,8 @@ export default function TopUsers() {
     <div ref={ref} className="w-full bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700  overflow-hidden">
       <div className="w-full flex items-center justify-center py-3 bg-neutral-50 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700 uppercase">
         <div className="flex items-center gap-2">
-          <svg className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-          <h3 className="text-base sm:text-lg font-bold text-gray-700 dark:text-light-text">Top Cao Thủ</h3>
+          {/* <svg className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg> */}
+          <h3 className="text-base sm:text-md font-bold text-gray-700 dark:text-light-text">Phong thần bảng</h3>
         </div>
       </div>
 

@@ -16,6 +16,7 @@ interface GridComicProps {
   emptyTemplate?: React.ReactNode;
   defaultGridType?: number;
   actionClick?: (comic: Comic) => void;
+  alwayType?: number;
 }
 
 const CLASS_SMALL =
@@ -33,6 +34,7 @@ export function GridComic({
   actionClick,
   emptyTemplate,
   defaultGridType = 0,
+  alwayType
 }: GridComicProps) {
 
   const cardSizeSetting = useSettingsStore(
@@ -43,7 +45,7 @@ export function GridComic({
     (state) => state.settings.gridType
   );
 
-  const gridType = defaultGridType ?? parseInt(gridTypeSetting as string, 0) ?? 0;
+  const gridType = alwayType ?? defaultGridType ?? parseInt(gridTypeSetting as string, 0) ?? 0;
   const cardSize = cardSizeSetting === 'small' ? 'small' : 'medium';
   const [gridTypeState, setGridTypeState] = useState(gridType);
 
@@ -88,6 +90,7 @@ export function GridComic({
 
             {/* List View Button */}
             <button
+              disabled= {alwayType !== undefined}
               onClick={() => handleChangeGridType(1)}
               title="Xem dạng danh sách"
               aria-label="Chuyển sang chế độ xem danh sách"

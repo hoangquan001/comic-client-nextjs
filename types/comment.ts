@@ -2,6 +2,7 @@ export interface Comment {
   id: number;
   chapterID: number;
   comicID: number;
+  comicSlug?: string;
   userID: number;
   content: string;
   commentedAt: Date;

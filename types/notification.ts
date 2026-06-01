@@ -6,4 +6,5 @@ export interface INotification {
   isRead: boolean;
   type: number;
   params?: string;
+  link?: string;
 }

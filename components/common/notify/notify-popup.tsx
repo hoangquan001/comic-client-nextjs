@@ -16,6 +16,7 @@ interface NotifyPopupProps {
 type DisplayNotification = INotification & {
   comic_title?: string;
   link?: string;
+  reply_user_name?: string;
 };
 
 export default function NotifyPopup({ enabled = true, onClose }: NotifyPopupProps) {
@@ -36,6 +37,7 @@ export default function NotifyPopup({ enabled = true, onClose }: NotifyPopupProp
       } catch {}
       const merged = { ...notification, ...parsed };
       if (notification.type === 0) merged.content = `<b>${merged.comic_title || 'Truyện'}</b> đã ra chapter mới.`;
+      if (notification.type === 2 && !merged.content) merged.content = `<b>${merged.reply_user_name || 'Một người dùng'}</b> đã phản hồi bình luận của bạn.`;
       return merged;
     }),
     [rawData]

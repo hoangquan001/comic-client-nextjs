@@ -99,4 +99,7 @@ export class ComicAPI {
         return publicFetch<IServiceResponse<ChapterPage>>(`/comic/${slug}/chapter/${chapterkey}`)
             .then(unwrap);
     }
+
+
+
 }
