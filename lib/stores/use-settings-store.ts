@@ -13,7 +13,7 @@ import {
 interface SettingsState {
   settings: SettingsRecord;
   initialized: boolean;
-  initialize: () => void;
+  initialize: (initialSettings?: SettingsRecord) => void;
   getSettingValue: (id: string) => SettingValue | undefined;
   getSetting: (id: string) => EnhancedSettingOption | undefined;
   setSettingValue: (id: string, value: SettingValue) => void;
@@ -30,9 +30,9 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   settings: createDefaultSettings(),
   initialized: false,
 
-  initialize: () => {
+  initialize: (initialSettings) => {
     if (get().initialized) return;
-    const settings = loadSettingsFromCookie();
+    const settings = initialSettings ?? loadSettingsFromCookie();
     set({ settings, initialized: true });
   },
 

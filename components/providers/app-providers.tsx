@@ -5,8 +5,9 @@ import { QueryProvider } from './query-provider';
 import { useHistoryStore } from '@/lib/stores/use-history-store';
 import { useSettingsStore } from '@/lib/stores/use-settings-store';
 import { initializeAuth, useAuthStore } from '@/lib/stores/use-auth-store';
+import type { SettingsRecord } from '@/types';
 
-function StoreInitializer() {
+function StoreInitializer({ initialSettings }: { initialSettings?: SettingsRecord }) {
   const initializeHistory = useHistoryStore((state) => state.initialize);
   const syncHistoryForUser = useHistoryStore((state) => state.syncForUser);
   const initializeSettings = useSettingsStore((state) => state.initialize);
@@ -14,9 +15,9 @@ function StoreInitializer() {
   useEffect(() => {
     initializeAuth();
     initializeHistory();
-    initializeSettings();
+    initializeSettings(initialSettings);
 
-  }, [initializeHistory, initializeSettings]);
+  }, [initializeHistory, initializeSettings, initialSettings]);
 
   useEffect(() => {
     void syncHistoryForUser(userId);
@@ -25,11 +26,17 @@ function StoreInitializer() {
   return null;
 }
 
-export function AppProviders({ children }: { children: React.ReactNode }) {
+export function AppProviders({
+  children,
+  initialSettings,
+}: {
+  children: React.ReactNode;
+  initialSettings?: SettingsRecord;
+}) {
 
   return (
     <QueryProvider>
-        <StoreInitializer />
+        <StoreInitializer initialSettings={initialSettings} />
         {children}
     </QueryProvider>
   );

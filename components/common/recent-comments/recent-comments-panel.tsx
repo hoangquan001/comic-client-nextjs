@@ -1,15 +1,11 @@
 'use client';
 import Image from 'next/image';
 import { useRecentComments } from '@/lib/hooks';
-import { dateAgo } from '@/lib/utils/date';
-import type {
-  Comment
-} from '@/types'
-import { ReactNode } from 'react';
+import { ReactNode, useRef } from 'react';
 import Link from 'next/link';
-import { getChapterDetailUrl2 } from '@/lib/utils/url';
 import { Spinner } from '../spinner/spinner';
 import { openUserInfo } from '@/lib/utils/event.define';
+import { useInViewport } from '@/lib/hooks/use-in-viewport';
 function renderEmojiContent(content: string) {
   const nodes: ReactNode[] = [];
   const emojiRegex = /<e>(.*?)<\/e>/g;
@@ -61,14 +57,21 @@ function renderEmojiContent(content: string) {
   return nodes;
 }
 export default function RecentCommentsPanel() {
-
-  const { data, isLoading, isError, error } = useRecentComments();
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInViewport(ref, { rootMargin: '200px', once: true });
+  const { data, isLoading, isError } = useRecentComments(inView);
   const comments = data ?? [];
+
   function showUserInfo(userId: number) {
     window.dispatchEvent(new CustomEvent(openUserInfo, { detail: { userId } }));
   }
+
+  if (!inView) {
+    return <div ref={ref} className="min-h-80 w-full" aria-hidden="true" />;
+  }
+
   return (
-    <div className="overflow-hidden rounded-lg border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-800">
+    <div ref={ref} className="overflow-hidden rounded-lg border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-800">
       <div className="border-b border-neutral-200 bg-neutral-50 px-3 py-3 dark:border-neutral-700 dark:bg-neutral-800">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-100/10 text-primary-100 dark:bg-primary-100/20">

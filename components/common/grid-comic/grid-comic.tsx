@@ -148,7 +148,7 @@ export function GridComic({
 
               </div>)
               : (
-                <ComicCard key={comic?.id ?? index} comic={comic} eager={index < 2} />
+                <ComicCard key={comic?.id ?? index} comic={comic} eager={index < 4} />
               )
             )
           ))}

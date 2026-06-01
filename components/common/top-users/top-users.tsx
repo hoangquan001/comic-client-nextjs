@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useRef } from 'react';
 import Image from 'next/image';
 import { useQuery } from '@tanstack/react-query';
 import { clientFetch } from '@/lib/api/client-fetch';
@@ -9,20 +9,15 @@ import type { IUserLite, IServiceResponse } from '@/types';
 import { formatNumber } from '@/lib/utils/number';
 import { openUserInfo } from '@/lib/utils/event.define';
 import { getLevel } from '@/lib/constants';
+import { useInViewport } from '@/lib/hooks/use-in-viewport';
 
 function getDisplayName(user: IUserLite) {
   return [user.firstName, user.lastName].filter(Boolean).join(' ') || user.username || 'User';
 }
 
 export default function TopUsers() {
-  const [inView, setInView] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setInView(true); }, { rootMargin: '200px' });
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
+  const inView = useInViewport(ref, { rootMargin: '200px', once: true });
 
   const { data: topUsers = [], isLoading } = useQuery({
     queryKey: ['topUsers'],
@@ -32,6 +27,10 @@ export default function TopUsers() {
 
   function showUserInfo(userId: number) {
     window.dispatchEvent(new CustomEvent(openUserInfo, { detail: { userId } }));
+  }
+
+  if (!inView) {
+    return <div ref={ref} className="min-h-80 w-full" aria-hidden="true" />;
   }
 
   return (

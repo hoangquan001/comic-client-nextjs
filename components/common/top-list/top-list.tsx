@@ -75,9 +75,9 @@ export function TopList() {
               key={tab.type}
               onClick={() => setActiveTab(tab.type)}
               type="button"
-              className={`flex items-center gap-2 px-2 py-1.5 md:px-3 md:py-2 text-xs md:text-sm font-medium rounded-md border-none cursor-pointer transition-colors ${
+              className={`flex items-center gap-2 px-2 py-1.5 md:px-3 md:py-2 text-xs md:text-sm font-medium rounded-md border-none cursor-pointer ${
                 activeTab === tab.type
-                  ? 'bg-white dark:bg-neutral-600 text-primary-200 '
+                  ? 'bg-white dark:bg-neutral-600 text-primary-100 dark:text-white'
                   : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white bg-transparent'
               }`}
             >

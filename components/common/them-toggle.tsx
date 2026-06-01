@@ -1,26 +1,11 @@
 'use client';
 
 import { useTheme } from "@/lib/hooks/use-theme";
-import { SettingChangeEvent } from "@/types";
-import { useCallback, useEffect } from "react";
 
 export function ThemeToggle() {
-    const { theme, setTheme } = useTheme();
-  let isDark = theme === 'dark';
-  // console.log(isDark);
-  const handleChangeSettings = useCallback((event: Event) => {
-    const detail = (event as CustomEvent<SettingChangeEvent>).detail;
-    if (detail.key === 'theme') {
-      
-    }
-  }, []);
+  const { resolvedTheme, setTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
 
-  useEffect(() => {
-    window.addEventListener('setting-change', handleChangeSettings);
-    return () => {
-      window.removeEventListener('setting-change', handleChangeSettings);
-    }
-  }, []);
   const toggleTheme = () => {
     setTheme(isDark ? 'light' : 'dark');
   };

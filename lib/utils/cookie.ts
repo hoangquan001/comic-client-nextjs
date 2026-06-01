@@ -1,6 +1,8 @@
 import { cookies } from "next/headers";
 import { StoredSettingsPayload } from "../settings/type";
 import { IUser } from "@/types";
+import type { SettingsRecord } from "@/types";
+import { normalizeSettingsPayload } from "../settings/settings-shared";
 
 export function parseCookie<T>(rawCookie: string | undefined): T | null {
     if (!rawCookie) return null;
@@ -24,9 +26,20 @@ export async function getServerCookie<T>(...args: [name: string] ): Promise<T | 
   
 export async function getServerGridType() : Promise<number>
 {
-      const settings = await getServerCookie<StoredSettingsPayload>('app-settings');
-      const gridType = parseInt(settings?.values?.gridType  ?? '0');
+      const settings = await getServerSettings();
+      const gridType = parseInt(String(settings.gridType ?? '0'));
       return gridType
+}
+
+export async function getServerSettings(): Promise<SettingsRecord> {
+  const settings = await getServerCookie<StoredSettingsPayload>('app-settings');
+  return normalizeSettingsPayload(settings);
+}
+
+export async function getServerTheme(): Promise<'light' | 'dark' | 'auto'> {
+  const settings = await getServerSettings();
+  const theme = settings.theme;
+  return theme === 'dark' || theme === 'auto' ? theme : 'light';
 }
 
 export async function isAuthenticated(): Promise<boolean> {
