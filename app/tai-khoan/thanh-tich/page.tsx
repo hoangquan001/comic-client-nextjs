@@ -1,10 +1,8 @@
 import type { Metadata } from 'next';
 import { EmptyState, PageHeader } from '../_components/account-ui';
+import { generateNoIndexMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = {
-  title: 'Thành tích - MeTruyenMoi',
-  description: 'Xem các huy hiệu và thành tựu đã đạt được',
-};
+export const metadata: Metadata = generateNoIndexMetadata('Thành tích', '/tai-khoan/thanh-tich');
 
 export default function ThanhTichPage() {
   return (

@@ -1,10 +1,8 @@
 import type { Metadata } from 'next';
 import { EmptyState, PageHeader } from '../_components/account-ui';
+import { generateNoIndexMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = {
-  title: 'Thống kê - MeTruyenMoi',
-  description: 'Xem thống kê hoạt động đọc truyện của bạn',
-};
+export const metadata: Metadata = generateNoIndexMetadata('Thống kê', '/tai-khoan/thong-ke');
 
 export default function ThongKePage() {
   return (

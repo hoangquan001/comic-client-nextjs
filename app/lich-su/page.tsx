@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
-import { generateStaticMetadata } from '@/lib/seo/metadata';
+import { generateNoIndexMetadata } from '@/lib/seo/metadata';
 import HistoryContent from './history-content';
 import { getServerGridType } from '@/lib/utils/cookie';
 
 export function generateMetadata(): Metadata {
-  return generateStaticMetadata('Lịch sử', 'Lịch sử đọc truyện tranh tại MeTruyenMoi.', 'lich-su');
+  return generateNoIndexMetadata('Lịch sử đọc truyện', '/lich-su');
 }
 
 interface HistoryPageProps {

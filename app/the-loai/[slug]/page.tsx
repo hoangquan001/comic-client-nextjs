@@ -6,6 +6,8 @@ import { GENRES } from '@/lib/constants/genres';
 import type { ComicList } from '@/types';
 import GenreDetailContent from './genre-detail-content';
 import { getServerGridType } from '@/lib/utils/cookie';
+import { JsonLdScript } from '@/components/seo/json-ld-script';
+import { generateBreadcrumbSchema, generateComicListSchema, generateGenreSchema } from '@/lib/seo/json-ld';
 
 interface GenreDetailPageProps {
   params: Promise<{ slug: string }>;
@@ -36,15 +38,28 @@ export default async function GenreDetailPage({ params, searchParams }: GenreDet
   } catch { }
 
   return (
-    <GenreDetailContent
-      slug={slug}
-      genre={genre}
-      page={page}
-      sort={sort}
-      status={status}
-      gridType={gridType}
-      initialData={initialData}
+    <>
+      <JsonLdScript
+        data={[
+          generateBreadcrumbSchema([
+            { name: 'Trang chủ', url: '/' },
+            { name: 'Thể loại', url: '/the-loai' },
+            { name: genre.title, url: `/the-loai/${slug}` },
+          ]),
+          generateGenreSchema(genre, initialData?.comics),
+          generateComicListSchema(initialData?.comics || [], `Truyện ${genre.title}`, genre.description || undefined),
+        ]}
+      />
+      <GenreDetailContent
+        slug={slug}
+        genre={genre}
+        page={page}
+        sort={sort}
+        status={status}
+        gridType={gridType}
+        initialData={initialData}
 
-    />
+      />
+    </>
   );
 }

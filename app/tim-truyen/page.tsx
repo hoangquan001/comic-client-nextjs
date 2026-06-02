@@ -3,11 +3,9 @@ import { ComicAPI } from '@/lib/api';
 import type { ComicList } from '@/types';
 import SearchContent from './search-content';
 import { getServerGridType } from '@/lib/utils/cookie';
-
-export const metadata: Metadata = {
-  title: 'Tìm truyện tranh - MeTruyenMoi',
-  description: 'Tìm kiếm truyện tranh theo thể loại, trạng thái, năm phát hành.',
-};
+import { generateSearchMetadata } from '@/lib/seo/metadata';
+import { JsonLdScript } from '@/components/seo/json-ld-script';
+import { generateBreadcrumbSchema, generateComicListSchema, generateSearchSchema } from '@/lib/seo/json-ld';
 
 interface SearchPageProps {
   searchParams: Promise<{
@@ -19,6 +17,11 @@ interface SearchPageProps {
     year?: string;
     keyword?: string;
   }>;
+}
+
+export async function generateMetadata({ searchParams }: SearchPageProps): Promise<Metadata> {
+  const sp = await searchParams;
+  return generateSearchMetadata(sp.keyword);
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
@@ -45,16 +48,29 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   } catch {}
 
   return (
-    <SearchContent
-      page={page}
-      sort={sort}
-      status={status}
-      genres={genres}
-      nogenres={nogenres}
-      year={year}
-      keyword={keyword}
-      initialData={initialData}
-      gridType={gridType}
-    />
+    <>
+      <JsonLdScript
+        data={[
+          generateBreadcrumbSchema([
+            { name: 'Trang chủ', url: '/' },
+            { name: 'Tìm truyện', url: '/tim-truyen' },
+          ]),
+          keyword
+            ? generateSearchSchema(keyword, initialData?.comics.length)
+            : generateComicListSchema(initialData?.comics || [], 'Tìm kiếm truyện tranh', 'Danh sách truyện tranh theo bộ lọc tìm kiếm'),
+        ]}
+      />
+      <SearchContent
+        page={page}
+        sort={sort}
+        status={status}
+        genres={genres}
+        nogenres={nogenres}
+        year={year}
+        keyword={keyword}
+        initialData={initialData}
+        gridType={gridType}
+      />
+    </>
   );
 }

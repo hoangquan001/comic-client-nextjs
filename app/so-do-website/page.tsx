@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { generateStaticMetadata } from '@/lib/seo/metadata';
+import { JsonLdScript } from '@/components/seo/json-ld-script';
+import { generateBreadcrumbSchema } from '@/lib/seo/json-ld';
 
 export function generateMetadata(): Metadata {
   return generateStaticMetadata(
@@ -13,6 +15,12 @@ export function generateMetadata(): Metadata {
 export default function HtmlSitemapPage() {
   return (
     <section className="lg:container mx-auto w-full px-3 py-8">
+      <JsonLdScript
+        data={generateBreadcrumbSchema([
+          { name: 'Trang chủ', url: '/' },
+          { name: 'Sơ đồ website', url: '/so-do-website' },
+        ])}
+      />
       <div className="bg-white/90 dark:bg-zinc-900/80 rounded-2xl border border-zinc-200/60 dark:border-zinc-800 shadow-lg backdrop-blur-sm p-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-primary-100 mb-3">Sơ đồ website</h1>

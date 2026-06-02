@@ -1,12 +1,9 @@
 import type { Metadata } from 'next';
 import FollowedContent from './followed-content';
 import { getServerGridType, isAuthenticated } from '@/lib/utils/cookie';
+import { generateNoIndexMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = {
-  title: 'Truyện theo dõi - MeTruyenMoi',
-  description: 'Danh sách truyện tranh bạn đang theo dõi.',
-  robots: 'noindex',
-};
+export const metadata: Metadata = generateNoIndexMetadata('Truyện theo dõi', '/theo-doi');
 
 interface FollowedPageProps {
   searchParams: Promise<{ page?: string }>;

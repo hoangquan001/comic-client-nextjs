@@ -11,14 +11,68 @@ import { Suspense } from 'react';
 import NextTopLoader from 'nextjs-toploader';
 import { getServerSettings } from '@/lib/utils/cookie';
 import { ThemeProvider } from '@/components/providers/theme-provider';
+import { JsonLdScript } from '@/components/seo/json-ld-script';
+import { generateOrganizationSchema, generateWebsiteSchema } from '@/lib/seo/json-ld';
 
 export const metadata: Metadata = {
-  title: `${config.APP_NAME} - Đọc Truyện Tranh Online`,
+  metadataBase: new URL(config.BASE_URL),
+  title: {
+    default: `${config.APP_NAME} - Đọc Truyện Tranh Online Miễn Phí`,
+    template: `%s | ${config.APP_NAME}`,
+  },
   description: `Đọc truyện tranh online miễn phí tại ${config.APP_NAME}. Kho truyện manga, manhwa, manhua khổng lồ, cập nhật liên tục.`,
+  applicationName: config.APP_NAME,
+  generator: 'Next.js',
+  referrer: 'origin-when-cross-origin',
+  creator: config.APP_NAME,
+  publisher: config.APP_NAME,
+  category: 'entertainment',
+  classification: 'Manga, Manhwa, Manhua, Truyện tranh',
+  alternates: {
+    canonical: '/',
+  },
+  manifest: '/manifest.webmanifest',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'vi_VN',
+    url: config.BASE_URL,
+    siteName: config.APP_NAME,
+    title: `${config.APP_NAME} - Đọc Truyện Tranh Online Miễn Phí`,
+    description: `Đọc truyện tranh online miễn phí tại ${config.APP_NAME}. Cập nhật manga, manhwa, manhua nhanh nhất.`,
+    images: [
+      {
+        url: '/logo.png',
+        width: 1200,
+        height: 630,
+        alt: config.APP_NAME,
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `${config.APP_NAME} - Đọc Truyện Tranh Online Miễn Phí`,
+    description: `Đọc truyện tranh online miễn phí tại ${config.APP_NAME}.`,
+    images: ['/logo.png'],
+  },
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon.ico",
-    apple: "/apple-icon.png",
+  },
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
   },
 };
 
@@ -39,6 +93,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body>
+        <JsonLdScript data={[generateWebsiteSchema(), generateOrganizationSchema()]} />
 
         <AppProviders initialSettings={initialSettings}>
           <ThemeProvider>

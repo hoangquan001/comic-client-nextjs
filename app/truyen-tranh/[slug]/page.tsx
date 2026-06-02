@@ -5,6 +5,8 @@ import { generateComicMetadata } from '@/lib/seo/metadata';
 import type { Comic } from '@/types';
 import ComicDetailContent from './comic-detail-content';
 import { getServerGridType } from '@/lib/utils/cookie';
+import { JsonLdScript } from '@/components/seo/json-ld-script';
+import { generateBreadcrumbSchema, generateComicFAQSchema, generateComicSchema } from '@/lib/seo/json-ld';
 interface ComicDetailPageProps {
   params: Promise<{ slug: string }>;
 }
@@ -38,6 +40,19 @@ export default async function ComicDetailPage({ params }: ComicDetailPageProps) 
   const gridType = await getServerGridType();
 
   return (
+    <>
+      <JsonLdScript
+        data={[
+          generateBreadcrumbSchema([
+            { name: 'Trang chủ', url: '/' },
+            { name: 'Truyện tranh', url: '/tim-truyen' },
+            { name: comic.title, url: `/truyen-tranh/${comic.url}` },
+          ]),
+          generateComicSchema(comic),
+          generateComicFAQSchema(comic),
+        ]}
+      />
       <ComicDetailContent comic={comic} gridType={gridType} />
+    </>
   );
 }

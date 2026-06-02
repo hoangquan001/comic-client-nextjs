@@ -2,17 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { useHistoryStore } from '@/lib/stores/use-history-store';
-import { useComicsByIds } from '@/lib/hooks/use-comic-queries';
+import { useAuthStore } from '@/lib/stores/use-auth-store';
 import { Pagination } from '@/components/common/pagination/pagination';
 import { Breadcrumb } from '@/components/common/breadcrumb/breadcrumb';
 import { Spinner } from '@/components/common/spinner/spinner';
 import { Empty } from '@/components/common/empty/empty';
 import type { Comic } from '@/types';
-import Link from 'next/link';
-import Image from 'next/image';
-import { getComicDetailUrl, getChapterDetailUrl } from '@/lib/utils/url';
-import { dateAgo } from '@/lib/utils/date';
-import { formatNumber } from '@/lib/utils/number';
 import { GridComic } from '@/components/common';
 
 const COMICS_PER_PAGE = 14;
@@ -23,12 +18,33 @@ interface HistoryContentProps {
 }
 
 export default function HistoryContent({ page, gridType }: HistoryContentProps) {
-  const { listHistory, initialize, removeHistory, initialized } = useHistoryStore();
+  const {
+    listHistory,
+    remoteHistory,
+    initialize,
+    loadRemoteHistory,
+    removeHistory,
+    initialized,
+    remoteInitialized,
+    remoteTotalpage,
+    syncStatus,
+  } = useHistoryStore();
+  const userId = useAuthStore((state) => state.user?.id ?? null);
   const [confirmComic, setConfirmComic] = useState<Comic | null>(null);
-  const comics =  listHistory.slice((page - 1) * COMICS_PER_PAGE, page * COMICS_PER_PAGE);
+  const isRemoteHistory = userId !== null && remoteInitialized;
+  const sourceHistory = isRemoteHistory ? remoteHistory : listHistory;
+  const comics = isRemoteHistory
+    ? sourceHistory
+    : sourceHistory.slice((page - 1) * COMICS_PER_PAGE, page * COMICS_PER_PAGE);
   useEffect(() => { initialize(); }, [initialize]);
+  useEffect(() => {
+    if (userId === null) return;
+    void loadRemoteHistory(userId, page);
+  }, [loadRemoteHistory, page, userId]);
 
-  const totalpage = Math.max(1, Math.ceil(listHistory.length / COMICS_PER_PAGE));
+  const totalpage = isRemoteHistory
+    ? Math.max(1, remoteTotalpage)
+    : Math.max(1, Math.ceil(sourceHistory.length / COMICS_PER_PAGE));
   // const pageIds = listHistory
   //   .slice((page - 1) * COMICS_PER_PAGE, page * COMICS_PER_PAGE)
   //   .map((c) => c.id);
@@ -38,7 +54,7 @@ export default function HistoryContent({ page, gridType }: HistoryContentProps) 
   const handleRemove = (comic: Comic) => setConfirmComic(comic);
   const confirmRemove = () => {
     if (!confirmComic) return;
-    removeHistory(confirmComic.id);
+    removeHistory(confirmComic.id, userId !== null && remoteInitialized);
     setConfirmComic(null);
   };
 
@@ -49,11 +65,11 @@ export default function HistoryContent({ page, gridType }: HistoryContentProps) 
         { label: 'Lịch sử', href: '/lich-su' },
       ]} />
       <div className="mt-4">
-        {!initialized ? (
+        {!initialized || (userId !== null && !remoteInitialized && syncStatus === 'syncing') ? (
           <Spinner />
         ) : comics && comics.length > 0 ? (
           <>
-            <GridComic alwayType={0} title="Lịch sử" listComics={comics}
+            <GridComic alwayType={gridType} title="Lịch sử" listComics={comics}
             actionClick={handleRemove}
             actionTemplate={
               <span
@@ -86,5 +102,3 @@ export default function HistoryContent({ page, gridType }: HistoryContentProps) 
     </div>
   );
 }
-
-

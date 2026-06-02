@@ -4,6 +4,8 @@ import { generateChapterMetadata } from '@/lib/seo/metadata';
 import type { ChapterPage } from '@/types';
 import ChapterReaderContent from './chapter-reader-content';
 import { ComicAPI } from '@/lib/api';
+import { JsonLdScript } from '@/components/seo/json-ld-script';
+import { generateBreadcrumbSchema, generateChapterSchema } from '@/lib/seo/json-ld';
 
 interface ChapterPageProps {
   params: Promise<{ slug: string; chapterkey: string }>;
@@ -14,7 +16,7 @@ export async function generateMetadata({ params }: ChapterPageProps): Promise<Me
   try {
     const chapter = await ComicAPI.getChapter({ slug, chapterkey });
     if (!chapter) return { title: 'Không tìm thấy chương' };
-    return generateChapterMetadata(chapter.comic, chapter);
+    return generateChapterMetadata(chapter.comic, chapter, `/truyen-tranh/${slug}/${chapterkey}`);
   } catch {
     return { title: 'Không tìm thấy chương' };
   }
@@ -22,7 +24,7 @@ export async function generateMetadata({ params }: ChapterPageProps): Promise<Me
 
 export default async function ChapterReaderPage({ params }: ChapterPageProps) {
   const { slug, chapterkey } = await params;
-  let chapterData: ChapterPage ;
+  let chapterData: ChapterPage;
   try {
     const chapter = await ComicAPI.getChapter({ slug, chapterkey });
     if (!chapter) notFound();
@@ -39,6 +41,19 @@ export default async function ChapterReaderPage({ params }: ChapterPageProps) {
 
   return (
     <>
+      <JsonLdScript
+        data={[
+          generateBreadcrumbSchema([
+            { name: 'Trang chủ', url: '/' },
+            { name: comic.title, url: `/truyen-tranh/${comic.url}` },
+            {
+              name: `Chương ${chapterData.chapterNumber || chapterData.slug}`,
+              url: `/truyen-tranh/${slug}/${chapterkey}`,
+            },
+          ]),
+          generateChapterSchema(comic, chapterData, `/truyen-tranh/${slug}/${chapterkey}`),
+        ]}
+      />
       <ChapterReaderContent chapterData={chapterData} />
     </>
   );

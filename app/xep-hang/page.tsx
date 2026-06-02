@@ -3,11 +3,13 @@ import { ComicAPI } from '@/lib/api';
 import type { ComicList } from '@/types';
 import RankingContent from './ranking-content';
 import { getServerGridType } from '@/lib/utils/cookie';
+import { generateRankingMetadata } from '@/lib/seo/metadata';
+import { JsonLdScript } from '@/components/seo/json-ld-script';
+import { generateBreadcrumbSchema, generateComicListSchema } from '@/lib/seo/json-ld';
 
-export const metadata: Metadata = {
-  title: 'Xếp hạng truyện tranh - MeTruyenMoi',
-  description: 'Bảng xếp hạng truyện tranh hot nhất tại MeTruyenMoi.',
-};
+export function generateMetadata(): Metadata {
+  return generateRankingMetadata();
+}
 
 interface RankingPageProps {
   searchParams: Promise<{ page?: string; sort?: string; status?: string }>;
@@ -24,5 +26,18 @@ export default async function RankingPage({ searchParams }: RankingPageProps) {
     initialData = await ComicAPI.getComics({ page, step: 35, sort, status }) ?? null;
   } catch {}
 
-  return <RankingContent page={page} sort={sort} status={status} initialData={initialData} gridType={gridType} />;
+  return (
+    <>
+      <JsonLdScript
+        data={[
+          generateBreadcrumbSchema([
+            { name: 'Trang chủ', url: '/' },
+            { name: 'Xếp hạng', url: '/xep-hang' },
+          ]),
+          generateComicListSchema(initialData?.comics || [], 'Xếp hạng truyện tranh', 'Bảng xếp hạng truyện tranh tại MeTruyenMoi'),
+        ]}
+      />
+      <RankingContent page={page} sort={sort} status={status} initialData={initialData} gridType={gridType} />
+    </>
+  );
 }

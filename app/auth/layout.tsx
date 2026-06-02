@@ -1,10 +1,8 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
+import { generateNoIndexMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = {
-  title: 'Tài khoản - MeTruyenMoi',
-  description: 'Đăng nhập hoặc đăng ký tài khoản MeTruyenMoi',
-};
+export const metadata: Metadata = generateNoIndexMetadata('Tài khoản', '/auth');
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -1,11 +1,17 @@
-import type { Metadata } from 'next';
 import TheLoaiContent from './the-loai-content';
-
-export const metadata: Metadata = {
-  title: 'Thể loại truyện - MeTruyenMoi',
-  description: 'Khám phá truyện tranh theo thể loại yêu thích',
-};
+import { JsonLdScript } from '@/components/seo/json-ld-script';
+import { generateBreadcrumbSchema } from '@/lib/seo/json-ld';
 
 export default function TheLoaiPage() {
-  return <TheLoaiContent />;
+  return (
+    <>
+      <JsonLdScript
+        data={generateBreadcrumbSchema([
+          { name: 'Trang chủ', url: '/' },
+          { name: 'Thể loại', url: '/the-loai' },
+        ])}
+      />
+      <TheLoaiContent />
+    </>
+  );
 }

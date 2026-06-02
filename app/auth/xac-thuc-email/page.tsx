@@ -1,11 +1,8 @@
 import type { Metadata } from 'next';
 import ConfirmEmailContent from './xac-thuc-email-content';
+import { generateNoIndexMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = {
-  title: 'Xác thực email - MeTruyenMoi',
-  description: 'Xác thực email tài khoản MeTruyenMoi',
-  robots: 'noindex',
-};
+export const metadata: Metadata = generateNoIndexMetadata('Xác thực email', '/auth/xac-thuc-email');
 
 interface ConfirmEmailPageProps {
   searchParams: Promise<{ mssg?: string }>;

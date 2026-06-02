@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { generateStaticMetadata } from '@/lib/seo/metadata';
+import { JsonLdScript } from '@/components/seo/json-ld-script';
+import { generateBreadcrumbSchema, generateFAQPageSchema } from '@/lib/seo/json-ld';
 
 export function generateMetadata(): Metadata {
   return generateStaticMetadata(
@@ -11,8 +13,36 @@ export function generateMetadata(): Metadata {
 }
 
 export default function FAQPage() {
+  const faqs = [
+    {
+      question: 'Đăng ký tài khoản có lợi ích gì?',
+      answer: 'Bạn có thể theo dõi truyện yêu thích, đồng bộ lịch sử giữa thiết bị, nhận gợi ý phù hợp và bình luận.',
+    },
+    {
+      question: 'Đồng bộ dữ liệu hoạt động thế nào?',
+      answer: 'Tại trang Đồng bộ truyện, bạn có thể nhập dữ liệu theo định dạng hỗ trợ hoặc dùng công cụ import tự động khi khả dụng.',
+    },
+    {
+      question: 'Làm sao để tìm truyện phù hợp?',
+      answer: 'Dùng ô tìm kiếm, lọc theo thể loại tại trang Thể loại, hoặc xem các danh mục như Truyện Hot và Xếp hạng.',
+    },
+    {
+      question: 'Có quảng cáo làm phiền không?',
+      answer: 'MeTruyenMoi hạn chế tối đa các hình thức quảng cáo gây khó chịu để không làm gián đoạn việc đọc.',
+    },
+  ];
+
   return (
     <section className="lg:container mx-auto w-full px-3 py-8">
+      <JsonLdScript
+        data={[
+          generateBreadcrumbSchema([
+            { name: 'Trang chủ', url: '/' },
+            { name: 'Câu hỏi thường gặp', url: '/cau-hoi-thuong-gap' },
+          ]),
+          generateFAQPageSchema(faqs),
+        ]}
+      />
       <div className="bg-white/80 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-6">
         <h1 className="text-2xl font-bold mb-4">Câu hỏi thường gặp</h1>
 

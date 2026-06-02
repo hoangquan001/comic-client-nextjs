@@ -2,11 +2,13 @@ import type { Metadata } from 'next';
 import { ComicAPI } from '@/lib/api';
 import type { ComicList } from '@/types';
 import HotComicsContent from './hot-comics-content';
+import { generateHotComicsMetadata } from '@/lib/seo/metadata';
+import { JsonLdScript } from '@/components/seo/json-ld-script';
+import { generateBreadcrumbSchema, generateComicListSchema } from '@/lib/seo/json-ld';
 
-export const metadata: Metadata = {
-  title: 'Truyện tranh hot - MeTruyenMoi',
-  description: 'Danh sách truyện tranh hot nhất tại MeTruyenMoi.',
-};
+export function generateMetadata(): Metadata {
+  return generateHotComicsMetadata();
+}
 
 interface HotPageProps {
   searchParams: Promise<{ page?: string }>;
@@ -21,5 +23,18 @@ export default async function HotComicsPage({ searchParams }: HotPageProps) {
     initialData = await ComicAPI.getHotComics(page) ?? null;
   } catch {}
 
-  return <HotComicsContent page={page} initialData={initialData} />;
+  return (
+    <>
+      <JsonLdScript
+        data={[
+          generateBreadcrumbSchema([
+            { name: 'Trang chủ', url: '/' },
+            { name: 'Truyện hot', url: '/truyen-hot' },
+          ]),
+          generateComicListSchema(initialData?.comics || [], 'Truyện tranh hot', 'Danh sách truyện tranh hot nhất tại MeTruyenMoi'),
+        ]}
+      />
+      <HotComicsContent page={page} initialData={initialData} />
+    </>
+  );
 }

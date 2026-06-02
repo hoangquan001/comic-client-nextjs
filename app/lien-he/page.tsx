@@ -1,11 +1,20 @@
-import type { Metadata } from 'next';
 import LienHeContent from './lien-he-content';
-
-export const metadata: Metadata = {
-  title: 'Liên hệ - MeTruyenMoi',
-  description: 'Liên hệ với đội ngũ hỗ trợ MeTruyenMoi',
-};
+import { JsonLdScript } from '@/components/seo/json-ld-script';
+import { generateBreadcrumbSchema, generateContactPageSchema } from '@/lib/seo/json-ld';
 
 export default function LienHePage() {
-  return <LienHeContent />;
+  return (
+    <>
+      <JsonLdScript
+        data={[
+          generateBreadcrumbSchema([
+            { name: 'Trang chủ', url: '/' },
+            { name: 'Liên hệ', url: '/lien-he' },
+          ]),
+          generateContactPageSchema(),
+        ]}
+      />
+      <LienHeContent />
+    </>
+  );
 }
