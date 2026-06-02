@@ -2,7 +2,7 @@ import Cookies from 'js-cookie';
 import { config } from '@/lib/config';
 
 const REQUEST_TIMEOUT = 15000;
-const API_BASE_URL = `${config.BASE_API_URL.replace(/\/$/, '')}/api`;
+const API_BASE_URL = `${config.BASE_URL.replace(/\/$/, '')}/api`;
 
 interface ClientFetchOptions {
   method?: string;

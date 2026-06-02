@@ -20,7 +20,7 @@ interface ChatBoxProps {
 
 const BOT_INIT_AVATAR = '/option4.png';
 const DEFAULT_AVATAR = '/default_avatar.jpg';
-const API_BASE_URL = `${config.BASE_API_URL.replace(/\/$/, '')}/api`;
+const API_BASE_URL = `${config.BASE_URL.replace(/\/$/, '')}/api`;
 
 function formatDate(value?: string) {
   if (!value) return '';
