@@ -196,10 +196,11 @@ export function generateStaticMetadata(
   });
 }
 
-export function generateNoIndexMetadata(title: string): Metadata {
+export function generateNoIndexMetadata(title: string, path = '/'): Metadata {
   return generatePageMetadata({
     title,
     description: `${title} tại ${config.APP_NAME}.`,
+    path,
     noIndex: true,
   });
 }

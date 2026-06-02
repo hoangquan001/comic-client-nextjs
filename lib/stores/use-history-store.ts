@@ -1,8 +1,9 @@
 import { create } from 'zustand';
 import { clientFetch } from '@/lib/api/client-fetch';
-import type { Chapter, Comic, IServiceResponse } from '@/types';
+import type { Chapter, Comic, ComicList, IServiceResponse } from '@/types';
 
-const MAX_HISTORY = 48;
+const MAX_LOCAL_HISTORY = 40;
+const REMOTE_HISTORY_PAGE_SIZE = 14;
 const STORAGE_KEY = 'history';
 const REMOTE_HISTORY_PATH = '/user/history';
 
@@ -15,24 +16,29 @@ interface HistorySyncItem {
 
 interface HistoryState {
   listHistory: Comic[];
+  remoteHistory: Comic[];
   initialized: boolean;
   authenticatedUserId: number | null;
   syncStatus: SyncStatus;
+  remoteInitialized: boolean;
+  remotePage: number;
+  remoteTotalpage: number;
   initialize: () => void;
   syncForUser: (userId: number | null) => Promise<void>;
+  loadRemoteHistory: (userId: number | null, page?: number) => Promise<void>;
   saveHistory: (comic: Comic) => void;
-  removeHistory: (comicId: number) => void;
+  removeHistory: (comicId: number, syncRemote?: boolean) => void;
   clearHistory: () => void;
 }
 
-let remoteWriteQueue = Promise.resolve();
+let remoteSyncQueue = Promise.resolve();
 
 function loadLocalHistory(): Comic[] {
   if (typeof window === 'undefined') return [];
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     const parsed = stored ? JSON.parse(stored) : [];
-    return Array.isArray(parsed) ? parsed.slice(0, MAX_HISTORY) : [];
+    return Array.isArray(parsed) ? parsed.slice(0, MAX_LOCAL_HISTORY) : [];
   } catch {
     return [];
   }
@@ -40,7 +46,7 @@ function loadLocalHistory(): Comic[] {
 
 function saveLocalHistory(list: Comic[]) {
   if (typeof window === 'undefined') return;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(list.slice(0, MAX_HISTORY)));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(list.slice(0, MAX_LOCAL_HISTORY)));
 }
 
 function mergeChapters(preferred: Chapter[] = [], existing: Chapter[] = []) {
@@ -60,72 +66,124 @@ function mergeComic(preferred: Comic, existing?: Comic): Comic {
   };
 }
 
-function mergeHistories(preferred: Comic[], existing: Comic[]): Comic[] {
+function mergeHistories(preferred: Comic[], existing: Comic[], limit?: number): Comic[] {
   const existingById = new Map(existing.map((comic) => [comic.id, comic]));
   const preferredIds = new Set(preferred.map((comic) => comic.id));
   const mergedPreferred = preferred.map((comic) => mergeComic(comic, existingById.get(comic.id)));
   const remaining = existing.filter((comic) => !preferredIds.has(comic.id));
-  return [...mergedPreferred, ...remaining].slice(0, MAX_HISTORY);
+  const merged = [...mergedPreferred, ...remaining];
+  return typeof limit === 'number' ? merged.slice(0, limit) : merged;
 }
 
 function unwrapHistory(res: IServiceResponse<Comic[]>): Comic[] {
   if (res.status !== 1 && res.status !== 200) {
     throw new Error(res.message || 'Unable to sync reading history');
   }
-  return Array.isArray(res.data) ? res.data.slice(0, MAX_HISTORY) : [];
+  return Array.isArray(res.data) ? res.data : [];
 }
 
-async function getRemoteHistory(): Promise<Comic[]> {
-  return clientFetch<IServiceResponse<Comic[]>>(REMOTE_HISTORY_PATH).then(unwrapHistory);
+function unwrapHistoryPage(res: IServiceResponse<ComicList>): ComicList {
+  if (res.status !== 1 && res.status !== 200) {
+    throw new Error(res.message || 'Unable to load reading history');
+  }
+  return res.data ?? { comics: [], totalpage: 0, page: 1, step: REMOTE_HISTORY_PAGE_SIZE };
+}
+
+async function getRemoteHistoryPage(page: number): Promise<ComicList> {
+  const query = new URLSearchParams({
+    page: String(Math.max(1, page)),
+    size: String(REMOTE_HISTORY_PAGE_SIZE),
+  });
+  return clientFetch<IServiceResponse<ComicList>>(`${REMOTE_HISTORY_PATH}?${query}`).then(unwrapHistoryPage);
 }
 
 async function replaceRemoteHistory(history: Comic[]): Promise<Comic[]> {
-  const payload = history.slice(0, MAX_HISTORY);
   const res = await clientFetch<IServiceResponse<Comic[]>>(REMOTE_HISTORY_PATH, {
     method: 'PUT',
     data: {
-      history: payload.map<HistorySyncItem>((comic) => ({
+      history: history.map<HistorySyncItem>((comic) => ({
         comicId: comic.id,
         chapterIds: comic.chapters?.map((chapter) => chapter.id) ?? [],
       })),
     },
   });
 
-  if ((res.status === 1 || res.status === 200) && !res.data) return payload;
+  if ((res.status === 1 || res.status === 200) && !res.data) return history;
   return unwrapHistory(res);
 }
 
+async function deleteRemoteHistory(comicId: number): Promise<void> {
+  const res = await clientFetch<IServiceResponse<string>>(`${REMOTE_HISTORY_PATH}/${comicId}`, {
+    method: 'DELETE',
+  });
+
+  if (res.status !== 1 && res.status !== 200) {
+    throw new Error(res.message || 'Unable to delete reading history');
+  }
+}
+
 export const useHistoryStore = create<HistoryState>((set, get) => {
-  function queueRemoteWrite(history: Comic[], userId: number) {
-    remoteWriteQueue = remoteWriteQueue
-      .catch(() => undefined)
-      .then(async () => {
-        if (get().authenticatedUserId !== userId) return;
-        try {
-          await replaceRemoteHistory(history);
-          if (get().authenticatedUserId === userId) set({ syncStatus: 'synced' });
-        } catch {
-          if (get().authenticatedUserId === userId) set({ syncStatus: 'error' });
-        }
-      });
+  function persist(history: Comic[]) {
+    saveLocalHistory(history);
   }
 
-  function persist(history: Comic[]) {
-    const userId = get().authenticatedUserId;
-    saveLocalHistory(history);
+  async function syncLocalAndRemote(userId: number) {
+    const localHistory = loadLocalHistory();
+    set({ authenticatedUserId: userId, initialized: true, syncStatus: 'syncing' });
 
-    if (userId === null) {
-      return;
-    }
-    set({ syncStatus: 'syncing' });
-    queueRemoteWrite(history, userId);
+    const syncTask = remoteSyncQueue.catch(() => undefined).then(async () => {
+      try {
+        const activeLocal = mergeHistories(get().listHistory, localHistory, MAX_LOCAL_HISTORY);
+        if (activeLocal.length > 0) await replaceRemoteHistory(activeLocal);
+        if (get().authenticatedUserId !== userId) return;
+
+        const firstPage = await getRemoteHistoryPage(1);
+        if (get().authenticatedUserId !== userId) return;
+
+        const remoteComics = [...(firstPage.comics ?? [])];
+        for (let nextPage = 2; remoteComics.length < MAX_LOCAL_HISTORY && nextPage <= firstPage.totalpage; nextPage++) {
+          const data = await getRemoteHistoryPage(nextPage);
+          if (get().authenticatedUserId !== userId) return;
+          remoteComics.push(...(data.comics ?? []));
+        }
+
+        const nextLocal = remoteComics.slice(0, MAX_LOCAL_HISTORY);
+        saveLocalHistory(nextLocal);
+        set({
+          listHistory: nextLocal,
+          remoteHistory: firstPage.comics ?? [],
+          remotePage: firstPage.page,
+          remoteTotalpage: firstPage.totalpage,
+          remoteInitialized: true,
+          syncStatus: 'synced',
+        });
+      } catch {
+        if (get().authenticatedUserId === userId) {
+          const nextLocal = mergeHistories(get().listHistory, localHistory, MAX_LOCAL_HISTORY);
+          set({
+            listHistory: nextLocal,
+            remoteHistory: [],
+            remoteInitialized: false,
+            remotePage: 1,
+            remoteTotalpage: 0,
+            syncStatus: 'error',
+          });
+        }
+      }
+    });
+    remoteSyncQueue = syncTask;
+    await syncTask;
   }
 
   return {
     listHistory: [],
+    remoteHistory: [],
     initialized: false,
     authenticatedUserId: null,
     syncStatus: 'idle',
+    remoteInitialized: false,
+    remotePage: 1,
+    remoteTotalpage: 0,
 
     initialize: () => {
       if (get().initialized) return;
@@ -137,55 +195,86 @@ export const useHistoryStore = create<HistoryState>((set, get) => {
         set({
           authenticatedUserId: null,
           listHistory: loadLocalHistory(),
+          remoteHistory: [],
           initialized: true,
+          remoteInitialized: false,
+          remotePage: 1,
+          remoteTotalpage: 0,
           syncStatus: 'idle',
         });
         return;
       }
 
-      const localHistory = loadLocalHistory();
-      set({ authenticatedUserId: userId, initialized: true, syncStatus: 'syncing' });
+      await syncLocalAndRemote(userId);
+    },
 
-      const syncTask = remoteWriteQueue.catch(() => undefined).then(async () => {
+    loadRemoteHistory: async (userId, page = 1) => {
+      if (userId === null) {
+        set({ remoteHistory: [], remoteInitialized: false, remotePage: 1, remoteTotalpage: 0, syncStatus: 'idle' });
+        return;
+      }
+
+      set({ authenticatedUserId: userId, syncStatus: 'syncing' });
+      const loadTask = remoteSyncQueue.catch(() => undefined).then(async () => {
         try {
-          const remoteHistory = await getRemoteHistory();
+          const data = await getRemoteHistoryPage(page);
           if (get().authenticatedUserId !== userId) return;
-
-          const activeHistory = mergeHistories(get().listHistory, localHistory);
-          const merged = mergeHistories(activeHistory, remoteHistory);
-          console.log(merged);
-          const syncedHistory = localHistory.length > 0
-            ? await replaceRemoteHistory(merged)
-            : merged;
-          if (get().authenticatedUserId !== userId) return;
-
-          if (localHistory.length > 0) saveLocalHistory(localHistory.slice(0, MAX_HISTORY));
-          set({ listHistory: syncedHistory, syncStatus: 'synced' });
+          set({
+            remoteHistory: data.comics ?? [],
+            remoteInitialized: true,
+            remotePage: data.page,
+            remoteTotalpage: data.totalpage,
+            syncStatus: 'synced',
+          });
         } catch {
           if (get().authenticatedUserId === userId) {
-            set({
-              listHistory: mergeHistories(get().listHistory, localHistory),
-              syncStatus: 'error',
-            });
+            set({ remoteInitialized: false, syncStatus: 'error' });
           }
         }
       });
-      remoteWriteQueue = syncTask;
-      await syncTask;
+      remoteSyncQueue = loadTask;
+      await loadTask;
     },
 
     saveHistory: (comic) => {
       const current = get().initialized ? get().listHistory : loadLocalHistory();
-      const nextHistory = mergeHistories([comic], current);
+      const nextHistory = mergeHistories([comic], current, MAX_LOCAL_HISTORY);
       persist(nextHistory);
       set({ listHistory: nextHistory, initialized: true });
     },
 
-    removeHistory: (comicId) => {
+    removeHistory: (comicId, syncRemote = false) => {
       const current = get().initialized ? get().listHistory : loadLocalHistory();
       const nextHistory = current.filter((comic) => comic.id !== comicId);
+      const nextRemoteHistory = get().remoteHistory.filter((comic) => comic.id !== comicId);
       persist(nextHistory);
-      set({ listHistory: nextHistory, initialized: true });
+      set({
+        listHistory: nextHistory,
+        remoteHistory: nextRemoteHistory,
+        initialized: true,
+      });
+
+      const userId = get().authenticatedUserId;
+      if (!syncRemote || userId === null || !get().remoteInitialized) return;
+
+      set({ syncStatus: 'syncing' });
+      remoteSyncQueue = remoteSyncQueue.catch(() => undefined).then(async () => {
+        try {
+          await deleteRemoteHistory(comicId);
+          if (get().authenticatedUserId !== userId) return;
+          const currentPage = get().remotePage;
+          const data = await getRemoteHistoryPage(currentPage);
+          if (get().authenticatedUserId !== userId) return;
+          set({
+            remoteHistory: data.comics ?? [],
+            remotePage: data.page,
+            remoteTotalpage: data.totalpage,
+            syncStatus: 'synced',
+          });
+        } catch {
+          if (get().authenticatedUserId === userId) set({ syncStatus: 'error' });
+        }
+      });
     },
 
     clearHistory: () => {
