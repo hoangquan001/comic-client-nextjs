@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { MessageCircle } from 'lucide-react';
 
@@ -8,6 +9,10 @@ const ChatBox = dynamic(() => import('@/components/common/chat-box/chat-box'), {
 
 export function ChatBubble() {
   const [showChat, setShowChat] = useState(false);
+  const pathname = usePathname();
+  const isChapterPage = /^\/truyen-tranh\/[^/]+\/[^/]+/.test(pathname);
+
+  if (isChapterPage) return null;
 
   return (
     <>
