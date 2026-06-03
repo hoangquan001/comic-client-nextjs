@@ -21,7 +21,7 @@ export default function ReportErrorForm({ isVisible, chapterID = 0, onClose }: R
 
   const mutation = useMutation({
     mutationFn: (data: { name: string; errorType: string; message: string; chapterid: number }) =>
-      clientFetch('/report-error/send', { method: 'POST', data }),
+      clientFetch('/comic/report', { method: 'POST', data }),
   });
 
   if (!isVisible) return null;

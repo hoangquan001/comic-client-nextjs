@@ -21,7 +21,7 @@ export default function FeedbackForm({ isVisible, onClose }: FeedbackFormProps) 
 
   const mutation = useMutation({
     mutationFn: (data: { mail: string; content: string }) =>
-      clientFetch('/report-error/feedback', { method: 'POST', data }),
+      clientFetch('/comic/feedback', { method: 'POST', data }),
   });
 
 
