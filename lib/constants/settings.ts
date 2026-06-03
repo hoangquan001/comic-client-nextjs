@@ -1,23 +1,6 @@
 import { InputType, SettingCategory } from '@/types';
 import type { EnhancedSettingOption } from '@/types';
 
-export const GRID_SETTING: EnhancedSettingOption = {
-  id: 'gridType',
-  inputType: InputType.Selection,
-  name: '',
-  description: 'Chọn thẻ truyện',
-  value: '0',
-  defaultValue: '0',
-  category: SettingCategory.APPEARANCE,
-  order: 10,
-  icon: '',
-  options: [
-    { label: 'Đơn giản', value: '0' },
-    { label: 'Chi tiết', value: '1' },
-  ],
-  preview: true,
-};
-
 export const THEME_SETTING: EnhancedSettingOption = {
   id: 'theme',
   inputType: InputType.Selection,
@@ -52,22 +35,6 @@ export const PRIMARY_COLOR_SETTING: EnhancedSettingOption = {
     { label: 'Xanh lá', value: '#10B981' },
     { label: 'Tím', value: '#8B5CF6' },
     { label: 'Cam', value: '#F59E0B' },
-  ],
-  preview: true,
-};
-
-export const CARD_COMIC_SIZE_SETTING: EnhancedSettingOption = {
-  id: 'cardComicSize',
-  inputType: InputType.Selection,
-  name: 'Kích thước thẻ truyện',
-  description: 'Chọn kích thước của thẻ truyện',
-  value: 'medium',
-  defaultValue: 'medium',
-  category: SettingCategory.APPEARANCE,
-  order: 4,
-  options: [
-    { label: 'Nhỏ', value: 'small' },
-    { label: 'Vừa', value: 'medium' },
   ],
   preview: true,
 };
@@ -246,10 +213,8 @@ export const DOUBLE_CLICK_TO_FULLSCREEN_SETTING: EnhancedSettingOption = {
 };
 
 export const ENHANCED_SETTINGS: EnhancedSettingOption[] = [
-  GRID_SETTING,
   THEME_SETTING,
   LANGUAGE_SETTING,
-  CARD_COMIC_SIZE_SETTING,
   READING_MODE_SETTING,
   NIGHT_MODE_SETTING,
   AUTO_NEXT_CHAPTER_SETTING,
