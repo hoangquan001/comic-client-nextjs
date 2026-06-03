@@ -121,6 +121,7 @@ export default function ChapterSelector({
             ) : (
               <div className="w-full max-h-80 min-h-0 flex">
                 <LoopScroll
+                  breakPoints={[{ name: 'default', gridSize: 1 }]}
                   allItems={filteredChapters}
                   selectedID={currentChapter?.id}
                   itemHeight={37}

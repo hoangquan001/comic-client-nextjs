@@ -9,7 +9,7 @@ import { useUpdateViewAndExp } from '@/lib/hooks/use-account-queries';
 import { useHistoryStore } from '@/lib/stores/use-history-store';
 import { useSettingsStore } from '@/lib/stores/use-settings-store';
 import { Breadcrumb } from '@/components/common/breadcrumb/breadcrumb';
-import Selection from '@/components/common/selection/selection';
+import ChapterSelector from '@/components/common/chapter-selector/chapter-selector';
 import { getComicDetailUrl, getChapterDetailUrl } from '@/lib/utils/url';
 import { openReportError, openSettings } from '@/lib/utils/event.define';
 import { SettingCategory } from '@/types';
@@ -36,7 +36,7 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
   // State
   const [selectedServerIdx, setSelectedServerIdx] = useState(0);
   const [listImgs, setListImgs] = useState<string[]>(() => {
-    const server = chapterServers[selectedServerIdx] || chapterServers[0];
+    const server = chapterServers[0];
     return server?.images ? [BANNER_IMG, ...server.images] : [];
   });
   const [isImageLoading, setIsImageLoading] = useState(false);
@@ -62,11 +62,54 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
   const { data: chapters } = useChapters(comic.id);
   const allChapters = useMemo(() => chapters || [], [chapters]);
 
-  // Reading settings
-  const isNightMode = getSettingValue('nightMode') as boolean ?? false;
-  const isAutoNextChapter = getSettingValue('autoNextChapter') as boolean ?? false;
-  const isVertical = getSettingValue('verticalReading') as boolean ?? true;
-  const preloadPages = getSettingValue('preloadPages') as number ?? 3;
+  // Reactive reading settings via event subscription
+  const [readingSettings, setReadingSettings] = useState(() => ({
+    isNightMode: (getSettingValue('nightMode') as boolean) ?? false,
+    isAutoNextChapter: (getSettingValue('autoNextChapter') as boolean) ?? false,
+    isVertical: (getSettingValue('verticalReading') as boolean) ?? true,
+    preloadPages: (getSettingValue('preloadPages') as number) ?? 3,
+    fixedToolbar: (getSettingValue('fixedToolbar') as boolean) ?? false,
+    toolbarStyle: (getSettingValue('styleToolbar') as string) ?? 'classic',
+    doubleClickToFullscreen: (getSettingValue('DoubleClick') as boolean) ?? false,
+    zoom: (getSettingValue('zoom-reading') as number) ?? 100,
+  }));
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const { key, newValue } = (e as CustomEvent).detail;
+      setReadingSettings((prev) => {
+        switch (key) {
+          case 'nightMode':
+            return { ...prev, isNightMode: newValue as boolean };
+          case 'autoNextChapter':
+            return { ...prev, isAutoNextChapter: newValue as boolean };
+          case 'verticalReading':
+            return { ...prev, isVertical: newValue as boolean };
+          case 'preloadPages':
+            return { ...prev, preloadPages: newValue as number };
+          case 'fixedToolbar':
+            return { ...prev, fixedToolbar: newValue as boolean };
+          case 'styleToolbar':
+            return { ...prev, toolbarStyle: newValue as string };
+          case 'DoubleClick':
+            return { ...prev, doubleClickToFullscreen: newValue as boolean };
+          case 'zoom-reading':
+            return { ...prev, zoom: newValue as number };
+          default:
+            return prev;
+        }
+      });
+    };
+    window.addEventListener('setting-change', handler);
+    return () => window.removeEventListener('setting-change', handler);
+  }, []);
+
+  const { isNightMode, isAutoNextChapter, isVertical, preloadPages, fixedToolbar, toolbarStyle: toolbarStyleSetting, doubleClickToFullscreen, zoom: settingZoom } = readingSettings;
+
+  // Sync zoom from settings
+  useEffect(() => {
+    setZoomValue(settingZoom);
+  }, [settingZoom]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setCanPreloadPages(true), 8000);
@@ -266,7 +309,7 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
       if (!isPastToolbar) {
         setToolbarStyle('');
         setShowScrollToTop(false);
-      } else if (isEndChapter) {
+      } else if (fixedToolbar || isEndChapter) {
         setToolbarStyle('top');
         setShowScrollToTop(true);
       } else if (scrollState.current === 'up' && statePosition.current - scrollTop > 50) {
@@ -289,7 +332,7 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
       if (container) container.removeEventListener('scroll', handleScroll);
       else window.removeEventListener('scroll', handleScroll);
     };
-  }, [isFullscreen, isAutoNextChapter, isVertical, nextChapter, comic, router]);
+  }, [isFullscreen, isAutoNextChapter, isVertical, nextChapter, comic, router, fixedToolbar]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -333,6 +376,23 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
       window.scrollTo({ top: 0, behavior: 'instant' });
     }
   };
+
+  // Double click fullscreen
+  const handleDoubleClick = useCallback(() => {
+    if (doubleClickToFullscreen) toggleFullscreen();
+  }, [doubleClickToFullscreen, toggleFullscreen]);
+
+  // Toolbar style class
+  const isModern = toolbarStyleSetting === 'modern';
+  const stickyClasses = toolbarStyle === 'top'
+    ? isModern
+      ? 'fixed top-2 left-1/2 -translate-x-1/2 rounded-xl border'
+      : 'fixed left-0 right-0 top-0 rounded-none border'
+    : toolbarStyle === 'hidden'
+      ? isModern
+        ? 'fixed -top-12 left-1/2 -translate-x-1/2 rounded-xl'
+        : 'fixed -top-12 left-0 right-0 rounded-none'
+      : '';
 
   return (
     <div ref={screenRef} className="scrollbar-style-1 relative flex flex-col overflow-y-auto overflow-x-hidden bg-[#333] dark:bg-dark-bg">
@@ -415,7 +475,7 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
                   <button
                     key={server.id}
                     onClick={() => changeServer(server, i)}
-                    className={`flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-200 max-sm:text-xs dark:border-neutral-600 dark:bg-neutral-700 dark:text-gray-300 dark:hover:bg-neutral-600 ${server.id === chapterServers[selectedServerIdx]?.id ? 'border-sky-700 text-sky-700' : ''}`}
+                    className={`flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-200 max-sm:text-xs dark:border-neutral-600 dark:bg-neutral-700 dark:text-gray-300 dark:hover:bg-neutral-600 ${server.id === chapterServers[selectedServerIdx]?.id ? 'border-sky-500 text-sky-500' : ''}`}
                   >
                     <svg className="h-5 w-5 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24">
                       <path d="M7 18a4.6 4.4 0 0 1 0 -9h0a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-12" />
@@ -449,13 +509,7 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
           <nav ref={controlBarContainerRef} className="w-full h-12">
             <div
               ref={controlBarRef}
-              className={`z-[999] flex max-w-full items-center justify-center gap-2 rounded-b-lg border bg-white px-2 py-1.5 transition-[top] duration-500 ease-in-out dark:border-neutral-700 dark:bg-neutral-800 md:gap-3 ${
-                toolbarStyle === 'top'
-                  ? 'fixed left-0 right-0 top-0 rounded-none border'
-                  : toolbarStyle === 'hidden'
-                    ? 'fixed -top-12 left-0 right-0 rounded-none'
-                    : ''
-              }`}
+              className={`z-[999] flex max-w-full items-center justify-center gap-2 rounded-b-lg border bg-white px-2 py-1.5 transition-[top] duration-500 ease-in-out transform-gpu dark:border-neutral-700 dark:bg-neutral-800 md:gap-3 ${stickyClasses}`}
             >
               {/* Home */}
               <div className="z-10 flex items-center gap-2">
@@ -479,7 +533,7 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
               {/* Chapter Navigation */}
               <div className="flex items-center gap-1 px-4 max-md:gap-0 max-md:px-1">
                 <button
-                  className={`flex cursor-pointer items-center gap-2 rounded-lg border-none bg-gray-200 px-2 py-2 text-sm font-medium text-gray-600 hover:bg-primary-100 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 max-md:px-1 max-md:py-1.5 max-md:text-xs dark:bg-neutral-600 dark:text-gray-300 ${prevChapter ? 'bg-primary-100 text-white' : ''}`}
+                  className={`flex cursor-pointer items-center gap-2 rounded-lg border-none bg-gray-200 px-2 py-2 text-sm font-medium text-gray-600 hover:bg-primary-100 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 max-md:px-1 max-md:py-1.5 max-md:text-xs  dark:text-gray-300 ${prevChapter ? 'bg-primary-100 text-white' : ''}`}
                   onClick={() => navigateChapter(false)}
                   aria-label="Chương trước"
                   disabled={isImageLoading || !prevChapter}
@@ -490,23 +544,20 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
                 </button>
 
                 <div className="mx-1">
-                  <Selection
-                    ariaLabel="Chọn chương để đọc"
-                    className="text-sm border rounded px-2 py-1 bg-white dark:bg-neutral-800 dark:text-gray-300 dark:border-neutral-600"
-                    value={chapterData.id}
-                    options={allChapters.map((ch: Chapter) => ({
-                      label: `Chapter ${ch.slug}`,
-                      value: ch.id,
-                    }))}
-                    onChange={(nextValue) => {
-                      const ch = allChapters.find((c: Chapter) => c.id === Number(nextValue));
-                      if (ch) router.push(getChapterDetailUrl(comic, ch));
+                  <ChapterSelector
+                    chapters={allChapters}
+                    currentChapter={allChapters.length > 0 ? { id: chapterData.id, title: chapterData.title, slug: chapterData.slug } as Chapter : null}
+                    topToBottom={true}
+                    onChapterChange={(ch) => {
+                      if (ch.id !== chapterData.id) {
+                        router.push(getChapterDetailUrl(comic, ch));
+                      }
                     }}
                   />
                 </div>
 
                 <button
-                  className={`flex cursor-pointer items-center gap-2 rounded-lg border-none bg-gray-200 px-2 py-2 text-sm font-medium text-gray-600 hover:bg-primary-100 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 max-md:px-1 max-md:py-1.5 max-md:text-xs dark:bg-neutral-600 dark:text-gray-300 ${nextChapter ? 'bg-primary-100 text-white' : ''}`}
+                  className={`flex cursor-pointer items-center gap-2 rounded-lg border-none bg-gray-200 px-2 py-2 text-sm font-medium text-gray-600 hover:bg-primary-100 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 max-md:px-1 max-md:py-1.5 max-md:text-xs  dark:text-gray-300 ${nextChapter ? 'bg-primary-100 text-white' : ''}`}
                   onClick={() => navigateChapter(true)}
                   aria-label="Chương tiếp"
                   disabled={isImageLoading || !nextChapter}
@@ -583,7 +634,7 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
         </section>
 
         {/* Reading Container */}
-        <div onDoubleClick={toggleFullscreen} className="relative z-0 mt-2 sm:px-[5%] md:px-[15%]">
+        <div onDoubleClick={handleDoubleClick} className="relative z-0 mt-2 sm:px-[5%] md:px-[15%]">
           <div
             ref={imageContainerRef}
             id="image-container"
