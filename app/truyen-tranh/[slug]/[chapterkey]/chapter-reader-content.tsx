@@ -8,6 +8,7 @@ import { useChapters, useChapterServer } from '@/lib/hooks/use-comic-queries';
 import { useUpdateViewAndExp } from '@/lib/hooks/use-account-queries';
 import { useHistoryStore } from '@/lib/stores/use-history-store';
 import { useSettingsStore } from '@/lib/stores/use-settings-store';
+import { useClickOutside } from '@/lib/hooks/use-click-outside';
 import { Breadcrumb } from '@/components/common/breadcrumb/breadcrumb';
 import ChapterSelector from '@/components/common/chapter-selector/chapter-selector';
 import { getComicDetailUrl, getChapterDetailUrl } from '@/lib/utils/url';
@@ -32,6 +33,9 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
   const controlBarRef = useRef<HTMLDivElement>(null);
   const controlBarContainerRef = useRef<HTMLElement>(null);
   const endChapterRef = useRef<HTMLDivElement>(null);
+  const zoomGroupRef = useRef<HTMLDivElement>(null);
+
+  useClickOutside(zoomGroupRef, () => setZoomPanelOpen(false));
 
   // State
   const [selectedServerIdx, setSelectedServerIdx] = useState(0);
@@ -109,6 +113,8 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
   // Sync zoom from settings
   useEffect(() => {
     setZoomValue(settingZoom);
+    setIsZoomIn(settingZoom >= 150);
+    if (settingZoom >= 150 || settingZoom <= 50) setZoomPanelOpen(false);
   }, [settingZoom]);
 
   useEffect(() => {
@@ -365,9 +371,54 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
   }, [listImgs.length, chapterServers.length, isErrorPages]);
 
   // Zoom
-  const zoomIn = () => setZoomValue((v) => Math.min(v + 10, 150));
-  const zoomOut = () => setZoomValue((v) => Math.max(v - 10, 50));
-  const resetZoom = () => setZoomValue(100);
+  const [isZoomIn, setIsZoomIn] = useState(false);
+
+  const handleZoomToggle = useCallback(() => {
+    if (!isZoomIn) {
+      setZoomValue((prev) => {
+        const next = Math.min(prev + 10, 150);
+        if (next >= 150) {
+          setIsZoomIn(true);
+          setZoomPanelOpen(false);
+        } else {
+          setZoomPanelOpen(true);
+        }
+        return next;
+      });
+    } else {
+      setZoomValue((prev) => {
+        const next = Math.max(prev - 10, 50);
+        if (next <= 50) {
+          setIsZoomIn(false);
+          setZoomPanelOpen(false);
+        } else {
+          setZoomPanelOpen(true);
+        }
+        return next;
+      });
+    }
+  }, [isZoomIn]);
+
+  const zoomIn = useCallback(() => {
+    setZoomValue((v) => {
+      const next = Math.min(v + 10, 150);
+      if (next >= 150) setIsZoomIn(true);
+      return next;
+    });
+  }, []);
+
+  const zoomOut = useCallback(() => {
+    setZoomValue((v) => {
+      const next = Math.max(v - 10, 50);
+      if (next <= 50) setIsZoomIn(false);
+      return next;
+    });
+  }, []);
+
+  const resetZoom = useCallback(() => {
+    setZoomValue(100);
+    setIsZoomIn(false);
+  }, []);
 
   const scrollToTop = () => {
     if (isFullscreen && screenRef.current) {
@@ -569,20 +620,16 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
               </div>
 
               {/* Zoom */}
-              <div className="relative z-10 flex items-center gap-2">
+              <div ref={zoomGroupRef} className="relative z-10 flex items-center gap-2">
                 <button
                   title="Thu phóng"
                   className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 hover:border-primary-100/50 hover:bg-gray-100 hover:text-primary-100 dark:border-neutral-600 dark:text-gray-300 dark:hover:bg-neutral-700"
-                  onClick={() => {
-                    if (zoomValue < 150) zoomIn();
-                    else zoomOut();
-                    setZoomPanelOpen(true);
-                  }}
+                  onClick={handleZoomToggle}
                 >
                   <svg className="h-4 w-4 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24">
                     <circle cx="11" cy="11" r="8" />
                     <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                    {zoomValue < 150 ? (
+                    {!isZoomIn ? (
                       <>
                         <line x1="11" y1="8" x2="11" y2="14" />
                         <line x1="8" y1="11" x2="14" y2="11" />
