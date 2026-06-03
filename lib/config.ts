@@ -3,6 +3,9 @@ export const config = {
   ENABLE_CACHE: true,
   ENABLE_ADS: false,
   APP_NAME: "MeTruyenMoi",
+  GOOGLE_CLIENT_ID:
+    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+    "1074243652922-c80gc259j5pn04oet0rptraa5c2l7c8d.apps.googleusercontent.com",
   HOST: process.env.NEXT_PUBLIC_HOST || "metruyenmoi.org",
   BASE_URL: process.env.NEXT_PUBLIC_BASE_URL || "https://metruyenmoi.org",
   BASE_API_URL:

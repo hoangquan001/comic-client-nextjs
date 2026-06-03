@@ -1,10 +1,12 @@
 'use client';
 
 import { useEffect } from 'react';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { QueryProvider } from './query-provider';
 import { useHistoryStore } from '@/lib/stores/use-history-store';
 import { useSettingsStore } from '@/lib/stores/use-settings-store';
 import { initializeAuth, useAuthStore } from '@/lib/stores/use-auth-store';
+import { config } from '@/lib/config';
 import type { SettingsRecord } from '@/types';
 
 function StoreInitializer({ initialSettings }: { initialSettings?: SettingsRecord }) {
@@ -35,9 +37,11 @@ export function AppProviders({
 }) {
 
   return (
-    <QueryProvider>
-        <StoreInitializer initialSettings={initialSettings} />
-        {children}
-    </QueryProvider>
+    <GoogleOAuthProvider clientId={config.GOOGLE_CLIENT_ID}>
+      <QueryProvider>
+          <StoreInitializer initialSettings={initialSettings} />
+          {children}
+      </QueryProvider>
+    </GoogleOAuthProvider>
   );
 }

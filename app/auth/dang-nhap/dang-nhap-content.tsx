@@ -3,12 +3,18 @@
 import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
-import { useLogin } from '@/lib/hooks/use-account-queries';
+import { useLogin, useLoginWithSocial } from '@/lib/hooks/use-account-queries';
 import { useAuthStore } from '@/lib/stores/use-auth-store';
 import EyeIcon from '@/components/common/eye-icon/eye-icon';
 import type { IServiceResponse, IUser } from '@/types';
 import { toast } from 'sonner';
+
+const GoogleSignInButton = dynamic(
+  () => import('@/components/common/google-signin-button/google-signin-button'),
+  { ssr: false }
+);
 
 type LoginUser = IUser & { status?: number };
 
@@ -16,6 +22,7 @@ export default function LoginPage() {
   const router = useRouter();
   const saveUser = useAuthStore((s) => s.saveUser);
   const loginMutation = useLogin();
+  const socialLoginMutation = useLoginWithSocial();
   const turnstileSiteKey =
     process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ||
     process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY;
@@ -80,6 +87,26 @@ export default function LoginPage() {
         },
       }
     );
+  }
+
+  function handleGoogleSuccess(data: { email: string; firstName: string; lastName: string; photoUrl?: string }) {
+    socialLoginMutation.mutate(data, {
+      onSuccess: (res: IServiceResponse<IUser>) => {
+        if (res.status === 1 && res.data) {
+          if (res.status === 1) {
+            saveUser(res.data);
+            router.push('/');
+          } else {
+            router.refresh();
+          }
+        } else {
+          toast.error(res.message || 'Đăng nhập Google thất bại');
+        }
+      },
+      onError: () => {
+        toast.error('Đăng nhập Google thất bại, đã có lỗi xảy ra');
+      },
+    });
   }
 
   return (
@@ -166,8 +193,13 @@ export default function LoginPage() {
       {/* Divider */}
       <div className="flex items-center gap-4 my-6">
         <div className="flex-1 h-px bg-neutral-300 dark:bg-neutral-600" />
-        <span className="text-sm text-neutral-500 dark:text-neutral-400 font-medium">Hoặc</span>
+        <span className="text-sm text-neutral-500 dark:text-neutral-400 font-medium">Hoặc đăng nhập với</span>
         <div className="flex-1 h-px bg-neutral-300 dark:bg-neutral-600" />
+      </div>
+
+      {/* Google Sign In */}
+      <div className="flex justify-center mb-6">
+        <GoogleSignInButton onSuccess={handleGoogleSuccess} onError={() => toast.error('Đăng nhập Google thất bại')} />
       </div>
 
       {/* Register link */}
