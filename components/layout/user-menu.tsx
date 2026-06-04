@@ -65,6 +65,7 @@ export default function UserMenu({ initialUser, onClose }: UserMenuProps) {
                         className="w-16 h-16 rounded-full object-cover border-4 border-white dark:border-neutral-700 shadow-lg"
                         width={64}
                         height={64}
+                        unoptimized
                         onError={(e) => { (e.target as HTMLImageElement).src = '/default_avatar.jpg'; }}
                       />
                       <div className="absolute -bottom-1 -right-1 flex items-center gap-1 bg-lime-500 text-white text-xs px-2 py-1 rounded-full">

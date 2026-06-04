@@ -35,6 +35,7 @@ export function UserIcon({ initialUser }: UserIconProps) {
               alt="User avatar"
               width={40}
               height={40}
+              unoptimized
             />
             <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-lime-500 border-2 border-white dark:border-neutral-800 rounded-full" />
           </div>

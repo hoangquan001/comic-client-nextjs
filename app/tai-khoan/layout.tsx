@@ -62,6 +62,7 @@ export default function TaiKhoanLayout({ children }: { children: React.ReactNode
                   alt={fullName}
                   width={56}
                   height={56}
+                  unoptimized
                   className="h-10 w-10 rounded-full border-2 border-neutral-200 object-cover dark:border-neutral-600 xs:h-12 xs:w-12 md:h-14 md:w-14"
                 />
                 <div className="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full border-2 border-white bg-lime-500 dark:border-neutral-700" />

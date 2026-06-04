@@ -152,7 +152,7 @@ function ItemCard({ item }: { item: InventoryItem }) {
     <div className="relative min-h-[120px] cursor-pointer rounded-lg border border-neutral-200 bg-white p-3 transition-all duration-200 ease-in-out hover:scale-105 hover:border-neutral-300 hover:shadow-md dark:border-neutral-700 dark:bg-neutral-800 dark:hover:border-neutral-600">
       <div className="mb-2 flex justify-center">
         <div className="relative h-16 w-16 overflow-hidden rounded-lg">
-          <Image src={item.image} alt={item.name} fill className="object-cover" />
+          <Image unoptimized src={item.image} alt={item.name} fill className="object-cover" />
           <div className={`pointer-events-none absolute inset-0 rounded-lg border-2 ${rarity.border}`} />
           {item.quantity > 1 && <div className="absolute -bottom-1 -right-1 min-w-5 rounded-full bg-neutral-900 px-1.5 py-0.5 text-center text-xs text-white">{item.quantity}</div>}
         </div>

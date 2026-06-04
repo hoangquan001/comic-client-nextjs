@@ -272,6 +272,7 @@ export default function ChatBox({ isVisible, onClose, defaultChannel = Chanel.Bo
                     alt={conv.name || 'Conversation'}
                     width={48}
                     height={48}
+                    unoptimized
                   />
                   <div className="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full border-2 border-white bg-lime-500 dark:border-neutral-800" />
                 </div>
@@ -319,6 +320,7 @@ export default function ChatBox({ isVisible, onClose, defaultChannel = Chanel.Bo
                     alt={currentConv?.name || 'Chat Bot'}
                     width={40}
                     height={40}
+                    unoptimized
                   />
                   <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-lime-500 dark:border-neutral-800" />
                 </div>
@@ -364,6 +366,7 @@ export default function ChatBox({ isVisible, onClose, defaultChannel = Chanel.Bo
                         alt={msg.user?.firstName || 'User'}
                         width={32}
                         height={32}
+                        unoptimized
                       />
                     </div>
                     <div className={`flex max-w-xs flex-col gap-1 ${isSent ? 'items-end' : 'items-start'}`}>

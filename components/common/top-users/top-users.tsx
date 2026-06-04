@@ -54,9 +54,9 @@ export default function TopUsers() {
                 onClick={() => showUserInfo(user.id)}
                 className="shrink h-full w-full border-0 border-b border-neutral-200 bg-transparent text-left dark:border-neutral-700 last:border-b-0 relative flex items-center gap-3 p-1.5 cursor-pointer transition-colors hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-primary-100 dark:hover:bg-neutral-700/40"
               >
-                <Image src={`/frames/icon_txztxk${i + 1}.png`} alt={`frame ${i + 1}`} className="h-14 w-auto bg-cover absolute z-10" width={56} height={56} />
+                <Image unoptimized src={`/frames/icon_txztxk${i + 1}.png`} alt={`frame ${i + 1}`} className="h-14 w-auto bg-cover absolute z-10" width={56} height={56} />
                 <div className="relative shrink-0">
-                  <Image className="w-10 h-11 object-cover ml-2" src={user.avatar || '/default_avatar.jpg'} alt="" width={40} height={44} unoptimized onError={(e) => (e.currentTarget.src = '/default_avatar.jpg')}  />
+                  <Image  unoptimized className="w-10 h-11 object-cover ml-2" src={user.avatar || '/default_avatar.jpg'} alt="" width={40} height={44} onError={(e) => (e.currentTarget.src = '/default_avatar.jpg')}  />
                 </div>
                 <div className="flex flex-col justify-between w-full gap-1">
                   <div className="space-y-0">

@@ -150,7 +150,7 @@ export default function HoSoContent() {
           <div className="flex flex-col items-center gap-4">
             <div className="relative">
               <label htmlFor="avatar-upload" className="group relative block cursor-pointer">
-                <Image src={avatar} alt={fullName(user)} width={128} height={128} className="h-32 w-32 rounded-full border-4 border-neutral-200 object-cover transition-all duration-300 group-hover:brightness-75 dark:border-neutral-600" />
+                <Image unoptimized src={avatar} alt={fullName(user)} width={128} height={128} className="h-32 w-32 rounded-full border-4 border-neutral-200 object-cover transition-all duration-300 group-hover:brightness-75 dark:border-neutral-600" />
                 <div className="absolute inset-0 flex flex-col items-center justify-center rounded-full bg-black/0 opacity-0 transition-all duration-300 group-hover:bg-black/60 group-hover:opacity-100">
                   <AccountIcon name="camera" className="mb-1 h-8 w-8 text-white" />
                   <span className="text-sm font-medium text-white">Thay đổi</span>

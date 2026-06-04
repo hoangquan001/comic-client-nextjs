@@ -23,7 +23,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <div className="text-white text-center max-w-md">
             <div className="mb-8">
               <div className="text-6xl mb-2 size-28">
-                <Image src="/30-4-favicon.png" alt="MeTruyenMoi Logo" className="w-28 h-28 rounded-2xl" width={112} height={112} />
+                <Image src="/30-4-favicon.png" alt="MeTruyenMoi Logo" className="w-28 h-28 rounded-2xl" width={112} height={112} unoptimized  />
               </div>
               <h1 className="text-4xl font-bold mb-2 text-white">
                 MeTruyen<span className="text-primary-100">Moi</span>

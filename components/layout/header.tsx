@@ -15,7 +15,7 @@ export async function Header() {
 
       <div className="max-w-7xl mx-auto flex justify-between items-center h-full md:px-4">
         <Link href="/" className="shrink-0 text-primary-100 no-underline hover:scale-105 transition-transform duration-200">
-          <Image className="w-[127.5px] h-15 object-contain" loading="eager" src="/logo.png" alt="logo" width={128} height={60} />
+          <Image unoptimized className="w-[127.5px] h-15 object-contain" loading="eager" src="/logo.png" alt="logo" width={128} height={60} />
         </Link>
 
         <div className="flex gap-2 items-center">

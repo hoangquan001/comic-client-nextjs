@@ -137,7 +137,7 @@ export default function NotifyPopup({ enabled = true, onClose }: NotifyPopupProp
                 {!notify.isRead && <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-12 bg-primary-100 rounded-r" />}
                 <div className="flex items-center p-3 gap-3 hover:bg-neutral-50 dark:hover:bg-neutral-800/50">
                   <Link href={notify.link || '/'} onClick={() => handleMarkRead(notify.id, notify.isRead)} className="cursor-pointer rounded-lg size-12 shrink-0 overflow-hidden">
-                    <Image loading="lazy" className="rounded-lg size-12 w-full h-full object-cover border border-neutral-200 dark:border-neutral-600 hover:scale-105" src={notify.image || '/empty.png'} alt="" width={48} height={48} />
+                    <Image unoptimized loading="lazy" className="rounded-lg size-12 w-full h-full object-cover border border-neutral-200 dark:border-neutral-600 hover:scale-105" src={notify.image || '/empty.png'} alt="" width={48} height={48} />
                   </Link>
                   <Link href={notify.link || '/'} onClick={() => handleMarkRead(notify.id, notify.isRead)} className={`flex flex-col cursor-pointer flex-1 min-w-0 ${notify.isRead ? 'opacity-70' : ''}`}>
                     <span className="text-sm line-clamp-2 font-medium text-neutral-900 dark:text-light-text mb-1" dangerouslySetInnerHTML={{ __html: notify.content }} />

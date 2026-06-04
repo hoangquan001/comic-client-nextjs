@@ -42,6 +42,7 @@ function parseWithImages(md: string): ReactNode[] {
         className="max-w-full rounded h-auto"
         width={640}
         height={360}
+        unoptimized
       />
     );
 
