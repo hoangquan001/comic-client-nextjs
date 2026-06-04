@@ -7,7 +7,8 @@ import { AccountIcon, EmptyState, GlassCard, LoadingState, PageHeader } from '..
 
 export default function YeuThichContent() {
   const [page, setPage] = useState(1);
-  const { data, isLoading, isError, error, refetch } = useFollowedComics(page);
+
+  const { data, isLoading, isError, error, refetch } = useFollowedComics(page, 18);
   const comics = data?.comics ?? [];
   const totalPages = data?.totalpage ?? 0;
 

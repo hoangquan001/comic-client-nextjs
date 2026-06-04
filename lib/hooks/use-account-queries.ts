@@ -301,6 +301,102 @@ export function useUpdateViewAndExp() {
       ),
   });
 }
+export function useDailyQuests() {
+  return useQuery({
+    queryKey: ['quests', 'daily'],
+    queryFn: () =>
+      clientFetch<IServiceResponse<any[]>>('/quest/daily').then((res) => {
+        if (res.status !== 200 && res.status !== 1) return [];
+        return res.data ?? [];
+      }),
+  });
+}
+
+export function useWeeklyQuests() {
+  return useQuery({
+    queryKey: ['quests', 'weekly'],
+    queryFn: () =>
+      clientFetch<IServiceResponse<any[]>>('/quest/weekly').then((res) => {
+        if (res.status !== 200 && res.status !== 1) return [];
+        return res.data ?? [];
+      }),
+  });
+}
+
+export function useQuestUserStats() {
+  return useQuery({
+    queryKey: ['quests', 'user-stats'],
+    queryFn: () =>
+      clientFetch<IServiceResponse<any>>('/quest/user-stats').then((res) => {
+        if (res.status !== 200 && res.status !== 1) return null;
+        return res.data ?? null;
+      }),
+  });
+}
+
+export function useClaimQuestReward() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (questId: string) =>
+      clientFetch<IServiceResponse<any>>(`/quest/${questId}/claim`, {
+        method: 'POST',
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['quests'] });
+    },
+  });
+}
+
+export function useItemInventory(page = 1, pageSize = 20, category?: string) {
+  const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
+  if (category) params.set('category', category);
+  return useQuery({
+    queryKey: ['inventory', page, pageSize, category],
+    queryFn: () =>
+      clientFetch<IServiceResponse<any>>(`/item/inventory?${params}`).then((res) => {
+        if (res.status !== 200 && res.status !== 1) return { items: [], totalItems: 0, currentPage: 1, totalPages: 1 };
+        return res.data ?? { items: [], totalItems: 0, currentPage: 1, totalPages: 1 };
+      }),
+  });
+}
+
+export function useEquippedItems() {
+  return useQuery({
+    queryKey: ['equipped'],
+    queryFn: () =>
+      clientFetch<IServiceResponse<any[]>>('/item/equipped').then((res) => {
+        if (res.status !== 200 && res.status !== 1) return [];
+        return res.data ?? [];
+      }),
+  });
+}
+
+export function useItemTemplates() {
+  return useQuery({
+    queryKey: ['itemTemplates'],
+    queryFn: () =>
+      clientFetch<IServiceResponse<any[]>>('/item/templates').then((res) => {
+        if (res.status !== 200 && res.status !== 1) return [];
+        return res.data ?? [];
+      }),
+  });
+}
+
+export function useItemAction() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ action, data }: { action: 'use' | 'equip' | 'unequip'; data: Record<string, any> }) =>
+      clientFetch<IServiceResponse<any>>(`/item/${action}`, {
+        method: 'POST',
+        data,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['inventory'] });
+      queryClient.invalidateQueries({ queryKey: ['equipped'] });
+    },
+  });
+}
+
 export function useUserProfile( userId: number | null, visible = true) {
   return useQuery<IUser>({
       queryKey: ['user-profile', userId],

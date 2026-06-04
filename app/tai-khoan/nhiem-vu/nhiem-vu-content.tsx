@@ -1,8 +1,9 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
-import { PageHeader } from '../_components/account-ui';
+import { useDailyQuests, useWeeklyQuests, useClaimQuestReward } from '@/lib/hooks/use-account-queries';
+import { LoadingState, PageHeader } from '../_components/account-ui';
 
 type QuestStatus = 'active' | 'completed' | 'expired' | 'claimed';
 type QuestDifficulty = 'easy' | 'medium' | 'hard' | 'legendary';
@@ -21,26 +22,32 @@ interface Quest {
   expiresAt: string;
 }
 
-const DAILY_QUESTS: Quest[] = [
-  { id: 'daily-read-1', title: 'Đọc 1 chương truyện', description: 'Đọc bất kỳ 1 chương truyện trong ngày', target: 1, current: 0, reward: { type: 'experience', description: '+10 XP' }, status: 'active', icon: 'book-open', difficulty: 'easy', expiresAt: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString() },
-  { id: 'daily-read-5', title: 'Đọc 5 chương truyện', description: 'Đọc 5 chương truyện để nhận thêm kinh nghiệm', target: 5, current: 0, reward: { type: 'experience', description: '+30 XP' }, status: 'active', icon: 'book-open', difficulty: 'medium', expiresAt: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString() },
-  { id: 'daily-follow', title: 'Theo dõi 1 truyện', description: 'Lưu một bộ truyện vào danh sách yêu thích', target: 1, current: 0, reward: { type: 'experience', description: '+5 XP' }, status: 'active', icon: 'heart', difficulty: 'easy', expiresAt: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString() },
-];
-
-const WEEKLY_QUESTS: Quest[] = [
-  { id: 'weekly-read-30', title: 'Đọc 30 chương truyện', description: 'Hoàn thành mục tiêu đọc truyện trong tuần', target: 30, current: 4, reward: { type: 'badge', description: 'Huy hiệu chăm chỉ' }, status: 'active', icon: 'trophy', difficulty: 'hard', expiresAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString() },
-  { id: 'weekly-comment', title: 'Bình luận 5 lần', description: 'Tham gia thảo luận dưới các chương truyện', target: 5, current: 1, reward: { type: 'coins', description: '+100 xu' }, status: 'active', icon: 'message-circle', difficulty: 'medium', expiresAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString() },
-];
-
 export default function NhiemVuContent() {
   const [selectedTab, setSelectedTab] = useState<'daily' | 'weekly'>('daily');
-  const [isLoading, setIsLoading] = useState(false);
-  const quests = useMemo(() => (selectedTab === 'daily' ? DAILY_QUESTS : WEEKLY_QUESTS), [selectedTab]);
+  const { data: dailyQuests = [], isLoading: loadingDaily, refetch: refetchDaily } = useDailyQuests();
+  const { data: weeklyQuests = [], isLoading: loadingWeekly, refetch: refetchWeekly } = useWeeklyQuests();
+  const claimMutation = useClaimQuestReward();
+
+  const isLoading = loadingDaily || loadingWeekly;
+  const quests: Quest[] = selectedTab === 'daily' ? dailyQuests : weeklyQuests;
 
   function refreshQuests() {
-    setIsLoading(true);
-    toast.info('Tính năng Nhiệm vụ hàng ngày đang được phát triển, vui lòng thử lại sau!');
-    window.setTimeout(() => setIsLoading(false), 500);
+    refetchDaily();
+    refetchWeekly();
+  }
+
+  function claimReward(quest: Quest) {
+    if (quest.status !== 'completed') return;
+    claimMutation.mutate(quest.id, {
+      onSuccess: (res) => {
+        if (res.status === 200 || res.status === 1) {
+          toast.success(res.message || 'Nhận thưởng thành công!');
+        } else {
+          toast.error(res.message || 'Không thể nhận thưởng');
+        }
+      },
+      onError: () => toast.error('Có lỗi xảy ra khi nhận thưởng'),
+    });
   }
 
   return (
@@ -51,25 +58,29 @@ export default function NhiemVuContent() {
           <button type="button" onClick={() => setSelectedTab('daily')} className={`flex flex-1 items-center justify-center gap-2 rounded-md px-4 py-3 text-neutral-600 transition-all duration-200 hover:bg-white dark:text-neutral-400 dark:hover:bg-neutral-700 md:flex-row ${selectedTab === 'daily' ? 'bg-white text-primary-100 dark:bg-neutral-700' : ''}`}>
             <span className="text-lg">📅</span>
             <span className="font-medium max-md:text-xs">Nhiệm vụ hằng ngày</span>
-            <span className={`rounded-full bg-neutral-200 px-2 py-1 text-xs dark:bg-neutral-600 ${selectedTab === 'daily' ? 'bg-primary-100 text-white' : ''}`}>{DAILY_QUESTS.length}</span>
+            <span className={`rounded-full bg-neutral-200 px-2 py-1 text-xs dark:bg-neutral-600 ${selectedTab === 'daily' ? 'bg-primary-100 text-white' : ''}`}>{dailyQuests.length}</span>
           </button>
           <button type="button" onClick={() => setSelectedTab('weekly')} className={`flex flex-1 items-center justify-center gap-2 rounded-md px-4 py-3 text-neutral-600 transition-all duration-200 hover:bg-white dark:text-neutral-400 dark:hover:bg-neutral-700 max-md:flex-col max-md:gap-1 max-md:py-2 md:flex-row ${selectedTab === 'weekly' ? 'bg-white text-primary-100 dark:bg-neutral-700' : ''}`}>
             <span className="text-lg">📊</span>
             <span className="font-medium max-md:text-xs">Nhiệm vụ tuần</span>
-            <span className={`rounded-full bg-neutral-200 px-2 py-1 text-xs dark:bg-neutral-600 ${selectedTab === 'weekly' ? 'bg-primary-100 text-white' : ''}`}>{WEEKLY_QUESTS.length}</span>
+            <span className={`rounded-full bg-neutral-200 px-2 py-1 text-xs dark:bg-neutral-600 ${selectedTab === 'weekly' ? 'bg-primary-100 text-white' : ''}`}>{weeklyQuests.length}</span>
           </button>
           <button type="button" onClick={refreshQuests} disabled={isLoading} title="Làm mới nhiệm vụ" className="flex h-12 w-12 items-center justify-center rounded-lg bg-white text-neutral-600 transition-all duration-200 hover:bg-neutral-50 hover:text-lime-600 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-600 dark:hover:text-lime-400">
             <span className={`text-lg transition-transform duration-500 ${isLoading ? 'animate-spin' : ''}`}>🔄</span>
           </button>
         </div>
 
-        <div className="space-y-4">
-          {quests.map((quest) => (
-            <QuestCard key={quest.id} quest={quest} isLoading={isLoading} />
-          ))}
-        </div>
+        {isLoading && <LoadingState text="Đang tải nhiệm vụ..." />}
 
-        {quests.length === 0 && (
+        {!isLoading && (
+          <div className="space-y-4">
+            {quests.map((quest) => (
+              <QuestCard key={quest.id} quest={quest} isClaiming={claimMutation.isPending} onClaim={claimReward} />
+            ))}
+          </div>
+        )}
+
+        {!isLoading && quests.length === 0 && (
           <div className="py-12 text-center">
             <div className="mb-4 text-6xl">📋</div>
             <h3 className="mb-2 text-xl font-semibold text-neutral-900 dark:text-light-text">Không có nhiệm vụ nào</h3>
@@ -81,7 +92,7 @@ export default function NhiemVuContent() {
   );
 }
 
-function QuestCard({ quest, isLoading }: { quest: Quest; isLoading: boolean }) {
+function QuestCard({ quest, isClaiming, onClaim }: { quest: Quest; isClaiming: boolean; onClaim: (quest: Quest) => void }) {
   const percentage = Math.min((quest.current / quest.target) * 100, 100);
   const completed = quest.status === 'completed';
   const expired = quest.status === 'expired';
@@ -110,8 +121,8 @@ function QuestCard({ quest, isLoading }: { quest: Quest; isLoading: boolean }) {
           <span className="text-lg">{getRewardIcon(quest.reward.type)}</span>
           <span className="font-medium text-neutral-900 dark:text-light-text">{quest.reward.description}</span>
         </div>
-        <button type="button" disabled={(quest.status !== 'completed' && quest.status !== 'claimed') || isLoading} className={`rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${completed ? 'bg-primary-100 text-white hover:bg-primary-200' : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-600'}`}>
-          {isLoading ? '⏳' : quest.status === 'completed' ? 'Nhận thưởng' : quest.status === 'active' ? 'Chưa hoàn thành' : quest.status === 'expired' ? 'Đã hết hạn' : 'Đã nhận'}
+        <button type="button" disabled={(quest.status !== 'completed' && quest.status !== 'claimed') || isClaiming} onClick={() => onClaim(quest)} className={`rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${completed ? 'bg-primary-100 text-white hover:bg-primary-200' : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-600'}`}>
+          {isClaiming ? '⏳' : quest.status === 'completed' ? 'Nhận thưởng' : quest.status === 'active' ? 'Chưa hoàn thành' : quest.status === 'expired' ? 'Đã hết hạn' : 'Đã nhận'}
         </button>
       </div>
     </div>
@@ -152,7 +163,9 @@ function getQuestIcon(iconName: string) {
 }
 
 function getTimeRemaining(expiresAt: string) {
+  if (!expiresAt) return '';
   const expires = new Date(expiresAt);
+  if (Number.isNaN(expires.getTime())) return '';
   const timeLeft = expires.getTime() - Date.now();
   if (timeLeft <= 0) return 'Đã hết hạn';
   const hours = Math.floor(timeLeft / (1000 * 60 * 60));

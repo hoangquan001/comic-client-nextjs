@@ -98,7 +98,7 @@ export default function HoSoContent() {
   function onUpdateMaxim() {
     if (maxim === (user?.maxim || '')) return;
     updateMaximMutation.mutate(maxim, {
-      onSuccess: (res) => toast.success(res.message || 'Cập nhật châm ngôn thành công'),
+      onSuccess: (res) => toast.success(res?.message || 'Cập nhật châm ngôn thành công'),
       onError: () => toast.error('Không thể cập nhật châm ngôn'),
     });
   }
