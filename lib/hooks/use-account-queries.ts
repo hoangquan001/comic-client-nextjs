@@ -89,7 +89,7 @@ export function useLogin() {
   const saveUser = useAuthStore((s) => s.saveUser);
   return useMutation({
     mutationFn: (data: { email: string; password: string; turnstileToken: string }) =>
-      clientFetch<IServiceResponse<IUser>>('/auth/dang-nhap', {
+      clientFetch<IServiceResponse<IUser>>('/auth/login', {
         method: 'POST',
         data,
       }),
