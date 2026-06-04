@@ -119,8 +119,9 @@ export function generateHomeMetadata(): Metadata {
 }
 
 export function generateComicMetadata(comic: Comic): Metadata {
+  // console.log('generateComicMetadata', comic);
   return generatePageMetadata({
-    title: `${comic.title} - Đọc Truyện ${comic.title} Online Miễn Phí`,
+    title: `${comic.title} [Tới Chapter ${comic.chapters![0]?.slug}]`,
     description: fillSeoDescription(comic.description, comic),
     keywords: generateComicKeywords(comic),
     path: `/truyen-tranh/${comic.url}`,
@@ -133,9 +134,9 @@ export function generateComicMetadata(comic: Comic): Metadata {
 }
 
 export function generateChapterMetadata(comic: Comic, chapter: Chapter, chapterPath?: string): Metadata {
-  const chapterTitle = `${comic.title} Chương ${chapter.chapterNumber || chapter.slug}`;
+  const chapterTitle = `${comic.title} Chương ${chapter.slug}`;
   return generatePageMetadata({
-    title: `${chapterTitle} - Đọc Online Miễn Phí`,
+    title: `${chapterTitle}`,
     description: `Đọc ${chapterTitle} online miễn phí. Truyện ${comic.title} cập nhật nhanh, hình ảnh sắc nét tại ${config.APP_NAME}.`,
     keywords: generateLongTailKeywords(chapterTitle, 'chapter'),
     path: chapterPath || `/truyen-tranh/${comic.url}/chuong-${chapter.slug}`,
