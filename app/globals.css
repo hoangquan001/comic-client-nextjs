@@ -110,7 +110,7 @@ main {
 }
 
 .card-v1-container {
-  @apply relative h-full flex flex-col overflow-hidden rounded-lg border border-neutral-200/80 bg-white shadow-sm transition dark:border-neutral-700 dark:bg-neutral-800;
+  @apply relative h-full flex flex-col overflow-hidden rounded-lg border border-neutral-200/80 bg-white md:shadow-sm transition dark:border-neutral-700 dark:bg-neutral-800;
 }
 
 .comic-title {

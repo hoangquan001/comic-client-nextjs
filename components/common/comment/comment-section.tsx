@@ -244,7 +244,7 @@ export default function CommentSection({ comic, chapterID }: CommentSectionProps
 
   return (
     <section ref={sectionRef} className="mt-8 w-full space-y-4 rounded-2xl border border-neutral-200 bg-neutral-50/60 p-3 sm:p-5 dark:border-neutral-700 dark:bg-neutral-900/40">
-      <div className="rounded-xl bg-white p-5 shadow-sm dark:bg-neutral-800 sm:p-6">
+      <div className="rounded-xl bg-white p-5 md:shadow-sm dark:bg-neutral-800 sm:p-6">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-2">
             <div className="flex items-center gap-3">

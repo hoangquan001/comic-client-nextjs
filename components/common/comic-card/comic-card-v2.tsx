@@ -14,7 +14,7 @@ interface ComicCardV2Props {
 export function ComicCardV2({ comic }: ComicCardV2Props) {
   if (!comic) {
     return (
-      <div className="relative flex h-40 w-full animate-pulse overflow-hidden rounded-lg border border-neutral-200/80 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-50">
+      <div className="relative flex h-40 w-full animate-pulse overflow-hidden rounded-lg border border-neutral-200/80 bg-white md:shadow-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-50">
         <div className="flex h-full w-[120px] shrink-0 overflow-hidden p-2 sm:w-[132px]">
           <div className="h-full w-full rounded-md bg-neutral-200 dark:bg-neutral-700" />
         </div>
@@ -37,13 +37,13 @@ export function ComicCardV2({ comic }: ComicCardV2Props) {
   const displayGenres = comic.genres?.slice(0, 3) || [];
 
   return (
-    <div className="group relative flex h-40 w-full overflow-hidden rounded-lg border border-neutral-200/80 bg-white shadow-sm transition hover:border-primary-100/40 hover:shadow-md dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-50 dark:hover:border-neutral-600">
+    <div className="group relative flex h-40 w-full overflow-hidden rounded-lg border border-neutral-200/80 bg-white md:shadow-sm transition hover:border-primary-100/40 hover:shadow-md dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-50 dark:hover:border-neutral-600">
       {/* Image */}
       <div className="flex h-full w-[120px] shrink-0 overflow-hidden p-2 sm:w-[132px]">
         <Link className='size-full' href={getComicDetailUrl(comic)} aria-label={`Xem truyện ${comic.title}`}>
           <Image
             loading="lazy"
-            className="h-full w-full rounded-md object-cover shadow-sm transition duration-300 group-hover:scale-[1.02] group-hover:brightness-95"
+            className="h-full w-full rounded-md object-cover md:shadow-sm transition duration-300 group-hover:scale-[1.02] group-hover:brightness-95"
             src={comic.coverImage || '/option2.png'}
             alt={`Ảnh bìa truyện ${comic.title}`}
             width={134}
@@ -74,7 +74,7 @@ export function ComicCardV2({ comic }: ComicCardV2Props) {
               title={tag.title}
             >
               {i === 0 ? (
-                <span className="block truncate rounded bg-primary-100 px-2 py-0 text-[0.68rem] font-bold uppercase leading-4 text-white shadow-sm">{tag.title}</span>
+                <span className="block truncate rounded bg-primary-100 px-2 py-0 text-[0.68rem] font-bold uppercase leading-4 text-white md:shadow-sm">{tag.title}</span>
               ) : (
                 <span className="block truncate rounded bg-neutral-100 px-2 py-0 text-[0.68rem] font-semibold uppercase leading-4 text-neutral-600 transition hover:bg-neutral-200 dark:bg-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-600">{tag.title}</span>
               )}
