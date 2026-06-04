@@ -37,7 +37,7 @@ export function AppProviders({
 }) {
 
   return (
-    <GoogleOAuthProvider clientId={config.GOOGLE_CLIENT_ID}>
+    <GoogleOAuthProvider clientId={config.GOOGLE_CLIENT_ID!}>
       <QueryProvider>
           <StoreInitializer initialSettings={initialSettings} />
           {children}
