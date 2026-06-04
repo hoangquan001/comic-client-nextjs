@@ -171,13 +171,17 @@ export function useUpdateAvatar() {
   const saveUser = useAuthStore((s) => s.saveUser);
   return useMutation({
     mutationFn: (avatar: FormData) =>
-      clientFetch<IServiceResponse<IUser>>('/user/update/avatar', {
+      clientFetch<IServiceResponse<string>>('/user/update/avatar', {
         method: 'POST',
         data: avatar,
         headers: {},
       }),
     onSuccess: (res) => {
-      if (res.data) saveUser(res.data);
+      if (res.status === 200 || res.status === 1) {
+        useAuthStore.setState((s) => ({
+          user: s.user ? { ...s.user, avatar: res.data ?? s.user.avatar } : s.user,
+        }));
+      }
     },
   });
 }
@@ -211,11 +215,18 @@ export function useUpdateTypeLevel() {
   return useMutation({
     mutationFn: (typeLevel: number) =>
       clientFetch<IServiceResponse<IUser>>(`/user/update/typelevel/${typeLevel}`, { method: 'POST' }),
-    onSuccess: (res) => {
-      if (res.data) saveUser(res.data);
+    onSuccess: (res, typeLevel) => {
+      if (res.data) {
+        saveUser(res.data);
+      } else if (res.status === 200 || res.status === 1) {
+        useAuthStore.setState((s) => ({
+          user: s.user ? { ...s.user, typeLevel } : s.user,
+        }));
+      }
     },
   });
 }
+
 
 export function useUpdateMaxim() {
   const saveUser = useAuthStore((s) => s.saveUser);
@@ -224,8 +235,14 @@ export function useUpdateMaxim() {
       clientFetch<IServiceResponse<IUser>>(`/user/update/maxim?maxim=${encodeURIComponent(maxim || '')}`, {
         method: 'POST',
       }),
-    onSuccess: (res) => {
-      if (res.data) saveUser(res.data);
+    onSuccess: (res, maxim) => {
+      if (res.data) {
+        saveUser(res.data);
+      } else if (res.status === 200 || res.status === 1) {
+        useAuthStore.setState((s) => ({
+          user: s.user ? { ...s.user, maxim: maxim ?? '' } : s.user,
+        }));
+      }
     },
   });
 }
@@ -397,22 +414,22 @@ export function useItemAction() {
   });
 }
 
-export function useUserProfile( userId: number | null, visible = true) {
+export function useUserProfile(userId: number | null, visible = true) {
   return useQuery<IUser>({
-      queryKey: ['user-profile', userId],
-      queryFn: async () => {
-        const res = await clientFetch<IServiceResponse<IUser>>(
-          `/user/profile/${userId}`
-        );
-        if ((res.status !== 200 && res.status !== 1) || !res.data) {
-          throw new Error(res.message || 'API error');
-        }
-        const user = res.data;
-        if (user.experience != null && user.typeLevel != null) {
-          user.levelInfo = getLevelUser(user.experience, user.typeLevel);
-        }
-        return user;
-      },
-      enabled: visible && !!userId,
-    });
+    queryKey: ['user-profile', userId],
+    queryFn: async () => {
+      const res = await clientFetch<IServiceResponse<IUser>>(
+        `/user/profile/${userId}`
+      );
+      if ((res.status !== 200 && res.status !== 1) || !res.data) {
+        throw new Error(res.message || 'API error');
+      }
+      const user = res.data;
+      if (user.experience != null && user.typeLevel != null) {
+        user.levelInfo = getLevelUser(user.experience, user.typeLevel);
+      }
+      return user;
+    },
+    enabled: visible && !!userId,
+  });
 }

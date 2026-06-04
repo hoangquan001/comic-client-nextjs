@@ -34,7 +34,6 @@ function formatJoinDate(date?: string) {
 export default function TaiKhoanLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { user, isAuthenticated } = useAuthStore();
-
   if (!isAuthenticated) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-white dark:bg-dark-bg">
@@ -84,7 +83,11 @@ export default function TaiKhoanLayout({ children }: { children: React.ReactNode
                       <Link
                         href={item.href}
                         title={item.description}
-                        className={`relative flex min-h-[65px] flex-col items-center justify-center rounded-lg bg-neutral-50 p-1.5 transition-all duration-200 hover:-translate-y-px hover:bg-neutral-100 hover:shadow-md dark:bg-neutral-800 dark:hover:bg-neutral-700 xs:min-h-[75px] xs:p-2 md:block md:min-h-0 md:bg-transparent md:p-3 md:hover:translate-y-0 md:hover:bg-white md:hover:shadow-none md:dark:bg-transparent md:dark:hover:bg-neutral-700 ${active ? 'bg-primary-100 text-white shadow-lg shadow-primary-100/25 hover:bg-primary-100 dark:bg-primary-100 md:shadow-none' : 'text-neutral-900 dark:text-light-text'}`}
+                        className={
+                          active
+                            ? 'relative flex min-h-[65px] flex-col items-center justify-center rounded-lg bg-primary-100 p-1.5 text-white shadow-lg shadow-primary-100/25 transition-all duration-200 hover:bg-primary-100 xs:min-h-[75px] xs:p-2 md:block md:min-h-0 md:p-3 md:shadow-none'
+                            : 'relative flex min-h-[65px] flex-col items-center justify-center rounded-lg bg-neutral-50 p-1.5 text-neutral-900 transition-all duration-200 hover:-translate-y-px hover:bg-neutral-100 hover:shadow-md dark:bg-neutral-800 dark:text-light-text dark:hover:bg-neutral-700 xs:min-h-[75px] xs:p-2 md:block md:min-h-0 md:bg-transparent md:p-3 md:hover:translate-y-0 md:hover:bg-white md:hover:shadow-none md:dark:bg-transparent md:dark:hover:bg-neutral-700'
+                        }
                       >
                         <div className="flex flex-col items-center gap-1 md:flex-row md:gap-3">
                           <div className={`flex h-7 w-7 items-center justify-center rounded-lg transition-colors duration-200 xs:h-8 xs:w-8 md:h-9 md:w-9 ${active ? 'bg-white/20' : 'bg-transparent md:bg-neutral-200 md:dark:bg-neutral-600'}`}>
