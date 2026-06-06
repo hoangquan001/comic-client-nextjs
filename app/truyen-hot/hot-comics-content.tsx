@@ -4,6 +4,7 @@ import { Breadcrumb } from '@/components/common/breadcrumb/breadcrumb';
 import { TopList } from '@/components/common/top-list/top-list';
 import type { ComicList } from '@/types';
 import { getServerGridType } from '@/lib/utils/cookie';
+import { Flame } from 'lucide-react';
 
 interface HotComicsContentProps {
   page: number;
@@ -30,6 +31,7 @@ export default async function HotComicsContent({ page, initialData }: HotComicsC
             title="Truyện tranh hot"
             listComics={comics}
             defaultGridType={gridType}
+            iconTemplate={<Flame className="size-5 shrink-0 text-primary-100" />}
           />
 
           <Pagination

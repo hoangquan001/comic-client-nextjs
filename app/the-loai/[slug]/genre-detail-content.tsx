@@ -10,6 +10,7 @@ import { GENRES } from '@/lib/constants/genres';
 import { SortType, ComicStatus } from '@/types';
 import type { ComicList } from '@/types';
 import Link from 'next/link';
+import { LibraryBig } from 'lucide-react';
 
 const SORT_OPTIONS = [
   { value: SortType.LastUpdate, label: 'Mới cập nhật' },
@@ -123,7 +124,12 @@ export default function GenreDetailContent({ slug, genre, page, sort, status, in
           {loading ? (
             <Spinner />
           ) : (
-            <GridComic listComics={comics} title="Danh sách truyện" defaultGridType ={gridType} />
+            <GridComic
+              listComics={comics}
+              title="Danh sách truyện"
+              defaultGridType={gridType}
+              iconTemplate={<LibraryBig className="size-5 shrink-0 text-primary-100" />}
+            />
           )}
 
           <Pagination

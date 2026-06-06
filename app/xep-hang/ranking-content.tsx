@@ -9,6 +9,7 @@ import { Spinner } from '@/components/common/spinner/spinner';
 import Selection from '@/components/common/selection/selection';
 import { SortType, ComicStatus } from '@/types';
 import type { ComicList } from '@/types';
+import { Trophy } from 'lucide-react';
 
 const SORT_OPTIONS = [
   { value: SortType.TopAll, label: 'Top All' },
@@ -71,7 +72,7 @@ export default function RankingContent({ page, sort, status, initialData, gridTy
 
       <div className="mt-4">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-4">
+        {/* <div className="flex items-center gap-3 mb-4">
           <svg className="w-8 h-8 text-amber-500" fill="currentColor" viewBox="0 0 512 512">
             <polygon points="315.626,238.151 274.426,232.165 256,194.831 237.574,232.165 196.374,238.151 226.188,267.212 219.149,308.245 256,288.871 292.851,308.245 285.812,267.212" />
             <polygon points="176.72,238.151 135.52,232.165 117.094,194.831 98.67,232.165 57.469,238.151 87.282,267.212 80.244,308.245 117.094,288.871 153.946,308.245 146.907,267.212" />
@@ -81,7 +82,7 @@ export default function RankingContent({ page, sort, status, initialData, gridTy
             <h1 className="text-2xl font-bold">Bảng Xếp Hạng Truyện Tranh</h1>
             <p className="text-sm text-neutral-500 dark:text-neutral-400">Khám phá những bộ truyện tranh được yêu thích nhất</p>
           </div>
-        </div>
+        </div> */}
 
         {/* Filters */}
         <div className="flex flex-wrap items-center gap-4 mb-4">
@@ -111,7 +112,12 @@ export default function RankingContent({ page, sort, status, initialData, gridTy
         {loading ? (
           <Spinner />
         ) : (
-          <GridComic listComics={comics} title="Xếp hạng" defaultGridType={gridType} />
+          <GridComic
+            listComics={comics}
+            title="Xếp hạng"
+            defaultGridType={gridType}
+            iconTemplate={<Trophy className="size-5 shrink-0 text-primary-100" />}
+          />
         )}
 
         <Pagination

@@ -9,15 +9,15 @@ import { Spinner } from '@/components/common/spinner/spinner';
 import { Empty } from '@/components/common/empty/empty';
 import type { Comic } from '@/types';
 import { GridComic } from '@/components/common';
+import { Clock3 } from 'lucide-react';
 
 const COMICS_PER_PAGE = 14;
 
 interface HistoryContentProps {
   page: number;
-  gridType: number
 }
 
-export default function HistoryContent({ page, gridType }: HistoryContentProps) {
+export default function HistoryContent({ page }: HistoryContentProps) {
   const {
     listHistory,
     remoteHistory,
@@ -69,17 +69,21 @@ export default function HistoryContent({ page, gridType }: HistoryContentProps) 
           <Spinner />
         ) : comics && comics.length > 0 ? (
           <>
-            <GridComic alwayType={gridType} title="Lịch sử" listComics={comics}
-            actionClick={handleRemove}
-            actionTemplate={
-              <span
-                className="absolute top-1.5 left-1.5 z-10 bg-red-500 hover:bg-red-600 rounded-md text-white p-1 "
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </span>
-            }
+            <GridComic
+              alwayType={0}
+              title="Lịch sử"
+              listComics={comics}
+              iconTemplate={<Clock3 className="size-5 shrink-0 text-primary-100" />}
+              actionClick={handleRemove}
+              actionTemplate={
+                <span
+                  className="absolute top-1.5 left-1.5 z-10 bg-red-500 hover:bg-red-600 rounded-md text-white p-1 "
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </span>
+              }
             />
             <Pagination currentPage={page} totalpage={totalpage} rootLink="/lich-su" />
           </>

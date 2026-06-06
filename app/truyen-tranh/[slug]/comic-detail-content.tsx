@@ -20,6 +20,7 @@ import { generateComicKeywords, generateChapterKeywords } from '@/lib/seo/keywor
 import type { Comic, Chapter } from '@/types';
 import { toast } from 'sonner';
 import ChapterList from '@/components/page/chapter-list';
+import { Sparkles } from 'lucide-react';
 
 const FOLLOW_COOLDOWN = 3000;
 interface ComicDetailProps {
@@ -364,6 +365,7 @@ export default function ComicDetailContent({ comic: initialComic, gridType }: Co
               gridClass="grid grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-2"
               defaultGridType={gridType}
               nPreview={12}
+              iconTemplate={<Sparkles className="size-5 shrink-0 text-primary-100" />}
             />
           </div>
 

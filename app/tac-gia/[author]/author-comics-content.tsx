@@ -7,6 +7,7 @@ import { Spinner } from '@/components/common/spinner/spinner';
 import { Empty } from '@/components/common/empty/empty';
 import { useComicsByAuthor } from '@/lib/hooks/use-comic-queries';
 import type { Comic } from '@/types';
+import { UserRound } from 'lucide-react';
 
 interface AuthorComicsContentProps {
   author: string;
@@ -73,7 +74,12 @@ export default function AuthorComicsContent({ author, encodedAuthor, initialData
               <h2 className="text-xl font-bold text-neutral-900 dark:text-light-text">Tác phẩm của {author}</h2>
               <span className="text-sm text-neutral-500">{comics.length} tác phẩm</span>
             </div>
-            <GridComic title={`Tác phẩm của ${author}`} listComics={comics} defaultGridType={gridType} />
+            <GridComic
+              title={`Tác phẩm của ${author}`}
+              listComics={comics}
+              defaultGridType={gridType}
+              iconTemplate={<UserRound className="size-5 shrink-0 text-primary-100" />}
+            />
           </div>
         )}
       </div>

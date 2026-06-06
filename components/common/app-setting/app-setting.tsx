@@ -242,7 +242,7 @@ export default function AppSetting({
         </header>
 
         <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-          <aside className="flex w-full gap-2 overflow-x-auto border-b border-gray-200 bg-gray-50 p-3 dark:border-neutral-700 dark:bg-neutral-900/30 lg:w-64 lg:flex-col lg:overflow-x-visible lg:border-b-0 lg:border-r">
+          <aside className="flex w-full h-full gap-2 border-b border-gray-200 bg-gray-50 p-3 dark:border-neutral-700 dark:bg-neutral-900/30 lg:flex-col lg:border-b-0 lg:border-r">
             {TABS.map(({ id, name, category, Icon }) => (
               <button
                 key={id}

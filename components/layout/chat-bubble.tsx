@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { MessageCircle } from 'lucide-react';
@@ -11,6 +11,18 @@ export function ChatBubble() {
   const [showChat, setShowChat] = useState(false);
   const pathname = usePathname();
   const isChapterPage = /^\/truyen-tranh\/[^/]+\/[^/]+/.test(pathname);
+
+  useEffect(() => {
+    function handleOpenChatBox() {
+      setShowChat(true);
+    }
+
+    window.addEventListener('openChatBox', handleOpenChatBox);
+
+    return () => {
+      window.removeEventListener('openChatBox', handleOpenChatBox);
+    };
+  }, []);
 
   if (isChapterPage) return null;
 

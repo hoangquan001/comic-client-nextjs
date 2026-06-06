@@ -6,6 +6,7 @@ import { GridComic, Pagination, Breadcrumb, Spinner, Empty } from '@/components/
 import Link from 'next/link';
 import { useState } from 'react';
 import type { Comic } from '@/types';
+import { Heart } from 'lucide-react';
 interface FollowedContentProps {
   page: number;
   gridType: number;
@@ -57,7 +58,11 @@ export default function FollowedContent({ page, gridType, isAuthenticated }: Fol
         </div>
       ) : (
         <div id="comics" className="mt-4">
-          <GridComic title="Theo dõi" listComics={comics} defaultGridType={gridType}
+          <GridComic
+            title="Theo dõi"
+            listComics={comics}
+            defaultGridType={gridType}
+            iconTemplate={<Heart className="size-5 shrink-0 text-primary-100" />}
             actionClick={handleUnfollow}
             actionTemplate={
               <span

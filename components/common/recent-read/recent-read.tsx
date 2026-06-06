@@ -1,5 +1,5 @@
 'use client';
-
+import { History } from "lucide-react";
 import Link from 'next/link';
 import Image from 'next/image';
 import { useHistoryStore } from '@/lib/stores/use-history-store';
@@ -19,9 +19,9 @@ export default function RecentRead() {
   return (
     <div className="bg-white dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700  overflow-hidden">
       <div className="flex items-center justify-between p-3 bg-neutral-50 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700">
-        <div className="flex items-center gap-2">
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7z" /></svg>
-          <h2 className="text-base sm:text-lg font-bold text-gray-700 dark:text-light-text uppercase">Đọc gần đây</h2>
+        <div className="flex items-center gap-2  font-bold text-gray-700">
+          <History className="size-5" />
+          <h2 className="text-base sm:text-lg dark:text-light-text uppercase">Đọc gần đây</h2>
           {listHistory.length > 0 && <span className="px-2 py-1 bg-primary-100 text-white text-xs font-bold rounded-full">{listHistory.length}</span>}
         </div>
         <div className="flex items-center">

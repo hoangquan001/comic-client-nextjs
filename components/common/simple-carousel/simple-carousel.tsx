@@ -76,7 +76,7 @@ export function SimpleCarousel({
     <>
       <div className="hidden sm:flex mt-3 mb-2 flex-row justify-between gap-6 rounded-t">
         <div className="min-w-32 flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="h-6 w-6" viewBox="0 0 32 32">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="h-6 w-6 text-primary-100" viewBox="0 0 32 32">
             <title>Truyện đang thịnh hành</title>
             <path d="M16,2a9,9,0,0,0-6,15.69V30l6-4,6,4V17.69A9,9,0,0,0,16,2Zm4,24.26-2.89-1.92L16,23.6l-1.11.74L12,26.26V19.05a8.88,8.88,0,0,0,8,0ZM20.89,16A7,7,0,1,1,23,11,7,7,0,0,1,20.89,16Z" />
           </svg>

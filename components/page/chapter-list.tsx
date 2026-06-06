@@ -72,7 +72,7 @@ export default function ChapterList({ comic, chapters: initialChapters }: { comi
     <div className="max-h-96 flex flex-col">
       <div className="flex flex-col justify-between gap-2 lg:flex-row">
         <span className="flex items-center font-semibold uppercase md:mt-3">
-          <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" fill="currentColor" viewBox="0 0 512 512">
+          <svg className="text-primary-100" xmlns="http://www.w3.org/2000/svg" height="20" width="20" fill="currentColor" viewBox="0 0 512 512">
             <path d="M64 144a48 48 0 1 0 0-96 48 48 0 1 0 0 96zM192 64c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zM64 464a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm48-208a48 48 0 1 0 -96 0 48 48 0 1 0 96 0z" />
           </svg>
           <p className="ml-2 text-xl font-extrabold text-gray-700 dark:text-light-text">Danh sách chương</p>

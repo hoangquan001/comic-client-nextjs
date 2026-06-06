@@ -181,9 +181,7 @@ export function SearchBox() {
                     </div>
                   )}
                   {!isLoading && listSearch.length === 0 && keyword && (
-                    <div className="flex mx-auto w-20">
                       <Empty />
-                    </div>
                   )}
                   {listSearch.length > 0 && (
                     <div>

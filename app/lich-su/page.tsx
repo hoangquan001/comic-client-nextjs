@@ -14,6 +14,5 @@ interface HistoryPageProps {
 export default async function HistoryPage({ searchParams }: HistoryPageProps) {
   const sp = await searchParams;
   const page = Number(sp.page) || 1;
-  const gridType = await getServerGridType();
-  return <HistoryContent page={page} gridType={gridType} />;
+  return <HistoryContent page={page}/>;
 }

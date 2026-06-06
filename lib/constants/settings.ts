@@ -1,6 +1,23 @@
 import { InputType, SettingCategory } from '@/types';
 import type { EnhancedSettingOption } from '@/types';
 
+export const GRID_SETTING: EnhancedSettingOption = {
+  id: 'gridType',
+  inputType: InputType.Selection,
+  name: '',
+  description: 'Chọn thẻ truyện',
+  value: '0',
+  defaultValue: '0',
+  category: SettingCategory.APPEARANCE,
+  order: 10,
+  icon: '',
+  options: [
+    { label: 'Đơn giản', value: '0' },
+    { label: 'Chi tiết', value: '1' },
+  ],
+  preview: true,
+};
+
 export const THEME_SETTING: EnhancedSettingOption = {
   id: 'theme',
   inputType: InputType.Selection,
@@ -213,6 +230,7 @@ export const DOUBLE_CLICK_TO_FULLSCREEN_SETTING: EnhancedSettingOption = {
 };
 
 export const ENHANCED_SETTINGS: EnhancedSettingOption[] = [
+  GRID_SETTING,
   THEME_SETTING,
   LANGUAGE_SETTING,
   READING_MODE_SETTING,

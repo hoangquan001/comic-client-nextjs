@@ -34,7 +34,7 @@ export function GridComic({
   actionClick,
   emptyTemplate,
   defaultGridType = 0,
-  alwayType
+  alwayType,
 }: GridComicProps) {
 
   const cardSizeSetting = useSettingsStore(

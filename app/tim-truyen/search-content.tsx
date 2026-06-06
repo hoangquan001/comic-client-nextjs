@@ -10,6 +10,7 @@ import type { ComicList, Genre } from '@/types';
 import { useClickOutside } from '@/lib/hooks/use-click-outside';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import { Search } from 'lucide-react';
 const GenreCategories = dynamic(() => import('@/components/common/genre-categories/genre-categories'), { ssr: false });
 const SORT_OPTIONS = [
   { value: SortType.LastUpdate, label: 'Mới cập nhật' },
@@ -290,7 +291,12 @@ export default function SearchContent({
               <Spinner />
             ) : comics.length > 0 ? (
               <>
-                <GridComic listComics={comics} title={`(${totalResult}) kết quả`} defaultGridType={gridType} />
+                <GridComic
+                  listComics={comics}
+                  title={`(${totalResult}) kết quả`}
+                  defaultGridType={gridType}
+                  iconTemplate={<Search className="size-5 shrink-0 text-primary-100" />}
+                />
                 <Pagination currentPage={initialPage} totalpage={totalpage} rootLink="/tim-truyen" />
               </>
             ) : (
