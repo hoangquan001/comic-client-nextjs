@@ -15,6 +15,7 @@ import { getComicDetailUrl, getChapterDetailUrl } from '@/lib/utils/url';
 import { openReportError, openSettings } from '@/lib/utils/event.define';
 import { SettingCategory } from '@/types';
 import type { ChapterPage, ChapterServer, Chapter } from '@/types';
+import { CommentSection } from '@/components/common';
 
 const BANNER_IMG = '/banner/banner-manga-4.webp';
 
@@ -26,7 +27,7 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
   const router = useRouter();
   const comic = chapterData.comic;
   const chapterServers = chapterData.chapterServers;
-
+  console.log(chapterData);
   // Refs
   const screenRef = useRef<HTMLDivElement>(null);
   const imageContainerRef = useRef<HTMLDivElement>(null);
@@ -318,7 +319,7 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
       } else if (fixedToolbar || isEndChapter) {
         setToolbarStyle('top');
         setShowScrollToTop(true);
-      } else if (scrollState.current === 'up' && statePosition.current - scrollTop > 50) {
+      } else if (scrollState.current === 'up' && statePosition.current - scrollTop > 200) {
         setToolbarStyle('top');
         setShowScrollToTop(true);
       } else if (scrollState.current === 'down' && scrollTop - statePosition.current > 200) {
@@ -437,12 +438,12 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
   const isModern = toolbarStyleSetting === 'modern';
   const stickyClasses = toolbarStyle === 'top'
     ? isModern
-      ? 'fixed top-2 left-1/2 -translate-x-1/2 rounded-xl border'
+      ? 'fixed top-1 left-1/2 -translate-x-1/2 rounded-xl border'
       : 'fixed left-0 right-0 top-0 rounded-none border'
     : toolbarStyle === 'hidden'
       ? isModern
-        ? 'fixed -top-12 left-1/2 -translate-x-1/2 rounded-xl'
-        : 'fixed -top-12 left-0 right-0 rounded-none'
+        ? 'fixed -top-14 left-1/2 -translate-x-1/2 rounded-xl'
+        : 'fixed -top-14 left-0 right-0 rounded-none'
       : '';
 
   return (
@@ -761,7 +762,9 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
           </div>
         </div>
       </div>
-
+      <div className="mb-4 mx-auto w-full lg:container">
+        <CommentSection chapterID={chapterData.id} comic={comic}></CommentSection>
+      </div>
       {/* Scroll to Top */}
       <button
         onClick={scrollToTop}
