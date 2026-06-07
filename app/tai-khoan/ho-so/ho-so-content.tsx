@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/use-auth-store';
 import { getLevelUser } from '@/lib/constants/levels';
-import { useUpdateAvatar, useUpdateInfo, useUpdateMaxim, useUpdatePassword, useUpdateTypeLevel } from '@/lib/hooks/use-account-queries';
+import { useUpdateAvatar, useUpdateInfo, useUpdatePassword } from '@/lib/hooks/use-account-queries';
 import { AccountIcon, GlassCard } from '../_components/account-ui';
 
 const FALLBACK_AVATAR = 'https://static.vecteezy.com/system/resources/previews/002/002/257/non_2x/beautiful-woman-avatar-character-icon-free-vector.jpg';
@@ -28,8 +28,6 @@ export default function HoSoContent() {
   const { user } = useAuthStore();
   const updateInfo = useUpdateInfo();
   const updateAvatar = useUpdateAvatar();
-  const updateTypeLevelMutation = useUpdateTypeLevel();
-  const updateMaximMutation = useUpdateMaxim();
   const updatePassword = useUpdatePassword();
 
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -50,7 +48,7 @@ export default function HoSoContent() {
   const levelUser = useMemo(() => getLevelUser(user?.experience || 0, user?.typeLevel || 0), [user?.experience, user?.typeLevel]);
   const avatar = user?.avatar || FALLBACK_AVATAR;
   const isInfoDirty = infoForm.firstName !== (user?.firstName || '') || infoForm.lastName !== (user?.lastName || '') || infoForm.email !== (user?.email || '') || infoForm.dob !== toDateInput(user?.dob);
-  const isInfoValid = !!infoForm.firstName && !!infoForm.lastName && !!infoForm.email && /^\S+@\S+\.\S+$/.test(infoForm.email) && !!infoForm.dob;
+  const isInfoValid = !!infoForm.firstName && !!infoForm.lastName && !!infoForm.email && /^\S+@\S+\.\S+$/.test(infoForm.email);
   const isPasswordValid = !!passwordForm.oldPassword && !!passwordForm.newPassword && !!passwordForm.rePassword;
 
   function resetInfoForm() {
@@ -89,7 +87,7 @@ export default function HoSoContent() {
   }
 
   function updateTypeLevel(typeLevel: number) {
-    updateTypeLevelMutation.mutate(typeLevel, {
+    updateInfo.mutate({ typeLevel }, {
       onSuccess: (res) => toast.success(res.message || 'Cập nhật loại cấp độ thành công'),
       onError: () => toast.error('Không thể cập nhật loại cấp độ'),
     });
@@ -97,7 +95,7 @@ export default function HoSoContent() {
 
   function onUpdateMaxim() {
     if (maxim === (user?.maxim || '')) return;
-    updateMaximMutation.mutate(maxim, {
+    updateInfo.mutate({ maxim }, {
       onSuccess: (res) => toast.success(res?.message || 'Cập nhật châm ngôn thành công'),
       onError: () => toast.error('Không thể cập nhật châm ngôn'),
     });
@@ -107,7 +105,7 @@ export default function HoSoContent() {
     event.preventDefault();
     if (!isInfoValid || !isInfoDirty) return;
     updateInfo.mutate(
-      { ...infoForm, dob: new Date(infoForm.dob).toISOString() },
+      { ...infoForm, dob: infoForm.dob ? new Date(infoForm.dob).toISOString() : undefined },
       {
         onSuccess: (res) => {
           setIsEditingProfile(false);
@@ -134,6 +132,7 @@ export default function HoSoContent() {
   function isInvalid(name: keyof typeof infoForm) {
     if (!touched[name]) return false;
     if (name === 'email') return !/^\S+@\S+\.\S+$/.test(infoForm.email);
+    if (name === 'dob') return false;
     return !infoForm[name];
   }
 
@@ -185,7 +184,7 @@ export default function HoSoContent() {
             <h4 className="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Châm ngôn</h4>
             <div className="space-y-3">
               <textarea value={maxim} onChange={(event) => setMaxim(event.target.value)} placeholder="Nhập châm ngôn của bạn..." rows={3} className="w-full resize-none rounded-lg border border-neutral-300 bg-white p-3 text-neutral-900 transition-colors duration-200 placeholder:text-neutral-500 focus:border-primary-100 focus:outline-none focus:ring-2 focus:ring-primary-100 dark:border-neutral-600 dark:bg-neutral-700 dark:text-light-text dark:placeholder:text-neutral-400" />
-              <button type="button" onClick={onUpdateMaxim} disabled={maxim === (user?.maxim || '') || updateMaximMutation.isPending} className="flex cursor-pointer items-center gap-2 rounded-lg bg-primary-100 px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-primary-200 disabled:cursor-not-allowed disabled:bg-neutral-400">
+              <button type="button" onClick={onUpdateMaxim} disabled={maxim === (user?.maxim || '') || updateInfo.isPending} className="flex cursor-pointer items-center gap-2 rounded-lg bg-primary-100 px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-primary-200 disabled:cursor-not-allowed disabled:bg-neutral-400">
                 <AccountIcon name="save" className="h-4 w-4" />
                 Lưu
               </button>

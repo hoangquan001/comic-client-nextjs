@@ -210,42 +210,6 @@ export function useUpdatePassword() {
   });
 }
 
-export function useUpdateTypeLevel() {
-  const saveUser = useAuthStore((s) => s.saveUser);
-  return useMutation({
-    mutationFn: (typeLevel: number) =>
-      clientFetch<IServiceResponse<IUser>>(`/user/update/typelevel/${typeLevel}`, { method: 'POST' }),
-    onSuccess: (res, typeLevel) => {
-      if (res.data) {
-        saveUser(res.data);
-      } else if (res.status === 200 || res.status === 1) {
-        useAuthStore.setState((s) => ({
-          user: s.user ? { ...s.user, typeLevel } : s.user,
-        }));
-      }
-    },
-  });
-}
-
-
-export function useUpdateMaxim() {
-  const saveUser = useAuthStore((s) => s.saveUser);
-  return useMutation({
-    mutationFn: (maxim: string | null) =>
-      clientFetch<IServiceResponse<IUser>>(`/user/update/maxim?maxim=${encodeURIComponent(maxim || '')}`, {
-        method: 'POST',
-      }),
-    onSuccess: (res, maxim) => {
-      if (res.data) {
-        saveUser(res.data);
-      } else if (res.status === 200 || res.status === 1) {
-        useAuthStore.setState((s) => ({
-          user: s.user ? { ...s.user, maxim: maxim ?? '' } : s.user,
-        }));
-      }
-    },
-  });
-}
 
 export function useVoteComic() {
   const queryClient = useQueryClient();
