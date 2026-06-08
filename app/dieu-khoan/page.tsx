@@ -56,7 +56,7 @@ export default function TermsPage() {
         <section id="gioi-thieu" className="bg-white/80 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-6">
           <h2 className="text-xl font-bold mb-3">1. Giới thiệu</h2>
           <p className="opacity-80 mb-3">
-            Chào mừng bạn đến với <strong>MeTruyenMoi</strong> (metruyenmoi.org), nền tảng đọc truyện tranh trực tuyến hàng đầu Việt Nam.
+            Chào mừng bạn đến với <strong>MeTruyenMoi</strong> (metruyenmoi.net), nền tảng đọc truyện tranh trực tuyến hàng đầu Việt Nam.
           </p>
           <p className="opacity-80 mb-4">
             Điều khoản sử dụng này quy định các quyền, nghĩa vụ và trách nhiệm của bạn khi sử dụng dịch vụ của chúng tôi. Vui lòng đọc kỹ trước khi sử dụng dịch vụ.

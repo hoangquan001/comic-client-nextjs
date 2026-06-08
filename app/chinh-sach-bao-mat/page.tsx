@@ -55,7 +55,7 @@ export default function PrivacyPolicyPage() {
         <section id="gioi-thieu" className="bg-white/80 dark:bg-zinc-900/60 rounded-xl border border-zinc-200/60 dark:border-zinc-800 p-6">
           <h2 className="text-xl font-bold mb-3">1. Giới thiệu</h2>
           <p className="opacity-80 mb-3">
-            Chào mừng bạn đến với <strong>MeTruyenMoi</strong> (metruyenmoi.org), nền tảng đọc truyện tranh trực tuyến hàng đầu Việt Nam.
+            Chào mừng bạn đến với <strong>MeTruyenMoi</strong> (metruyenmoi.net), nền tảng đọc truyện tranh trực tuyến hàng đầu Việt Nam.
           </p>
           <p className="opacity-80 mb-4">
             Chúng tôi cam kết bảo vệ quyền riêng tư và thông tin cá nhân của bạn. Chính sách bảo mật này giải thích cách chúng tôi thu thập, sử dụng, lưu trữ và bảo vệ thông tin của bạn khi sử dụng dịch vụ của chúng tôi.

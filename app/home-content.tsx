@@ -1,4 +1,4 @@
-import { GridComic, Pagination, TopList, AnnouncementBanner, RecentRead, TopUsers, SimpleCarousel, RecentCommentsPanel } from '@/components/common';
+import { GridComic, Pagination, TopList, AnnouncementBanner, RecentRead, TopUsers, SimpleCarousel, RecentCommentsPanel, Spinner } from '@/components/common';
 import { getServerCookie, getServerGridType } from '@/lib/utils/cookie';
 import type { Announcement, ComicList, Comic } from '@/types';
 import { RefreshCw } from 'lucide-react';
@@ -16,7 +16,6 @@ export default async function HomeContent({ page, comics: initialComics, carouse
   const totalpage = initialComics?.totalpage ?? 1;
   const carousel = initialCarousel ?? [];
   const gridType = await getServerGridType();
-  console.log('gridType', gridType);
   return (
     <div className="lg:container w-full mx-auto pb-4">
       {/* Carousel / Recommend Comics */}
@@ -44,7 +43,7 @@ export default async function HomeContent({ page, comics: initialComics, carouse
           />
         </div>
         <div className="flex flex-col gap-4">
-          <Suspense>
+          <Suspense fallback={<Spinner/>}>
             <TopList />
             <TopUsers />
             <RecentCommentsPanel />
