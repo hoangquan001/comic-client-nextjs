@@ -16,7 +16,6 @@ export function UserIcon({ initialUser }: UserIconProps) {
   const user = initialized ? clientUser : initialUser;
   const isAuthenticated = !!user;
   const menuRef = useRef<HTMLDivElement>(null);
-
   useClickOutside(menuRef, () => setIsOpen(false));
   return (
     <div ref={menuRef} className="relative">
@@ -29,7 +28,7 @@ export function UserIcon({ initialUser }: UserIconProps) {
         {isAuthenticated ? (
           <div className="relative">
             <Image
-              loading="lazy"
+              loading="eager"
               className="w-10 h-10 rounded-full object-cover border-2 border-neutral-200 dark:border-neutral-600"
               src={user.avatar || '/default_avatar.jpg'}
               alt="User avatar"

@@ -15,7 +15,6 @@ interface FollowedContentProps {
 
 export default function FollowedContent({ page, gridType, isAuthenticated }: FollowedContentProps) {
   const { data, isLoading } = useFollowedComics(page, 28, isAuthenticated);
-  console.log(isAuthenticated);
   const followMutation = useFollow();
   const comics = data?.comics ?? [];
   const totalpage = data?.totalpage ?? 1;

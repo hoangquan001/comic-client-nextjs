@@ -44,12 +44,12 @@ export function ComicCardV2({ comic }: ComicCardV2Props) {
           <Image
             loading="lazy"
             className="h-full w-full rounded-md object-cover md:shadow-sm transition duration-300 group-hover:scale-[1.02] group-hover:brightness-95"
-            src={comic.coverImage || '/option2.png'}
+            src={comic.coverImage || '/images/placeholder.webp'}
             alt={`Ảnh bìa truyện ${comic.title}`}
             width={134}
             height={128}
             unoptimized
-            onError={(e) => { (e.target as HTMLImageElement).src = '/option2.png'; }}
+            onError={(e) => { (e.target as HTMLImageElement).src = '/images/placeholder.webp'; }}
           />
         </Link>
       </div>

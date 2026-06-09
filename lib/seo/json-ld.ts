@@ -79,9 +79,9 @@ export function generateComicSchema(comic: Comic) {
       ? {
           '@type': 'AggregateRating',
           ratingValue: comic.rating,
-          bestRating: 10,
+          bestRating: 5,
           worstRating: 1,
-          ratingCount: Math.max(comic.viewCount || 1, 1),
+          ratingCount: Math.max(Math.floor(comic.viewCount / 100) || 1, 1),
         }
       : undefined,
     dateModified: comic.updateAt,

@@ -279,12 +279,12 @@ function SearchResultItem({
             <Image
               loading="lazy"
               className="h-20 w-14 rounded-lg object-cover my-auto"
-              src={comic.coverImage || '/option2.png'}
+              src={comic.coverImage || '/images/placeholder.webp'}
               alt={comic.title}
               width={56}
               height={80}
               onError={(e) => {
-                (e.target as HTMLImageElement).src = '/option2.png';
+                (e.target as HTMLImageElement).src = '/images/placeholder.webp';
               }}
               unoptimized
             />

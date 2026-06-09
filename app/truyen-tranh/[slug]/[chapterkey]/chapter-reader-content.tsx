@@ -27,7 +27,6 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
   const router = useRouter();
   const comic = chapterData.comic;
   const chapterServers = chapterData.chapterServers;
-  console.log(chapterData);
   // Refs
   const screenRef = useRef<HTMLDivElement>(null);
   const imageContainerRef = useRef<HTMLDivElement>(null);
@@ -135,6 +134,8 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
 
   const nextChapterLink = nextChapter ? getChapterDetailUrl(comic, nextChapter) : null;
   const prevChapterLink = prevChapter ? getChapterDetailUrl(comic, prevChapter) : null;
+  const isPrevChapterDisabled = isImageLoading || !prevChapterLink;
+  const isNextChapterDisabled = isImageLoading || !nextChapterLink;
 
   const navigateChapter = useCallback(
     (isNext: boolean) => {
@@ -360,7 +361,8 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
   }, [navigateChapter]);
 
   // Image error handling
-  const handleImageError = useCallback(() => {
+  const handleImageError = useCallback((e: any) => {
+    e.target.style.display = 'none';
     setErrorCount((prev) => {
       const newCount = prev + 1;
       const ratio = newCount / (listImgs.length || 1);
@@ -369,7 +371,7 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
       }
       return newCount;
     });
-  }, [listImgs.length, chapterServers.length, isErrorPages]);
+  }, [listImgs.length, isErrorPages]);
 
   // Zoom
   const [isZoomIn, setIsZoomIn] = useState(false);
@@ -448,7 +450,7 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
 
   return (
     <div ref={screenRef} className="scrollbar-style-1 relative flex flex-col overflow-y-auto overflow-x-hidden bg-[#333] dark:bg-dark-bg">
-      <div className="mx-auto mb-3 w-full text-white lg:container">
+      <div className="mx-auto mb-2 w-full text-white lg:container">
         <div className="z-10 mx-auto my-2 flex">
           <Breadcrumb
             items={[
@@ -502,15 +504,16 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
             {/* Chapter Info */}
             <div className="space-y-4 text-center">
               <div className="space-y-2">
-                <h1>
-                  <Link
-                    href={getComicDetailUrl(comic)}
-                    title={`Đọc Truyện ${comic.title} - ${chapterData.title}`}
-                    className="cursor-pointer text-xl font-bold text-gray-700 transition-colors duration-200 hover:text-primary-200 hover:underline max-sm:text-lg lg:text-2xl dark:text-primary-100"
-                  >
+
+                <Link
+                  href={getComicDetailUrl(comic)}
+                  title={`Đọc Truyện ${comic.title} - ${chapterData.title}`}
+                  className="text-xl font-bold text-gray-700 transition-colors duration-200 hover:text-primary-200 hover:underline max-sm:text-lg lg:text-2xl dark:text-primary-100"
+                >
+                  <h1>
                     Đọc Truyện {comic.title} - {chapterData.title}
-                  </Link>
-                </h1>
+                  </h1>
+                </Link>
               </div>
               <div className="space-y-3">
                 <h2 className="text-base font-semibold text-gray-900 max-sm:text-sm lg:text-lg dark:text-light-text">{chapterData.title}</h2>
@@ -584,21 +587,25 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
 
               {/* Chapter Navigation */}
               <div className="flex items-center gap-1 px-4 max-md:gap-0 max-md:px-1">
-                <button
-                  className={`flex cursor-pointer items-center gap-2 rounded-lg border-none bg-gray-200 px-2 py-2 text-sm font-medium text-gray-600 hover:bg-primary-100 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 max-md:px-1 max-md:py-1.5 max-md:text-xs  dark:text-gray-300 ${prevChapter ? 'bg-primary-100 text-white' : ''}`}
-                  onClick={() => navigateChapter(false)}
+                <Link
+                  href={prevChapterLink || '#'}
+                  className={`flex cursor-pointer items-center gap-2 rounded-lg border-none bg-gray-200 px-2 py-2 text-sm font-medium text-gray-600 hover:bg-primary-100 hover:text-white max-md:px-1 max-md:py-1.5 max-md:text-xs  dark:text-gray-300 ${isPrevChapterDisabled ? 'pointer-events-none cursor-not-allowed opacity-50' : 'bg-primary-100 text-white'}`}
                   aria-label="Chương trước"
-                  disabled={isImageLoading || !prevChapter}
+                  aria-disabled={isPrevChapterDisabled}
+                  tabIndex={isPrevChapterDisabled ? -1 : undefined}
+                  onClick={(event) => {
+                    if (isPrevChapterDisabled) event.preventDefault();
+                  }}
                 >
                   <svg className="h-5 w-5 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24">
                     <polyline points="15 18 9 12 15 6" />
                   </svg>
-                </button>
+                </Link>
 
                 <div className="mx-1">
                   <ChapterSelector
                     chapters={allChapters}
-                    currentChapter={allChapters.length > 0 ? { id: chapterData.id, title: chapterData.title, slug: chapterData.slug } as Chapter : null}
+                    currentChapter={ chapterData}
                     topToBottom={true}
                     onChapterChange={(ch) => {
                       if (ch.id !== chapterData.id) {
@@ -608,16 +615,20 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
                   />
                 </div>
 
-                <button
-                  className={`flex cursor-pointer items-center gap-2 rounded-lg border-none bg-gray-200 px-2 py-2 text-sm font-medium text-gray-600 hover:bg-primary-100 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 max-md:px-1 max-md:py-1.5 max-md:text-xs  dark:text-gray-300 ${nextChapter ? 'bg-primary-100 text-white' : ''}`}
-                  onClick={() => navigateChapter(true)}
+                <Link
+                  href={nextChapterLink || '#'}
+                  className={`flex cursor-pointer items-center gap-2 rounded-lg border-none bg-gray-200 px-2 py-2 text-sm font-medium text-gray-600 hover:bg-primary-100 hover:text-white max-md:px-1 max-md:py-1.5 max-md:text-xs  dark:text-gray-300 ${isNextChapterDisabled ? 'pointer-events-none cursor-not-allowed opacity-50' : 'bg-primary-100 text-white'}`}
                   aria-label="Chương tiếp"
-                  disabled={isImageLoading || !nextChapter}
+                  aria-disabled={isNextChapterDisabled}
+                  tabIndex={isNextChapterDisabled ? -1 : undefined}
+                  onClick={(event) => {
+                    if (isNextChapterDisabled) event.preventDefault();
+                  }}
                 >
                   <svg className="h-5 w-5 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24">
                     <polyline points="9 18 15 12 9 6" />
                   </svg>
-                </button>
+                </Link>
               </div>
 
               {/* Zoom */}
@@ -720,7 +731,6 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
                     className={`h-full w-full object-cover ${!isVertical ? 'h-full min-w-80' : ''} ${isNightMode ? 'brightness-90 sepia' : ''}`}
                     alt={`${comic.title} Chương ${chapterData.slug} Ảnh ${i + 1}`}
                     src={img}
-                    quality={50}
                     width={1200}
                     height={1800}
                     unoptimized

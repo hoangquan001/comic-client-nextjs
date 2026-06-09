@@ -54,14 +54,14 @@ export function ComicCard({ comic, eager = false }: ComicCardProps) {
         className="relative block aspect-[4/5] overflow-hidden bg-neutral-100 dark:bg-neutral-900"
       >
         <Image
-          src={comic.coverImage || '/option2.png'}
+          src={comic.coverImage || '/images/placeholder.webp'}
           alt={comic.title}
           loading={eager ? 'eager' : 'lazy'}
           fetchPriority={eager ? 'high' : undefined}
           quality={40}
           className="object-cover transition duration-300 group-hover:scale-[1.03] group-hover:brightness-95"
           onError={(e) => {
-            e.currentTarget.src = "/option2.png";
+            e.currentTarget.src = "/images/placeholder.webp";
           }} 
           fill
           unoptimized

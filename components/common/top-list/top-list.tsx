@@ -119,7 +119,7 @@ export function TopList() {
                     <Image
                       loading="lazy"
                       className="w-16 h-20 md:w-12 md:h-16 object-cover"
-                      src={comic.coverImage || '/option2.png'}
+                      src={comic.coverImage || '/images/placeholder.webp'}
                       alt={comic.title}
                       width={64}
                       height={80}

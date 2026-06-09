@@ -44,7 +44,6 @@ export function PopupManager() {
 
   const handleOpenUserInfo = useCallback((e: Event) => {
     const detail = (e as CustomEvent).detail;
-    console.log(detail);
     if (typeof detail?.userId === 'number') {
       setUserInfo({ visible: true, userId: detail.userId });
     }

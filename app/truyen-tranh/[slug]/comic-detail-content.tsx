@@ -139,12 +139,12 @@ export default function ComicDetailContent({ comic: initialComic, gridType }: Co
 
           <img
             className="h-auto w-full -translate-y-[20%] bg-cover"
-            src={comic.coverImage || '/option2.png'}
+            src={comic.coverImage || '/images/placeholder.webp'}
             alt={comic.title}
             loading="eager"
             fetchPriority="high"
             onError={(e) => {
-              (e.target as HTMLImageElement).src = '/option2.png';
+              (e.target as HTMLImageElement).src = '/images/placeholder.webp';
             }}
           />
           <div className="absolute inset-0 z-10 bg-black opacity-50" />
@@ -156,14 +156,14 @@ export default function ComicDetailContent({ comic: initialComic, gridType }: Co
               <div className="relative flex h-[280px] justify-center lg:h-auto">
                 <div className="absolute bottom-8 flex h-[300px] w-[220px] translate-y-4 overflow-hidden rounded border-4 border-neutral-200 shadow-md lg:relative lg:bottom-5 lg:translate-y-0 dark:border-dark-bg">
                   <Image
-                    src={comic.coverImage || '/option2.png'}
+                    src={comic.coverImage || '/images/placeholder.webp'}
                     alt={comic.title}
                     loading="eager"
                     fetchPriority="high"
                     fill
                     unoptimized
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/option2.png';
+                      (e.target as HTMLImageElement).src = '/images/placeholder.webp';
                     }}
                   />
                 </div>

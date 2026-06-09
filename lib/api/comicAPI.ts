@@ -1,5 +1,5 @@
 import { Announcement, ChapterPage, Comic, ComicList, IServiceResponse } from "@/types";
-import { publicFetch } from "./server-fetch";
+import { publicFetch, serverFetch } from "./server-fetch";
 
 export function unwrap<T>(data: IServiceResponse<T>): T | undefined {
     if (data.status !== 200 && data.status !== 1) {
@@ -42,7 +42,7 @@ function buildQuery(params: Record<string, string | number | undefined>) {
 export class ComicAPI {
     static async getComic(idOrSlug: number | string, chaptercount?: number): Promise<Comic | undefined> {
         const query = chaptercount ? `?chaptercount=${chaptercount}` : '';
-        return publicFetch<IServiceResponse<Comic>>(`/comic/${idOrSlug}${query}`).then(unwrap);
+        return serverFetch<IServiceResponse<Comic>>(`/comic/${idOrSlug}${query}`).then(unwrap);
     }
 
     static async getComics({
