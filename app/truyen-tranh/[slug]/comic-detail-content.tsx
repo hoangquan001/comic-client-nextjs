@@ -290,7 +290,7 @@ export default function ComicDetailContent({ comic: initialComic, gridType }: Co
                 </span>
               </div>
               <time className="inline-block text-sm dark:text-light-text sm:text-base">
-                Cập nhật lúc: {comic.updateAt ? new Date(comic.updateAt).toLocaleDateString('vi-VN') : ''}
+                Cập nhật lúc: {comic.updateAt}
               </time>
 
               <div className="mt-2 lg:mx-0 lg:mt-1 lg:w-full lg:text-left">

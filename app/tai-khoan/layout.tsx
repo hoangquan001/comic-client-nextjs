@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import dayjs from 'dayjs';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/lib/stores/use-auth-store';
@@ -26,9 +27,9 @@ const NAV_ITEMS: NavItem[] = [
 
 function formatJoinDate(date?: string) {
   if (!date) return '';
-  const parsed = new Date(date);
-  if (Number.isNaN(parsed.getTime())) return '';
-  return parsed.toLocaleDateString('vi-VN', { month: '2-digit', year: 'numeric' });
+  const parsed = dayjs(date);
+  if (!parsed.isValid()) return '';
+  return parsed.format('DD/MM/YYYY');
 }
 
 export default function TaiKhoanLayout({ children }: { children: React.ReactNode }) {

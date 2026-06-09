@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useMemo, useState } from 'react';
+import dayjs from 'dayjs';
 import Image from 'next/image';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/use-auth-store';
@@ -19,9 +20,9 @@ function toDateInput(value?: string) {
 
 function formatDate(value?: string) {
   if (!value) return '';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '';
-  return date.toLocaleDateString('vi-VN');
+  const date = dayjs(value);
+  if (!date.isValid()) return '';
+  return date.format('DD/MM/YYYY');
 }
 
 export default function HoSoContent() {

@@ -518,7 +518,7 @@ export default function ChapterReaderContent({ chapterData }: ChapterReaderConte
               <div className="space-y-3">
                 <h2 className="text-base font-semibold text-gray-900 max-sm:text-sm lg:text-lg dark:text-light-text">{chapterData.title}</h2>
                 <time className="text-xs font-medium text-gray-500 dark:text-gray-300" dateTime={chapterData.updateAt?.split('T')[0]}>
-                  Đăng lúc: {chapterData.updateAt ? new Date(chapterData.updateAt).toLocaleDateString('vi-VN') : ''}
+                  Đăng lúc: {chapterData.updateAt }
                 </time>
               </div>
             </div>
